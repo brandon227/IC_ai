@@ -42,6 +42,8 @@ NumHenchmanQ()
 
 NumHenchmanActive()
 
+NumHenchmenGuarding()
+
 ScrapAmount()
 
 ScrapAmoutWithEscrow()
@@ -58,11 +60,21 @@ ReleaseRenewEscrow()
 
 SetRenewEscrowPercentage()
 
+ElectricityPerSecQ()
+
 ScrapPerSec()
 
 Scuttle()
 
+CanUpgradeWithEscrow()
+
+CanBuildWithEscrow()
+
+IsGatherSiteOpen()
+
 CoalPileWithDropOffs()
+
+DistToDropOff()
 
 NumBuildingQ()
 
@@ -72,11 +84,33 @@ NumEmptyFoundies()
 
 NumChambers()
 
+IsChamberBeingBuilt()
+
+NumCreaturesActive()
+
 ResearchQ()
+
+ResearchCompleted()
 
 UnderAttackValue()
 
+UnderFlyerAttackValue()
+
 LabUnderAttackValue()
+
+PlayersAlive()
+
+PlayersUnitTypeCount()
+
+DamageFromFlyer()
+
+NumUnprotectedAASite()
+
+NumSitesWithZeroAA()
+
+GroundDistToBase()
+
+
 
 
 ci_rank()
@@ -100,6 +134,12 @@ Army_ClassAt()
 Army_AddToClass()
 
 Army_AddClassName()
+
+Army_NumCreature()
+
+Army_NumCreatureQ
+
+Army_NumCreaturesInClass()
 
 Player_Self()
 
