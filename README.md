@@ -24,6 +24,8 @@ AI files for Impossible Creatures Tellurian.
 
 aitrace()
 
+lua_error()
+
 dofilepath()
 
 RegisterTimerFunc()
@@ -75,6 +77,41 @@ ResearchQ()
 UnderAttackValue()
 
 LabUnderAttackValue()
+
+
+ci_rank()
+
+ci_getattribute()
+
+ci_meleedamage()
+
+ci_rangedamage()
+
+ci_isartillery()
+
+Army_GetSize()
+
+Army_GetUnit()
+
+Army_ClassSize()
+
+Army_ClassAt()
+
+Army_AddToClass()
+
+Army_AddClassName()
+
+Player_Self()
+
+
+
+
+
+
+
+
+
+
 
 
 
