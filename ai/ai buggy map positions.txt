@@ -1,0 +1,23 @@
+some map positions have buggy ai...
+will update once more are discovered. look out for these guys
+
+-Nautilus-
+Position 2 (normally red) 
+-Techs but doesn't expand.
+-No generators 
+-Doesn't seek out spots to build WCs until much later
+
+Position 3 (normally blue) 
+-Doesn't expand until much later. Doesn't tech at all.
+-No generators 
+-Doesn't seek out spots to build WCs until much later
+
+-Overpass-
+Position 2
+-Doesn't expand until much later. Doesn't tech at all.
+-No generators
+
+..................
+..................
+
+Buggy AI Fixed on those locations above! Still trying to fix buggy AI on Grove Position 6 and Eroded Forts Position 4. These locations seem to have a different problem where they run vanilla code and not the code here. More investigation needs to be done. 

@@ -1,0 +1,51 @@
+-- Changelog for AI --
+----------------------
+
+----aimain----
+- Set initial desired electricity rate to 4, and increased how much the desired rate increases,
+  making henchmen go for gens quicker and more of them
+- Desired electricity rate spike at level 4 to encite the building of more generators for the push
+  to level 5
+
+----basebuild----
+- removed function/string to build landing pad and gyrocopter as AI can't use those assets
+- AI should only build 2 rods before level 2
+- 8 hench should be present before more than 1 rod goes up
+- On Hard or Expert, AI will require 2 CC's before creating any SB towers to stop building only SBs when needs units. This needs tweaking to account for number of active units. 
+- AI builds 2 research clinics as opposed to one
+- Electrical Generators can now be built by AI when 2+ rods are present as opposed to all 4, 
+  but will only be built once a workshop is set up
+- AI will now expand more to try to meet these goals:
+	-min 2 workshops at level 2
+	-min 3 workshops at 3 on large maps
+	-min 3 workshops at 4
+	-min 5 workshops at 5 on small/medium maps, and 6 on large maps
+- AI builds 4 water chambers if amphib army/map, only builds 2 if ground
+- Changed distance of Creature Chamber to base to hopefully allow for more spacing between chambers.
+- Number of Chambers will at minimum = # of foundrys + what they feel they need
+- Distance from base should now be further based on # foundrys present (also dependent on map size). More aggro chambers xd
+- AI will no longer scuttle (blow up) it's own creature chambers if getting attacked and it is far away from the lab.
+	- now it will scuttle only when it's lab is being attacked...not any attack.
+- If the AI is trying to build a ton of soundbeam towers, it will first need to make sure it has 2 creature chambers at its base.
+
+----armyanalysis and choosecreature----
+- Artillery units are now always accompanied by Ranged Units
+- AI also now recognizes niche units such as flying artillery and units with certain abilities, such as stink and deflect, 
+  and will use/counter them accordingly
+
+----military----
+- Created a 'spam' offset so unit groups are larger the 'spammier' the available units are, based on average viable creature costs.
+
+----(henchman) henchmansworth----
+- increased minimum henchmen, desired number of henchmen, and max amount of henchmen AI aims to have
+- made it so that henchmen are balanced with creature production after lvl 2 and before first workshop has been made
+
+----flyerrush----
+-Previously henchman were told not to expand during a flyer rush. That cancellation was removed.
+
+----research----
+- AI can now research Henchmen Yoke and Speed (fixed bug that existed previously)
+- AI can now fully upgrade units (previously could only upgrade 3 things)
+
+----rank2rush----
+-Created a Rank2 Chamber Rush that can randomly happen
