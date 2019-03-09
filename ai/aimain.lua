@@ -51,7 +51,8 @@ function oninit()
 	
 	sg_desired_elecrate = 4
 	-----------------------------
-	
+	sg_chamberAttempts = 0
+	sg_foundryAttempts = 0
 	-- run this once in the beginning so henchman will act on this as soon as possible
 	dobasebuild();
 	

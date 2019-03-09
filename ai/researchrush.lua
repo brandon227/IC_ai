@@ -21,11 +21,11 @@ function ResearchRush_CanDo()
 		local rushChance = 100
 		 
 		if (fact_closestAmphibDist > 800) then
-			rushChance = 4
-		elseif (fact_closestAmphibDist > 600) then
-			rushChance = 5
-		elseif (fact_closestAmphibDist > 400) then
 			rushChance = 6
+		elseif (fact_closestAmphibDist > 600) then
+			rushChance = 7
+		elseif (fact_closestAmphibDist > 400) then
+			rushChance = 8
 		end
 		
 		if (Rand(10) > rushChance) then

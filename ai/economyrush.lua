@@ -33,7 +33,7 @@ function EconomyRush_CanDo()
 	-- could randomly decide to go for a late lvl 2 and focus on economy first.
 	if (g_LOD > 1 and fact_army_maxrank >= 3 and canDo == 1) then
 		
-		local rushChance = 7 --for a 30% chance of doing this tactic.
+		local rushChance = 6 --for a 30% chance of doing this tactic.
 		
 		if (Rand(10) > rushChance or ForceTactic == 1) then
 			--save_Logic_set_escrow = Logic_set_escrow

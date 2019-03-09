@@ -36,7 +36,7 @@ function Rank2Rush_CanDoTactic()
 	-- test for rank2 tactic
 	-- if currently lvl 1, enemy is close, and randomness allows, perform rush.
 	
-	if (GetRank() == 1 and closestDist < 350 and randtemp > 8) then
+	if (GetRank() == 1 and closestDist < 350 and randtemp > 6) then
 		-- have the units for a rank2 ground rush
 		local units = Army_ClassSize( Player_Self(), sg_class_groundrank2rush )
 		if (units > 0) then

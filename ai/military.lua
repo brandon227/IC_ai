@@ -384,17 +384,17 @@ function Logic_military_setgroupsizes()
 	local averageCoalprev = 0
 	
 	if (currRank>=2) then
-	averageCoalprev = 50+(100*(currRank-2))	
+		averageCoalprev = 50+(100*(currRank-2))	
 	end
 
 	local averageCoal = ((averageCoalcur + averageCoalprev) / (3/2))
 	
 	if (fact_armyAvgCoal < 	averageCoal) then
-	spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*currRank))
+		spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*currRank))
 	end
 	
 	if (spamOffset > 1) then
-	icd_groundgroupminsize = icd_groundgroupminsize+spamOffset
+		icd_groundgroupminsize = icd_groundgroupminsize+spamOffset
 	end
 	----------------------------------------------------------------------------------
 

@@ -148,10 +148,16 @@ end
 
 function dogeneticamplifier()
 	
-	if (checkToBuildAdvancedStructures(5) == 0) then
-		return 0
+	--if (checkToBuildAdvancedStructures(5) == 0) then
+	--	return 0
+	--end
+	local maxGenAmps = 1
+	if (GetRank() < 4) then
+		maxGenAmps = 1
+	else
+		maxGenAmps = 2
 	end
-	
+
 	local numCreaturesNeeded = 9
 	-- make easy mode much more random in regards to building this
 	if (g_LOD == 0) then
@@ -161,7 +167,7 @@ function dogeneticamplifier()
 	-- extra check - should check for HaveElectricityPreqrequisite instead of just having an egen - no ElecNeed
 	 if (NumChambers() > 0 and NumCreaturesActive()>=numCreaturesNeeded) then
 		-- typical check for building
-		if (NumBuildingQ( GeneticAmplifier_EC ) < 1 and CanBuildWithEscrow( GeneticAmplifier_EC )==1) then
+		if (NumBuildingQ( GeneticAmplifier_EC ) < maxGenAmps and CanBuildWithEscrow( GeneticAmplifier_EC )==1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( GeneticAmplifier_EC, PH_Best );
@@ -484,6 +490,13 @@ function dofoundry()
 			return
 		end
 			
+		--Work In Progress Code
+		--Trying to figure out how to stop AI from continually trying to build Foundry when its unsafe due to enemy units.
+		--This code here was to test if global counter variables worked. They appear to.
+		--if (sg_foundryAttempts > NumBuildingQ( Foundry_EC ) and UnderAttackValue() > 100) then
+		--	return
+		--end
+
 		-- build foundry more on smaller maps
 		-- build foundry when we have a military advantage
 		-- build foundry when need more money
@@ -539,6 +552,7 @@ function dofoundry()
 			ReleaseRenewEscrow();
 			xBuild( Foundry_EC, PH_Best );
 			aitrace("Script: build foundry");
+			sg_foundryAttempts = sg_foundryAttempts + 1
 			return
 		end
 		
