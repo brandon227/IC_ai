@@ -100,6 +100,7 @@ function init_military()
 		end
 	end
 	
+	--What does this do? I *think* to means that the "docreaturebuild" function will re-run every X seconds? Bchamp 3/31/2019 
 	if (g_LOD == 0) then
 		RegisterTimerFunc("docreaturebuild", 10 )
 	elseif (g_LOD == 1) then
@@ -194,7 +195,7 @@ function Logic_creatureTypeDesire()
 		goal_desireFlyers = 1
 		
 		if ((swimmerCount + groundCount) > 0) then
-			-- if the creature choose has no flyin desire, unless its our only 
+			-- if the creature choose has no flyin desire, unless its our only --....What? Bchamp 3/31/2019
 			if (g_LOD > 0 and sg_goalflyer < 0.5) then
 				goal_desireFlyers = 0
 			end
@@ -322,6 +323,8 @@ function Logic_military_setgroupsizes()
 		
 		groupoffset = groupoffset + 1;
 		
+		--All these are the same. Also, how does Pop work now with Tellurian? I think maybe we should use a number of enemy units rather than these fact values.
+		--Bchamp 3/31/2019
 		if (fact_enemyPop > 10 or fact_militaryPop > 10) then
 			groupoffset = groupoffset + 1;
 			valueoffset = valueoffset + 200;
@@ -511,12 +514,12 @@ function Logic_military_setdesiredcreatures()
 		sg_creature_desired = popmax;
 	end
 
-	-- make sure to leave enough room for 10 henchmen
+	-- make sure to leave enough room for 10 henchmen..should we leave room for sg_desiredhenchman insetad? --bchamp 3/31/2019
 	if (sg_creature_desired >= (popmax-10)) then
 		sg_creature_desired = popmax-10
 	end
 	
-	removeExtraGroundCreatures()
+	removeExtraGroundCreatures() --This kills own ground creatures if we have enough in order to make room for amphib and air. Should AI be killing own units? Bchamp 3/31/2019
 	
 	-- RULES BELOW - these all put caps on creatures to give money to other areas
 
@@ -622,7 +625,7 @@ function Logic_military_setattacktimer()
 	end
 	
 	if (g_LOD >= 2) then
-		local moreEnemies =PlayersAlive( player_enemy )-PlayersAlive( player_ally )
+		local moreEnemies = PlayersAlive( player_enemy )-PlayersAlive( player_ally )
 		if (moreEnemies > 0) then
 			-- delay initial attack
 			timedelay = timedelay + sg_militaryRand*moreEnemies/2
@@ -693,7 +696,8 @@ function Logic_military_setattackpercentages()
 		icd_airattackpercent = 0
 	end
 			
-	-- this should never work in MP i guess this is for single player only
+
+	-- If there is nothing to defend....just all out attack. Good for Destory Enemy Base or special gameplay modes
 	if (NumBuildingActive( Lab_EC ) == 0) then
 		
 		icd_groundattackpercent = 100
@@ -735,6 +739,8 @@ end
 
 -- this function should try to determine who we should target as an enemy
 -- this assumes we are not defending ourselves
+-- Chooses enemy with the highest military population
+-- This function is used nowhere in the AI luas.....
 function chooseenemy() -- return the enemies index
 
 	local currentMax = -1

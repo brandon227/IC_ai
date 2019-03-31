@@ -386,12 +386,27 @@ function dovetclinic()
 	--	return 0
 	--end
 	--local doClinic = 0	
-		
+	--local aggressionLevel = aggressionLevel
 
-	 -- extra check to make sure we have a few creatures
+	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
+	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < (sg_randval*0.06 + 1) or NumHenchmanActive() < 12 ) then
+		return
+	end
+
+	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
+	local maxVetClinic = 2
+	if (sg_randval > 80) then
+		maxVetClinic = 1
+	end
+	-- If already completed all of these researches at the clinic, don't build more. This way AI doesnt keep building if you destroy clinics
+	-- in the late game. Added by Bchamp 3/31/2019
+	if (ResearchCompleted(RESEARCH_HenchmanYoke) == 1 and ResearchCompleted(RESEARCH_HenchmanMotivationalSpeech) == 1 and ResearchCompleted(RESEARCH_StrengthenElectricalGrid) == 1 and ResearchCompleted(RESEARCH_IncBuildingIntegrity) == 1) then
+		return
+	end
+
 	 if (goal_needcoal ~= 2) then
 		-- typical check for building
-		if (NumBuildingQ( VetClinic_EC ) < 2 and CanBuildWithEscrow( VetClinic_EC )==1) then
+		if (NumBuildingQ( VetClinic_EC ) < maxVetClinic and CanBuildWithEscrow( VetClinic_EC )==1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( VetClinic_EC, PH_Best );
@@ -428,7 +443,7 @@ function dofoundry()
 			alwaysBuild = 0
 		else
 			--Minimum of 16 henchmen before building second foundry. Also make sure foundry's are full. 3/30/2019 Bchamp
-			if (NumBuildingQ( Foundry_EC ) == 1 and (NumHenchmanQ() < 16 or IsGatherSiteOpen() > 0)) then
+			if (NumBuildingQ( Foundry_EC ) == 1 and (NumHenchmanQ() < 16 or gatherSiteOpen > 0 or NumCreaturesQ() < (sg_randval*0.05 + 1))) then
 				alwaysBuild = 0
 			else
 				alwaysBuild = 1
@@ -438,7 +453,7 @@ function dofoundry()
 	
 	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (NumBuildingQ( Foundry_EC ) < 3 and IsGatherSiteOpen() == 0) then
+		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -449,7 +464,7 @@ function dofoundry()
 
 	-- Have minimum 3 foundries once AI reaches Rank 4
 	if (curRank >= 4) then
-		if (NumBuildingQ( Foundry_EC ) < 3 and IsGatherSiteOpen() == 0) then
+		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -460,7 +475,7 @@ function dofoundry()
 
 	-- On small maps, have a minimum of 5 foundries if AI is at lvl 5
 	-- is this too many on small maps?? Vacation? Ring?
-	if (curRank == 5 and NumBuildingQ( Foundry_EC ) < 5 and IsGatherSiteOpen() == 0) then
+	if (curRank == 5 and NumBuildingQ( Foundry_EC ) < 5 and gatherSiteOpen == 0) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else

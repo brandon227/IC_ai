@@ -1,0 +1,7 @@
+Updated 3/31/2019 by Bchamp
+
+- Improve AI aggression. Add randomness for more aggressive and economy focused AI. 
+- Prioritize Henchmen Yoke Research
+- Set AI "UnderAttack" functions to better deal with being attacked
+- Can specific AI files be played on specific maps in Multiplayer mode?
+- Add randomization

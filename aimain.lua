@@ -56,6 +56,8 @@ function oninit()
 	-- run this once in the beginning so henchman will act on this as soon as possible
 	dobasebuild();
 	
+	--Added by Bchamp 3/31/2019 to toggle aggressive behavior
+	--aggressionLevel = 2
 	
 
 	-- check for this tactic
@@ -68,6 +70,7 @@ function oninit()
 			end
 		end
 	end
+	
 end
 
 function doweneedmoney()
