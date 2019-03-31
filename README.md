@@ -4,12 +4,12 @@ AI files for Impossible Creatures Tellurian.
 
 ### Base AI Files (original files)
 
-* aimain.lua
-* armyanalysis.lua
-* basebuild.lua
-* choosecreature.lua
-* creatureupgrade.lua
-* flyerrush.lua
+* aimain.lua (done)
+* armyanalysis.lua (done)
+* basebuild.lua (done)
+* choosecreature.lua (done)
+* creatureupgrade.lua (done)
+* flyerrush.lua (done)
 * henchman.lua
 * henchmansworth.lua
 * holdfunctions.lua
@@ -27,6 +27,12 @@ aitrace()
 lua_error()
 
 dofilepath()
+
+getn()
+
+rawset()
+
+globals()
 
 RegisterTimerFunc()
 
@@ -82,9 +88,9 @@ NumBuildingActive()
 
 NumEmptyFoundies()
 
-NumChambers()
+NumChambers() - basebuild.lua
 
-IsChamberBeingBuilt()
+IsChamberBeingBuilt() - basebuild.lua
 
 NumCreaturesActive()
 
@@ -110,8 +116,46 @@ NumSitesWithZeroAA()
 
 GroundDistToBase()
 
+GroundDistToTarget()
+
+AmphibDistToTarget()
+
+AirDistToTarget()
+
+xUpgrade()
+
+xBuild()
+
+xBuildWall()
+
+PlayersMilitaryValue()
+
+PlayersUnitTypeValue()
+
+PlayersUnitCount()
+
+GetAttackerCount()
+
+GetAttackerID()
+
+GetChosenEnemy()
+
+UnderNavalAttack()
+
+NumBlockades()
+
+IsCreatureUpgradeAvailable()
+
+CanCreatureUpgradeWithEscrow()
+
+ClosestEnemy()
+
+Player_Dist()
+
+DamageTotal()
 
 
+ci_ebpnetid()
 
 ci_rank()
 
@@ -141,11 +185,15 @@ Army_NumCreatureQ
 
 Army_NumCreaturesInClass()
 
+Army_IsUnitInClass()
+
 Player_Self()
 
+PlayersTotal()
 
+SetCounterValue()
 
-
+Logic_CustomCreatureChoiceScore()
 
 
 
