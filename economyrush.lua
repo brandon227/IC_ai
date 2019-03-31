@@ -93,8 +93,16 @@ end
 function EconomyRush_Logic_desiredhenchman()
 	local curRank = GetRank();
 	local henchman_count = 13
+
+	--If there is open lab coal then set goal hench. 
+	if (IsGatherSiteOpen() > 0 and NumBuildingActive( Foundry_EC ) == 0) then
+		henchman_count = 18
+	else
+		henchman_count = 15
+	end
+
 	sg_henchman_min = (7*NumBuildingQ( Foundry_EC ) + 10)
-	sg_henchman_max = (7*NumBuildingQ( Foundry_EC ) + 13)
+	sg_henchman_max = 20
 	
 	if (henchman_count < sg_henchman_min) then
 		henchman_count = sg_henchman_min;
@@ -158,6 +166,14 @@ function EconomyRush_dolightningrods()
 		xBuild( ResourceRenew_EC, 0 );
 		aitrace("Script:build rod for rate "..(erate+2).." of "..sg_desired_elecrate);
 	end
+
+	--For some reason this code causes an error.... AI still seems to function OK though without canceling dolightningrods.
+	--Bchamp 3/30/2019--
+	--if (curRank > 1 or UnderAttackValue() > 100) then
+	--	rawset(globals(), "dolightningrods", nil )
+	--	dolightningrods = save_dolightningrods
+	--end
+
 end
 
 
@@ -171,7 +187,13 @@ function EconomyRush_rankUp()
 	
 	numHenchForRank = numHenchForRank + Rand(3)
 
-	if (NumBuildingQ( Foundry_EC ) > 0 and NumHenchmanActive() >= numHenchForRank) then
+	--Added by Bchamp 3/30/19 for maps with a ton of starting coal. AI won't build foundry so, to compensate, AI will build additional hench.
+	if (NumHenchmanActive() >= (numHenchForRank - 1) and (NumBuildingQ( Foundry_EC ) == 0)) then
+		numHenchForRank = numHenchForRank + 1
+	end
+
+
+	if (NumHenchmanActive() >= numHenchForRank) then
 		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
 			ReleaseGatherEscrow()
 			ReleaseRenewEscrow()

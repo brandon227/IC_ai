@@ -427,8 +427,8 @@ function dofoundry()
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
-			--Minimum of 16 henchmen before building second foundry. 1/4/2019 Bchamp
-			if (NumBuildingQ( Foundry_EC ) == 1 and NumHenchmanQ() < 16) then
+			--Minimum of 16 henchmen before building second foundry. Also make sure foundry's are full. 3/30/2019 Bchamp
+			if (NumBuildingQ( Foundry_EC ) == 1 and (NumHenchmanQ() < 16 or IsGatherSiteOpen() > 0)) then
 				alwaysBuild = 0
 			else
 				alwaysBuild = 1
@@ -438,7 +438,7 @@ function dofoundry()
 	
 	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (NumBuildingQ( Foundry_EC ) < 3) then
+		if (NumBuildingQ( Foundry_EC ) < 3 and IsGatherSiteOpen() == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -449,7 +449,7 @@ function dofoundry()
 
 	-- Have minimum 3 foundries once AI reaches Rank 4
 	if (curRank >= 4) then
-		if (NumBuildingQ( Foundry_EC ) < 3) then
+		if (NumBuildingQ( Foundry_EC ) < 3 and IsGatherSiteOpen() == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -460,7 +460,7 @@ function dofoundry()
 
 	-- On small maps, have a minimum of 5 foundries if AI is at lvl 5
 	-- is this too many on small maps?? Vacation? Ring?
-	if (curRank == 5 and NumBuildingQ( Foundry_EC ) < 5) then
+	if (curRank == 5 and NumBuildingQ( Foundry_EC ) < 5 and IsGatherSiteOpen() == 0) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
@@ -528,9 +528,9 @@ function dofoundry()
 		end
 		
 		-- if have less henchmen then our threshold, no need to expand
-		--if (NumHenchmanActive() <= sg_henchmanthreshold and CoalPileWithDropOffs()>0) then
-		--	return
-		--end
+		if (NumHenchmanActive() <= sg_henchmanthreshold and CoalPileWithDropOffs()>0) then
+			return
+		end
 	end
 
 	--Only build one foundry at a time 1/4/2019 Bchamp

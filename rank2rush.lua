@@ -361,11 +361,10 @@ function Rank2Rush_Logic_desiredhenchman()
 	if (curRank == 1) then
 		sg_desired_henchman = 11
 	else
-		sg_desired_henchman = (13 + unitCount/3)
+		sg_desired_henchman = (11 + unitCount/2)
 
 		if ( NumHenchmenGuarding()>2 or NumHenchmanQ() > 12) then
 			local dist2dropoff = DistToDropOff();
-			if (dist2dropoff > icd_maxfoundrydist) then
 
 				aitrace("Script: dist2dropoff="..dist2dropoff);
 				if (CanBuildWithEscrow( Foundry_EC ) == 1) then
@@ -377,7 +376,6 @@ function Rank2Rush_Logic_desiredhenchman()
 				end
 		
 				aitrace("Script: failed to build foundry");
-			end	
 
 		end
 	end

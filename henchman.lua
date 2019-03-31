@@ -133,7 +133,26 @@ function Logic_desiredhenchman()
 	
 	-- INSERT LOGIC TO DETERMINE THE DESIRED NUMBER OF HENCHMAN
 		
+
 	local henchman_count = 9
+
+	--ADDED BY BCHAMP 3/30/2019--
+	--Makes it so that the desired henchmen is higher if there are gather sites open. Balances unit building with henchmen. 
+	--This helps fill in expansions on maps with a ton of coal when henchman_min, defined later, doesn't make enough.
+	local unitModifier = NumCreaturesQ()
+	if (unitModifier > 10) then
+		unitModifier = 10
+	end
+	if (GetRank() >= 2 and IsGatherSiteOpen() > 0) then
+		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 1.5))
+		
+	elseif (GetRank() >= 4 and IsGatherSiteOpen() > 0) then
+		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 2))
+
+	else --if there are no gather sites open
+		henchman_count = (7*NumBuildingActive( Foundry_EC ) + 12 + (unitModifier * 0.5))
+	end
+
 			
 	local mapsizeoffset = 0
 	if (fact_closestAmphibDist>400) then
@@ -193,8 +212,9 @@ function Logic_desiredhenchman()
 		local unitCount = NumCreaturesQ()
 		sg_henchman_min = (13 + unitCount)
 	elseif (GetRank() >= 2) then
-		sg_henchman_min = (7*NumBuildingActive( Foundry_EC ) + 9) --Keep foundries fully stocked
+		sg_henchman_min = (7*NumBuildingActive( Foundry_EC ) + 9) 
 	end
+
 
 	-- maintain a minimum amount of henchman
 	if (henchman_count < sg_henchman_min) then
