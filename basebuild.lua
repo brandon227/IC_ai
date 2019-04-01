@@ -151,12 +151,7 @@ function dogeneticamplifier()
 	--if (checkToBuildAdvancedStructures(5) == 0) then
 	--	return 0
 	--end
-	local maxGenAmps = 1
-	if (GetRank() < 4) then
-		maxGenAmps = 1
-	else
-		maxGenAmps = 2
-	end
+	
 
 	local numCreaturesNeeded = 9
 	-- make easy mode much more random in regards to building this
@@ -167,7 +162,7 @@ function dogeneticamplifier()
 	-- extra check - should check for HaveElectricityPreqrequisite instead of just having an egen - no ElecNeed
 	 if (NumChambers() > 0 and NumCreaturesActive()>=numCreaturesNeeded) then
 		-- typical check for building
-		if (NumBuildingQ( GeneticAmplifier_EC ) < maxGenAmps and CanBuildWithEscrow( GeneticAmplifier_EC )==1) then
+		if (NumBuildingQ( GeneticAmplifier_EC ) < 1 and CanBuildWithEscrow( GeneticAmplifier_EC )==1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( GeneticAmplifier_EC, PH_Best );
@@ -397,10 +392,20 @@ function dovetclinic()
 	if (sg_randval > 70) then
 		maxVetClinic = 1
 	end
+	
 	-- If already completed all of these researches at the clinic, don't build more. This way AI doesnt keep building if you destroy clinics
 	-- in the late game. Added by Bchamp 3/31/2019
+	-- LBFrank 4/01/19 they may want one clinic to research tower upgrade if they have the towers for it. if not then yeah we don't need em
+	-- Actually I think they just take up space after a while. AI doesn't place them strategically so we could probably just get rid of them
 	if (ResearchCompleted(RESEARCH_HenchmanYoke) == 1 and ResearchCompleted(RESEARCH_HenchmanMotivationalSpeech) == 1 and ResearchCompleted(RESEARCH_StrengthenElectricalGrid) == 1 and ResearchCompleted(RESEARCH_IncBuildingIntegrity) == 1) then
-		return
+		if (ResearchCompleted(RESEARCH_TowerUpgrade) == 0 and (NumBuildingActive( SoundBeamTower_EC ) + NumBuildingActive( AntiAirTower_EC )) <= 2) then
+			maxVetClinic = 1
+		else
+			return
+			if (NumBuildingActive( VetClinic_EC ) > 0) then
+				Scuttle ( VetClinic_EC )
+			end
+		end
 	end
 
 	 if (goal_needcoal ~= 2) then
