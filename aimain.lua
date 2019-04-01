@@ -70,7 +70,7 @@ function oninit()
 			end
 		end
 	end
-	
+
 end
 
 function doweneedmoney()
@@ -110,7 +110,7 @@ function scuttle_elec()
 	
 	aitrace("ScuttleElec elec:"..ElectricityAmountWithEscrow().." coal:"..ScrapAmountWithEscrow().." military:"..fact_selfValue);
 	
-	if (NumBuildingActive(ResourceRenew_EC)>0) then
+	if (NumBuildingActive(ResourceRenew_EC)>0 and ScrapPerSec() < 8) then --added ScrapPerSec() criteria so that AI doesn't hurt scuttle lightning rods when it has decent coal income. Not worth losing the rod if AI can wait a few seconds to get coal. 
 		Scuttle( ResourceRenew_EC )
 		return
 	end
@@ -207,8 +207,9 @@ function needmorecoal()
 		end
 						
 		-- tests to see if we have enough money for tower
+		-- Changed LabUnderAttackValue() > 200 from 100. AI scuttled lightning rods too quickly in testing. 3/31/2019 Bchamp
 		local numSBTower = NumBuildingQ( SoundBeamTower_EC )
-		if (fact_selfValue < 100 and numSBTower == 0 and LabUnderAttackValue() > 100) then
+		if (fact_selfValue < 100 and numSBTower == 0 and LabUnderAttackValue() > 200) then
 			-- do some scuttling
 			aitrace("Script: No military, no towers, lots of elec, scuttle");
 			doscuttle(1)

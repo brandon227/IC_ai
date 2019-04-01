@@ -122,7 +122,8 @@ sg_class_loner = 16
 -- standard melee to pair with stink
 sg_class_standard = 17
 
-sg_class_last = 18
+sg_class_sonic = 18
+sg_class_last = 19
 
 
 class_check_func = {}
@@ -335,6 +336,18 @@ class_check_func[sg_class_loner+1] = function( creatureinfo )
 	
 	return 0
 end
+-----------------------------------------
+-- LBFrank 03/31/19 Sonic Units
+class_check_func[sg_class_sonic+1] = function( creatureinfo )
+	
+
+	if (ci_rangedamagetype( creatureinfo, DT_Sonic)==1) then
+		return 1
+	end
+	
+	return 0
+end
+-----------------------------------------
 
 function oncreatureanalyze( playerindex, info )
 	
@@ -414,6 +427,7 @@ function onarmyanalyze()
 	Army_AddClassName( sg_class_flyingArtillery, "FlyingArtillery")
 	Army_AddClassName( sg_class_deflect, "Deflect")
 	Army_AddClassName( sg_class_loner, "loner")
+	Army_AddClassName( sg_class_sonic, "Sonic")
 
 	aitrace("Script: "..getn(class_check_func).." registered classes");
 

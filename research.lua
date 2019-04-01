@@ -7,7 +7,7 @@ function init_research()
 	sg_research = {}
 	sg_research[RESEARCH_AdvancedStructure] = 1
 	sg_research[RESEARCH_HenchmanYoke] = 1
-	sg_research[RESEARCH_HenchmanHeal] = 1
+	sg_research[RESEARCH_HenchmanHeal] = 0
 	sg_research[RESEARCH_HenchmanBinoculars] = 1
 	sg_research[RESEARCH_HenchmanTag] = 0
 	sg_research[RESEARCH_HenchmanMotivationalSpeech] = 1
@@ -327,7 +327,7 @@ function doresearch()
 	Logic_setmaxrank()
 	
 	-- make sure we are not hurtin for either type of funds and we have a few dudes
-	if (goal_needcoal == 2 or goal_needelec ==2 and NumHenchmanActive() < 4) then
+	if (goal_needcoal == 2 or goal_needelec == 2 and NumHenchmanActive() < 4) then
 		return
 	end
 	

@@ -27,9 +27,9 @@ function Rank2Rush_CanDoTactic()
 	local numAllies = PlayersAlive( player_ally )
 	
 	-- don't do this when the number of enemies out numbers the allies
-	if (numEnemies > numAllies) then
-		return 0
-	end
+	--if (numEnemies > numAllies) then
+	--	return 0
+	--end
 	
 	local randtemp = Rand(10)
 	aitrace("Rank2Rush: Rand:"..randtemp)
@@ -44,6 +44,10 @@ function Rank2Rush_CanDoTactic()
 		end
 	end
 	
+	chamberAtEnemyBase = 0
+	if(Rand(10) > 6) then
+		chamberAtEnemyBase = 1
+	end
 	--------------
 	--TEST CODE ONLY!! REMOVE FOR RELEASE
 	--------------
@@ -99,6 +103,10 @@ function Rank2Rush_CanDoTactic()
 		rawset(globals(), "Logic_set_escrow", nil )
 		Logic_set_escrow = Rank2Rush_Logic_set_escrow
 	
+		save_Logic_doadvancedresearch = Logic_doadvancedresearch
+		rawset(globals(), "Logic_doadvancedresearch", nil )
+		Logic_doadvancedresearch = Rank2Rush_Logic_doadvancedresearch
+
 		icd_startAtRank = 1
 	
 		aitrace("Rank2Rush: Running")
@@ -113,15 +121,23 @@ end
 function Rank2Rush_rankUp()
 
 	local curRank = GetRank();
-	if (NumBuildingQ( RemoteChamber_EC ) > 0) then
-		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+
+	--If CC is supposed to be at enemy base, make sure it's queued before going L2.
+	if(chamberAtEnemyBase == 1) then
+		if (NumBuildingQ( RemoteChamber_EC ) < 1 and Rand(10) > 7) then
+			return
+		end
+	end
+
+
+	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
 			ReleaseGatherEscrow()
 			ReleaseRenewEscrow()
 			xResearch( RESEARCH_Rank2 + curRank - 1);
 			-- var used to delay AI in easy
 			aitrace("Script: rank"..(curRank+1));
-		end
 	end
+
 
 	if (curRank > 1 or UnderAttackValue() > 10) then
 		rawset(globals(), "rankUp", nil )
@@ -130,7 +146,18 @@ function Rank2Rush_rankUp()
 
 end
 
+function Rank2Rush_Logic_doadvancedresearch()
+	--Don't do advanced research
+	--Reset once reaches L3
 
+
+	if (GetRank() > 2) then
+		rawset(globals(), "Logic_doadvancedresearch", nil )
+		Logic_doadvancedresearch = save_Logic_doadvancedresearch
+	end
+
+
+end
 
 function Rank2Rush_Logic_military_setdesiredcreatures()
 
@@ -161,16 +188,22 @@ function Rank2Rush_dosoundbeamtowers()
 
 end
 
+
 function Rank2Rush_docreaturechamber()
 	
-	--Check for reseraching lvl 2 in queue before building chamber.
-	--if (ResearchQ(RESEARCH_Rank2) == 1) then
+	--Check for reseraching lvl 2 in queue before building chamber at own base.
+	if (chamberAtEnemyBase == 0) then
+		if (ResearchQ(RESEARCH_Rank2) == 0) then
+			return
+		end
+	end
+
 
 	local basePlacement = PH_OutsideBase
-	local chamberAtEnemyBase = 0
-	if(Rand(10) > 3) then
+	--local chamberAtEnemyBase = 0
+	if(chamberAtEnemyBase == 1) then
 		basePlacement = PH_EnemyBase
-		chamberAtEnemyBase = 1
+		--chamberAtEnemyBase = 1
 	end
 
 	if (NumBuildingQ( ResourceRenew_EC ) > 1) then
@@ -262,7 +295,7 @@ function Rank2Rush_dolightningrods()
 	local erate = ElectricityPerSecQ()
 	local rank2rush_desired_erate = 4
 	local curRank = GetRank()	
-	
+	local numRods = 3
 	-- ADD CODE TO BUILD 3RD ROD??? When to increase desired erate?? When NumCreaturesQ() > X???
 	-- if ( curRank == 2 and Num
 
@@ -284,7 +317,12 @@ function Rank2Rush_dolightningrods()
 		return
 	end
 	
-	if (numQ < sg_lightningrod_cap and CanBuildWithEscrow( ResourceRenew_EC )==1) then
+	--Only build 4th rod if more than 6 units.
+	if (NumCreaturesActive() > 6) then
+		numRods = 4
+	end
+
+	if (numQ < numRods and CanBuildWithEscrow( ResourceRenew_EC )==1) then
 		ReleaseGatherEscrow();
 		ReleaseRenewEscrow();
 		xBuild( ResourceRenew_EC, 0 );
@@ -295,7 +333,7 @@ function Rank2Rush_dolightningrods()
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
 	
 	-- call old code if these conditions are met
-	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 700) or LabUnderAttackValue()>100 or GameTime() > (4.5*60)) then
+	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 700) or LabUnderAttackValue()>100 or GameTime() > (5.5*60)) then
 		-- add the old code back in
 		rawset(globals(), "dolightningrods", nil )
 		dolightningrods = save_dolightningrods
@@ -305,7 +343,7 @@ function Rank2Rush_dolightningrods()
 end
 
 function Rank2Rush_dofoundry()
-
+	--Don't build foundry.
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
 	
 	-- call old code if these conditions are met
@@ -355,15 +393,30 @@ end
 
 function Rank2Rush_Logic_desiredhenchman()
 	
+	sg_desired_henchman = 8
+	if (chamberAtEnemyBase == 1) then
+		sg_desired_henchman = 9
+	end
+
+	local henchman_count = sg_desired_henchman
 	local curRank = GetRank()
-	local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+	local unitCount = NumCreaturesQ() --Formerly: PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+	local gatherSiteOpen = IsGatherSiteOpen()
 
-	if (curRank == 1) then
-		sg_desired_henchman = 11
+	if (curRank == 1 and gatherSiteOpen > 0) then
+		sg_desired_henchman = 10
+		if (chamberAtEnemyBase == 1) then
+			sg_desired_henchman = 11
+		end
+		henchman_count = sg_desired_henchman
+
+	elseif (curRank == 2 and gatherSiteOpen > 0) then
+		henchman_count = sg_desired_henchman + unitCount/2
+	elseif(gatherSiteOpen == 0 and unitCount < (Rand(3) + 3)) then
+		henchman_count = NumHenchmanActive()
 	else
-		sg_desired_henchman = (11 + unitCount/2)
-
-		if ( NumHenchmenGuarding()>2 or NumHenchmanQ() > 12) then
+		henchman_count = 13 + unitCount/3
+		if ( NumHenchmenGuarding()>2 and NumCreaturesQ() > 3) then
 			local dist2dropoff = DistToDropOff();
 
 				aitrace("Script: dist2dropoff="..dist2dropoff);
@@ -381,7 +434,9 @@ function Rank2Rush_Logic_desiredhenchman()
 	end
 		
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
-			
+	
+	sg_desired_henchman = henchman_count
+
 	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 2000) or LabUnderAttackValue() > 100 or GameTime() > (6.5*60) or NumBuildingActive( Foundry_EC ) > 0) then
 		rawset(globals(), "Logic_desiredhenchman", nil )
 		Logic_desiredhenchman = save_Logic_desiredhenchman

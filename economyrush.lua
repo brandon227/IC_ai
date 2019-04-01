@@ -11,14 +11,20 @@ function EconomyRush_CanDo()
 
 
 	local totalPlayers = PlayersAlive( player_enemy ) + PlayersAlive( player_ally )
-	local canDo = 0
-	if (totalPlayers == 2 and fact_closestAmphibDist > 700) then
-		canDo = 1
+	local canDo = 1
+	local rushChance = 30 --for a 30% chance of doing this tactic
+
+	if (totalPlayers == 2 and fact_closestAmphibDist < 700) then
+		canDo = 0
+	elseif (fact_closestAmphibDist < 400) then
+		canDo = 0
 	elseif (PlayersAlive( player_enemy ) > 1 and PlayersAlive( player_ally ) == 1) then
 		--probably a free for all, but could also be on an outnumbered team.
 		canDo = 1
+		ruchChance = 40
 	elseif (PlayersAlive( player_ally ) > PlayersAlive( player_enemy )) then
 		canDo = 1
+		rushChance = 50
 	end
 	--------------------------------------
 	--TEST CODE SET FORCETACTIC TO 0 BEFORE RELEASE
@@ -35,7 +41,7 @@ function EconomyRush_CanDo()
 		
 		local rushChance = 6 --for a 30% chance of doing this tactic.
 		
-		if (Rand(10) > rushChance or ForceTactic == 1) then
+		if (Rand(100) < rushChance or ForceTactic == 1) then
 			--save_Logic_set_escrow = Logic_set_escrow
 			--rawset(globals(), "Logic_set_escrow", nil )
 			--Logic_set_escrow = EconomyRush_Logic_set_escrow

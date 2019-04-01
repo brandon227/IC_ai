@@ -6,7 +6,7 @@ function init_henchman()
 	-- henchman gathering variables
 	
 	sg_henchman_min = 20
-	sg_henchman_max = 90
+	sg_henchman_max = 55 + (Rand(2) * 10) --Changed from 90 on 3/31/2019 by Bchamp to limit too many henchmen and focus on building units. 
 	sg_desired_henchman = 50
 	
 	-- on easy reduce the number of henchmen built
@@ -23,11 +23,12 @@ function init_henchman()
 	if (fact_closestAmphibDist > 600) then
 		sg_henchman_max = sg_henchman_max + 10
 	end
-		
+	
+	--Commented out 3/31/2019 by Bchamp since PopulationMax has changed in Tellurian.
 	-- increase max a bit more in high pop cap games
-	if (PopulationMax()>50) then
-		sg_henchman_max = sg_henchman_max + 20
-	end
+	--if (PopulationMax()>50) then
+	--	sg_henchman_max = sg_henchman_max + 20
+	--end
 	
 	if (g_LOD == 0 and sg_henchman_max > 28) then
 		sg_henchman_max = 28
@@ -139,15 +140,16 @@ function Logic_desiredhenchman()
 	--ADDED BY BCHAMP 3/30/2019--
 	--Makes it so that the desired henchmen is higher if there are gather sites open. Balances unit building with henchmen. 
 	--This helps fill in expansions on maps with a ton of coal when henchman_min, defined later, doesn't make enough.
-	local unitModifier = NumCreaturesQ()
+	local unitModifier = NumCreaturesQ() --variable helps to balance units with henchmen
+	local unitMultiplier = (Rand(40) + 60)/100 --helps add randomness to make AI more aggressive and prioritize units, Bchamp 3/31/2019
 	if (unitModifier > 10) then
 		unitModifier = 10
 	end
 	if (GetRank() >= 2 and IsGatherSiteOpen() > 0) then
-		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 1.5))
+		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 1.5 * unitMultiplier))
 		
 	elseif (GetRank() >= 4 and IsGatherSiteOpen() > 0) then
-		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 2))
+		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 2 * unitMultiplier))
 
 	else --if there are no gather sites open
 		henchman_count = (7*NumBuildingActive( Foundry_EC ) + 12 + (unitModifier * 0.5))

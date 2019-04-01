@@ -290,6 +290,16 @@ function dosoundbeamtowers()
 		end
 	end
 	
+	-- added by LBFrank 3/31/19 to check for sonic units (useful in the wake of L2/L3 sonic)
+	if (buildTowers==0 and numTowerActive==0) then
+		local numSonic = PlayersUnitTypeCount( player_enemy, player_max, sg_class_sonic )
+		if (curRank < 4 and numSonic > (3+sg_randval/60)) then
+			buildTowers = 1
+		elseif (numSonic > 7) then
+			buildTowers = 1
+		end
+	end
+
 	if (buildTowers == 1) then
 	
 		local desiredAmount = 1 + CoalPileWithDropOffs()
@@ -376,17 +386,6 @@ end
 
 function dovetclinic()
 
-	--local offset = 0
-	-- build clinic earlier if we have a long way to go
-	--if (fact_lowrank_all > 3) then
-	--	offset = -20
-	--end
-
-	--if (checkToBuildAdvancedStructures(offset) == 0) then
-	--	return 0
-	--end
-	--local doClinic = 0	
-	--local aggressionLevel = aggressionLevel
 
 	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
 	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < (sg_randval*0.06 + 1) or NumHenchmanActive() < 12 ) then
@@ -395,7 +394,7 @@ function dovetclinic()
 
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
 	local maxVetClinic = 2
-	if (sg_randval > 80) then
+	if (sg_randval > 70) then
 		maxVetClinic = 1
 	end
 	-- If already completed all of these researches at the clinic, don't build more. This way AI doesnt keep building if you destroy clinics
@@ -431,7 +430,16 @@ function dofoundry()
 	end
 	
 	local gatherSiteOpen = IsGatherSiteOpen()
-	if (gatherSiteOpen == 0 and NumHenchmenGuarding()>2 and UnderAttackValue() > 100) then
+
+	--When henchmen are under attack and can no longer mine coal at this gather site, they will build a foundry. 
+	--This function can be bad because AI can waste resources on a foundry when it really needs units more than anything.
+	--Changed to NumHenchmenGuarding() > 4 instead of 2. And increased UnderAttackValue() > 200 from 100..--Bchamp 3/31/2019
+	if (gatherSiteOpen == 0 and NumHenchmenGuarding()>4 and UnderAttackValue() > 200) then
+		alwaysBuild = 1
+	end
+
+	--Build Foundry if you are going to be able to beat attack, otherwise don't and save for units. Added 3/31/2019 by Bchamp
+	if (gatherSiteOpen == 0 and NumHenchmenGuarding()>3 and UnderAttackValue() < 0.7*fact_selfValue) then
 		alwaysBuild = 1
 	end
 	
@@ -451,9 +459,10 @@ function dofoundry()
 		end
 	end
 	
-	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3
+	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3. 
+	-- Also need minimum number of units.
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0) then
+		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
