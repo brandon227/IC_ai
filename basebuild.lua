@@ -403,24 +403,26 @@ function dovetclinic()
 		return
 	end
 
+	local curRank = GetRank()
+	
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
-	local maxVetClinic = 2
-	if (sg_randval < 30) then
-		maxVetClinic = 1
+	local maxVetClinic = 1
+	if (curRank > 2) then
+		if (sg_randval > 70) then
+			maxVetClinic = 1
+		else
+			maxVetClinic = 2
+		end
 	end
 	
 	-- If already completed all of these researches at the clinic, don't build more. This way AI doesnt keep building if you destroy clinics
 	-- in the late game. Added by Bchamp 3/31/2019
 	-- LBFrank 4/01/19 they may want one clinic to research tower upgrade if they have the towers for it. if not then yeah we don't need em
-	-- Actually I think they just take up space after a while. AI doesn't place them strategically so we could probably just get rid of them
 	if (ResearchCompleted(RESEARCH_HenchmanYoke) == 1 and ResearchCompleted(RESEARCH_HenchmanMotivationalSpeech) == 1 and ResearchCompleted(RESEARCH_StrengthenElectricalGrid) == 1 and ResearchCompleted(RESEARCH_IncBuildingIntegrity) == 1) then
-		if (ResearchCompleted(RESEARCH_TowerUpgrade) == 0 and (NumBuildingActive( SoundBeamTower_EC ) + NumBuildingActive( AntiAirTower_EC )) <= 2) then
+		if (ResearchCompleted(RESEARCH_TowerUpgrade) == 0 and (NumBuildingActive( SoundBeamTower_EC ) + NumBuildingActive( AntiAirTower_EC )) <= 1) then
 			maxVetClinic = 1
 		else
 			maxVetClinic = 0
-			if (NumBuildingActive( VetClinic_EC ) > 0) then
-				Scuttle ( VetClinic_EC )
-			end
 		end
 	end
 
