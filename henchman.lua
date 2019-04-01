@@ -136,6 +136,9 @@ function Logic_desiredhenchman()
 		
 
 	local henchman_count = 9
+	local curRank = GetRank()
+	local gatherSiteOpen = IsGatherSiteOpen()
+	local numFoundries = NumBuildingActive( Foundry_EC )
 
 	--ADDED BY BCHAMP 3/30/2019--
 	--Makes it so that the desired henchmen is higher if there are gather sites open. Balances unit building with henchmen. 
@@ -145,14 +148,21 @@ function Logic_desiredhenchman()
 	if (unitModifier > 10) then
 		unitModifier = 10
 	end
-	if (GetRank() >= 2 and IsGatherSiteOpen() > 0) then
-		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 1.5 * unitMultiplier))
-		
-	elseif (GetRank() >= 4 and IsGatherSiteOpen() > 0) then
-		henchman_count = (9*NumBuildingActive( Foundry_EC ) + (unitModifier * 2 * unitMultiplier))
+	if (curRank == 2 and gatherSiteOpen > 0) then
+		henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
+	elseif (curRank == 3) then
+		if (gatherSiteOpen > 0) then
+			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
+		-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
+		-- this will focus priority on getting henchman yoke. -------
+		elseif (ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1) then
+			henchman_count = 0
+		end
+	elseif (curRank >= 4 and gatherSiteOpen > 0) then
+		henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))
 
 	else --if there are no gather sites open
-		henchman_count = (7*NumBuildingActive( Foundry_EC ) + 12 + (unitModifier * 0.5))
+		henchman_count = (7*numFoundries + 12 + (unitModifier * 0.5))
 	end
 
 			
@@ -210,13 +220,12 @@ function Logic_desiredhenchman()
 	end
 
 	--adjust henchman minimum after reaching rank 2 to ensure creatures get built promptly 1/4/2019 bchamp
-	if (NumBuildingQ( Foundry_EC ) == 0 and GetRank() == 2) then
+	if (NumBuildingQ( Foundry_EC ) == 0 and curRank == 2) then
 		local unitCount = NumCreaturesQ()
 		sg_henchman_min = (13 + unitCount)
-	elseif (GetRank() >= 2) then
-		sg_henchman_min = (7*NumBuildingActive( Foundry_EC ) + 9) 
+	elseif (curRank >= 2) then
+		sg_henchman_min = (7*numFoundries + 9) 
 	end
-
 
 	-- maintain a minimum amount of henchman
 	if (henchman_count < sg_henchman_min) then
@@ -238,7 +247,7 @@ function Command_buildhenchman()
 	end
 
 	--added by Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
-	if ((NumHenchmanQ() - NumHenchmanActive()) >= 3) then
+	if ((NumHenchmanQ() - NumHenchmanActive()) >= (4 - g_LOD)) then
 		return
 	end
 	

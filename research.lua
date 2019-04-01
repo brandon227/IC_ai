@@ -38,14 +38,22 @@ function init_research()
 end
 
 -- rank helper function
-function rankUp( capAt )
+randUnitsOrRank = Rand(100) --Random variable used to help decide if AI should build more units before ranking up.
 
+function rankUp( capAt )
 	-- whats our current Rank
 	local curRank = GetRank();
-	
+
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
-		
+		local gametime = GameTime()
+		local numCreatures = NumCreaturesQ()
+		if (curRank == 2 and randUnitsOrRank < 80 and gametime < 4.75*60) then
+			if (numCreatures < 3+(randUnitsOrRank*0.08)) then
+				return
+			end
+		end
+
 		-- find next rank:
 		-- if curRank is 1 then next rank is Rank2+0 or curRank-1
 		-- if curRank is 4 then next rank is Rank2+3 or curRank-1
@@ -247,17 +255,18 @@ function dovetclinicresearch()
 			
 		end
 		
-		--If need elec, then strengthen electrical grid. Added by Bchamp 3/9/19
-		if (NumBuildingActive( ElectricGenerator_EC ) > 0 and ElectricityPerSecQ() < sg_desired_elecrate) then
-			if (sg_research[RESEARCH_StrengthenElectricalGrid] == 1 and goal_needelec == 1 and 
-				CanResearchWithEscrow(RESEARCH_StrengthenElectricalGrid) == 1) then
-				ReleaseGatherEscrow()
-				ReleaseRenewEscrow()
-				Research( RESEARCH_StrengthenElectricalGrid );
-				aitrace("Script: Research electrical grid")
+		if (ResearchQ(RESEARCH_HenchmanYoke) == 1) then
+			--If need elec, then strengthen electrical grid. Added by Bchamp 3/9/19
+			if (NumBuildingActive( ElectricGenerator_EC ) > 0 and ElectricityPerSecQ() < sg_desired_elecrate) then
+				if (sg_research[RESEARCH_StrengthenElectricalGrid] == 1 and goal_needelec == 1 and 
+					CanResearchWithEscrow(RESEARCH_StrengthenElectricalGrid) == 1) then
+					ReleaseGatherEscrow()
+					ReleaseRenewEscrow()
+					Research( RESEARCH_StrengthenElectricalGrid );
+					aitrace("Script: Research electrical grid")
+				end
 			end
 		end
-
 
 		-- do these research items after rank3
 		if (ResearchCompleted(RESEARCH_Rank3)==1) then
@@ -279,11 +288,13 @@ function dovetclinicresearch()
 			end
 			
 			-- RESEARCH_IncBuildingIntegrity
-			if (sg_research[RESEARCH_IncBuildingIntegrity] == 1 and CanResearchWithEscrow(RESEARCH_IncBuildingIntegrity) == 1) then
-				ReleaseGatherEscrow()
-				ReleaseRenewEscrow()
-				Research( RESEARCH_IncBuildingIntegrity );
-				aitrace("Script: Research building integrity")
+			if (NumBuildingActive( VetClinic_EC ) > 1 or ResearchQ(RESEARCH_HenchmanYoke) == 1) then
+				if (sg_research[RESEARCH_IncBuildingIntegrity] == 1 and CanResearchWithEscrow(RESEARCH_IncBuildingIntegrity) == 1) then
+					ReleaseGatherEscrow()
+					ReleaseRenewEscrow()
+					Research( RESEARCH_IncBuildingIntegrity );
+					aitrace("Script: Research building integrity")
+				end
 			end
 		end
 		

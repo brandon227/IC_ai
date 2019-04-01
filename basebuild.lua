@@ -79,6 +79,17 @@ function doupgrades()
 	 	return
 	end
 	
+	-------------------------------------------------------------------------------
+	-- Added by Bchamp 4/1/2019 to speed up getting Henchmen Yoke -----------------
+	-- 17 is the erate for 4 rods + fully upgraded generator without grid upgrade -
+	local curRank = GetRank()
+	if (ResearchQ(RESEARCH_HenchmanYoke) == 0 and curRank >= 3 and erate > 17) then
+		return
+	end
+	-------------------------------------------------------------------------------
+	-------------------------------------------------------------------------------
+
+
 	-- LOGIC ? 
 	-- try for rank2 first, but if for some reason we can't get there than I guess
 	-- we should upgrade the egen ? on bigger maps maybe i'd get the upgrades first?
@@ -86,7 +97,7 @@ function doupgrades()
 	-- this 14 needs to be worked out based on number of geysers and army type
 		
 	-- determine if we should build another egen or upgrade
-	if (NumBuildingActive( ElectricGenerator_EC ) > 0 and ResearchCompleted(RESEARCH_Rank2)==1) then
+	if (NumBuildingActive( ElectricGenerator_EC ) > 0 and curRank >= 2) then
 		
 		 if (CanUpgradeWithEscrow( UPGRADE_EGen ) == 1) then
 			ReleaseGatherEscrow();
@@ -151,7 +162,7 @@ function dogeneticamplifier()
 	--if (checkToBuildAdvancedStructures(5) == 0) then
 	--	return 0
 	--end
-	
+
 
 	local numCreaturesNeeded = 9
 	-- make easy mode much more random in regards to building this
@@ -387,9 +398,14 @@ function dovetclinic()
 		return
 	end
 
+	-- Do not build more than 1 Research Clinic at a time -- Bchamp 4/1/2019
+	if (NumBuildingQ( VetClinic_EC ) > NumBuildingActive( VetClinic_EC )) then
+		return
+	end
+
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
 	local maxVetClinic = 2
-	if (sg_randval > 70) then
+	if (sg_randval < 30) then
 		maxVetClinic = 1
 	end
 	
@@ -435,6 +451,7 @@ function dofoundry()
 	end
 	
 	local gatherSiteOpen = IsGatherSiteOpen()
+	local numFoundries = NumBuildingQ( Foundry_EC )
 
 	--When henchmen are under attack and can no longer mine coal at this gather site, they will build a foundry. 
 	--This function can be bad because AI can waste resources on a foundry when it really needs units more than anything.
@@ -451,12 +468,12 @@ function dofoundry()
 	local curRank = GetRank()	
 
 	-- Have a minimum of 2 foundries if AI is at least lvl 2 
-	if (curRank >= 2 and NumBuildingQ( Foundry_EC ) < 2) then
+	if (curRank >= 2 and numFoundries < 2) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
 			--Minimum of 16 henchmen before building second foundry. Also make sure foundry's are full. 3/30/2019 Bchamp
-			if (NumBuildingQ( Foundry_EC ) == 1 and (NumHenchmanQ() < 16 or gatherSiteOpen > 0 or NumCreaturesQ() < (sg_randval*0.05 + 1))) then
+			if (numFoundries == 1 and (NumHenchmanQ() < 16 or gatherSiteOpen > 0 or NumCreaturesQ() < (sg_randval*0.05 + 1))) then
 				alwaysBuild = 0
 			else
 				alwaysBuild = 1
@@ -467,7 +484,7 @@ function dofoundry()
 	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3. 
 	-- Also need minimum number of units.
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
+		if (numFoundries < 3 and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -478,7 +495,7 @@ function dofoundry()
 
 	-- Have minimum 3 foundries once AI reaches Rank 4
 	if (curRank >= 4) then
-		if (NumBuildingQ( Foundry_EC ) < 3 and gatherSiteOpen == 0) then
+		if (numFoundries < 3 and gatherSiteOpen == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -489,7 +506,7 @@ function dofoundry()
 
 	-- On small maps, have a minimum of 5 foundries if AI is at lvl 5
 	-- is this too many on small maps?? Vacation? Ring?
-	if (curRank == 5 and NumBuildingQ( Foundry_EC ) < 5 and gatherSiteOpen == 0) then
+	if (curRank == 5 and numFoundries < 5 and gatherSiteOpen == 0) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
@@ -499,14 +516,26 @@ function dofoundry()
 
 
 	-- On large maps, have a minimum of 6 foundries if AI is at lvl 5
-	if (fact_closestGroundDist > 500 and curRank == 5 and NumBuildingQ( Foundry_EC ) < 6) then
+	if (fact_closestGroundDist > 500 and curRank == 5 and numFoundries < 6) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
 			alwaysBuild = 1
 		end
 	end
-		
+	
+	----------------------------------------------------------------------------------------------
+	-- Added by Bchamp 4/1/2019 to speed up henchmen yoke. Would rather get 1.5x resources from
+	----- yoke rather than spend money on foundry and henchmen to fill it ------------------------
+	if (curRank >= 3 and ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1) then
+		alwaysBuild = 0
+		if (ScrapPerSec() > 22) then --10 henchmen mining at 5 coal piles ~12 ScrapPerSec
+			return
+		end
+	end
+	----------------------------------------------------------------------------------------------
+
+
 	-- check for case where there are a bunch of henchmen who could use a better spot to gather
 	
 	if (alwaysBuild == 0) then

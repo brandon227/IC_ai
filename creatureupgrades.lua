@@ -31,7 +31,7 @@ function docreatureupgrades()
 
 end
 
-RegisterTimerFunc("docreatureupgrades", 15.0 )
+RegisterTimerFunc("docreatureupgrades", 5.0 ) --changed from 15 to 5 by Bchamp 4/1/2019 with hopes of multiple genamps being used
 
 function Logic_creatureupgrade()
 	
@@ -50,7 +50,7 @@ function Logic_creatureupgrade()
 		-- get the number of these creatures in the world
 		local ccount = Army_NumCreatureInArmy( AIplayerindex, armyindex )
 		-- should be a few of them before upgrading them
-		if (ccount > 7) then
+		if (ccount >= 6) then
 			local cinfo = Army_GetUnit( AIplayerindex, armyindex );
 			local crank = ci_rank( cinfo );
 			local temparmour = ci_getattribute( cinfo, "armour" )

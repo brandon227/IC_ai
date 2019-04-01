@@ -483,6 +483,7 @@ function Logic_military_setdesiredcreatures()
 
 	local popmax = PopulationMax();
 	local gametime = GameTime()
+	local numCreatures = NumCreaturesActive()
 	
 	if (g_LOD == 0) then
 	
@@ -498,7 +499,7 @@ function Logic_military_setdesiredcreatures()
 		-- unit cap, grow at same rate as enemy (should do this per type)
 		if (fact_militaryPop >= sg_creature_desired and (fact_enemyValue >= fact_selfValue*1.3 or fact_enemyPop >= fact_militaryPop*1.5)) then
 			-- desire for more than what ya got
-			sg_creature_desired = NumCreaturesActive()+1;
+			sg_creature_desired = numCreatures + 1;
 		end
 		
 		-- if AI has passed its desired rate and has more value then opponent
@@ -517,7 +518,7 @@ function Logic_military_setdesiredcreatures()
 		-- unit cap, grow at same rate as enemy (should do this per type)
 		if (fact_militaryPop >= sg_creature_desired and (fact_enemyValue >= fact_selfValue*1.1 or fact_enemyPop >= fact_militaryPop*1.2)) then
 			-- desire for more than what ya got
-			sg_creature_desired = NumCreaturesActive()+2;
+			sg_creature_desired = numCreatures + 2;
 		end
 
 	else
@@ -532,9 +533,11 @@ function Logic_military_setdesiredcreatures()
 	
 	removeExtraGroundCreatures() --This kills own ground creatures if we have enough in order to make room for amphib and air. Should AI be killing own units? Bchamp 3/31/2019
 	
+	------------------------------------------------------------------------------
 	-- RULES BELOW - these all put caps on creatures to give money to other areas
+	------------------------------------------------------------------------------
 
-	-- run some island map logic
+	-- run some island map logic. If no amphib or fliers available, only builds a few creatures for defense then returns 1. 
 	if (Logic_islandmaplogic()==1) then
 		return
 	end
@@ -552,6 +555,21 @@ function Logic_military_setdesiredcreatures()
 		return
 	end
 	
+	-- if we are under attack and we are the underdogs, set no limit, build more units
+	if (UnderAttackValue() > 100 and fact_enemyValue*1.5 > fact_selfValue ) then
+		return
+	end
+
+	-- if we are at least L3 and comfortable but do not have Henchmen Yoke, slow down creature production. 
+	-- Added by Bchamp 4/1/2019. Tested and this does help AI research Yoke about a minute faster.
+	if (curRank >= 3 and ResearchCompleted(RESEARCH_HenchmanYoke) == 0) then
+		if (UnderAttackValue() < 100 and NumCreaturesActive() > 5 and NumHenchmanActive() > 18 and fact_selfValue > fact_enemyValue) then
+			sg_creature_desired = numCreatures + 1
+			return
+		end
+	end
+
+
 	-- if we have lots of coal and elec, enough to rank up, build more units
 	if (g_LOD > 1 and ScrapAmountWithEscrow() > 1100 and ElectricityAmountWithEscrow() > 1600) then
 		-- make creatures, until this money drops down
@@ -565,11 +583,6 @@ function Logic_military_setdesiredcreatures()
 
 	-- if we are at max rank - don't put any limits on creature count
 	if (fact_army_maxrank == curRank) then
-		return
-	end
-		
-	-- if we are under attack and we are the underdogs, set no limit, build more units
-	if (UnderAttackValue() > 0 and fact_enemyValue*1.5 > fact_selfValue ) then
 		return
 	end
 	

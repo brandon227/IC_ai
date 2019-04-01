@@ -362,6 +362,7 @@ function Logic_set_escrow()
 		SetRenewEscrowPercentage(35)
 	end
 	
+
 	-- if we just got our last rank then set escrow down
 	if (GetRank() == fact_army_maxrank) then
 		
