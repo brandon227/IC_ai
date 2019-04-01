@@ -31,12 +31,12 @@ function Rank2Rush_CanDoTactic()
 	--	return 0
 	--end
 	
-	local randtemp = Rand(10)
+	local randtemp = Rand(100)
 	aitrace("Rank2Rush: Rand:"..randtemp)
 	-- test for rank2 tactic
 	-- if currently lvl 1, enemy is close, and randomness allows, perform rush.
 	
-	if (GetRank() == 1 and closestDist < 350 and randtemp > 6) then
+	if (GetRank() == 1 and closestDist < 350 and randtemp < 30) then
 		-- have the units for a rank2 ground rush
 		local units = Army_ClassSize( Player_Self(), sg_class_groundrank2rush )
 		if (units > 0) then
@@ -45,7 +45,7 @@ function Rank2Rush_CanDoTactic()
 	end
 	
 	chamberAtEnemyBase = 0
-	if(Rand(10) > 6) then
+	if(Rand(100) < 30) then --30% chance of making a proxy chamber.
 		chamberAtEnemyBase = 1
 	end
 	--------------

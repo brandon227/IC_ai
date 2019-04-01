@@ -401,6 +401,17 @@ function Logic_military_setgroupsizes()
 	end
 	----------------------------------------------------------------------------------
 
+	----------------------------------------------------------------------------------
+	-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
+
+	if (g_LOD >= 2) then
+		local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+		if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
+			icd_groundgroupminsize = Rand(5) + 2
+			icd_groundgroupminvalue = 100
+		end
+	end
+	----------------------------------------------------------------------------------
 
 	icd_airgroupmaxsize = icd_groundgroupmaxsize
 
@@ -629,6 +640,11 @@ function Logic_military_setattacktimer()
 		if (moreEnemies > 0) then
 			-- delay initial attack
 			timedelay = timedelay + sg_militaryRand*moreEnemies/2
+		else --Added 4/1/19 by Bchamp to shorten wave delay if winning to keep pressure on opponent.
+			local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+			if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
+				wavedelay = 10 + sg_militaryRand*0.10
+			end
 		end
 	end
 	
@@ -665,9 +681,8 @@ function Logic_military_setattackpercentages()
 	local numEnemies = PlayersAlive( player_enemy )
 	local numAllies = PlayersAlive( player_ally )
 	
-	-- if the AI has more than 1.5 times more creatures than
-	-- have an all out attack, unless...
-	if (g_LOD>1 and fact_selfValue > fact_enemyValue and numEnemies == 1) then
+	-- if the AI has more than 1.5 times more creatures than enemy then all out attack. Modified by Bchamp 4/1/2019
+	if (g_LOD>1 and fact_selfValue > (fact_enemyValue*1.5) and numAllies >= numEnemies) then
 		AttackNow()
 		icd_groundattackpercent = 100
 		icd_waterattackpercent = 100
