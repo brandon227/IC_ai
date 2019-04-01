@@ -321,7 +321,7 @@ function dovetclinicresearch()
 			end
 	
 			-- RESEARCH_TowerUpgrade
-			if (sg_research[RESEARCH_TowerUpgrade] == 1 and TowerCount() > 2 and CanResearchWithEscrow(RESEARCH_TowerUpgrade) == 1) then
+			if (sg_research[RESEARCH_TowerUpgrade] == 1 and (TowerCount() >= 2 or (TowerCount() >= 1 and ResearchCompleted(RESEARCH_HenchmanYoke) == 1)) and CanResearchWithEscrow(RESEARCH_TowerUpgrade) == 1) then
 				ReleaseGatherEscrow()
 				ReleaseRenewEscrow()
 				Research( RESEARCH_TowerUpgrade );
