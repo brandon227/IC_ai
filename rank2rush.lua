@@ -32,11 +32,26 @@ function Rank2Rush_CanDoTactic()
 	--end
 	
 	local randtemp = Rand(100)
+	local rushChance = 30
+	one_v_one = 0
+	if (numEnemies == 1 and numAllies == 1) then
+		rushChance = 85
+		one_v_one = 1
+	end
+
+	-- If there is a rush, determine if it will be at a forward chamber at enemy base or not.
+	chamberAtEnemyBase = 0
+	local maxEnemyDistance = 500
+	if(Rand(100) < 30) then --30% chance of making a proxy chamber.
+		chamberAtEnemyBase = 1
+		maxEnemyDistance = 350
+	end
+
 	aitrace("Rank2Rush: Rand:"..randtemp)
 	-- test for rank2 tactic
 	-- if currently lvl 1, enemy is close, and randomness allows, perform rush.
 	
-	if (GetRank() == 1 and closestDist < 350 and randtemp < 30) then
+	if (GetRank() == 1 and closestDist < maxEnemyDistance and randtemp < rushChance) then
 		-- have the units for a rank2 ground rush
 		local units = Army_ClassSize( Player_Self(), sg_class_groundrank2rush )
 		if (units > 0) then
@@ -44,10 +59,6 @@ function Rank2Rush_CanDoTactic()
 		end
 	end
 	
-	chamberAtEnemyBase = 0
-	if(Rand(100) < 30) then --30% chance of making a proxy chamber.
-		chamberAtEnemyBase = 1
-	end
 	--------------
 	--TEST CODE ONLY!! REMOVE FOR RELEASE
 	--------------
@@ -166,7 +177,7 @@ function Rank2Rush_Logic_military_setdesiredcreatures()
 	-- check enemy ranks
 	local maxrank = PlayersRank(player_enemy, player_max)
 	
-	if (maxrank > 2 or LabUnderAttackValue()>100 or GetRank()>2 or NumCreaturesQ()>10) then
+	if (maxrank > 2 or LabUnderAttackValue()>100 or GetRank()>2 or NumCreaturesActive()>15) then
 		rawset(globals(), "Logic_military_setdesiredcreatures", nil )
 		Logic_military_setdesiredcreatures = save_Logic_military_setdesiredcreatures
 	end
@@ -345,9 +356,13 @@ end
 function Rank2Rush_dofoundry()
 	--Don't build foundry.
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
-	
+
+	if (militaryValue < 1.3*(fact_enemyValue + 300)) then
+		return
+	end
+
 	-- call old code if these conditions are met
-	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 1800) or LabUnderAttackValue()>100 or GameTime() > (5.5*60)) then
+	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and NumBuildingActive( Foundry_EC ) > 0) or LabUnderAttackValue() > fact_selfValue or GameTime() > ((5.5+one_v_one)*60)) then
 		-- add the old code back in
 		rawset(globals(), "dofoundry", nil )
 		dofoundry = save_dofoundry
@@ -371,20 +386,28 @@ end
 
 function Rank2Rush_Logic_military_setgroupsizes()
 
-	icd_groundgroupminsize = 4;
-	icd_groundgroupmaxsize = 4;
+	if (chamberAtEnemyBase == 1) then
+		icd_groundgroupminsize = 4;
+		icd_groundgroupmaxsize = 4;
 	
-	icd_groundgroupminvalue = 500;
-	icd_groundgroupmaxvalue = 1000;
+		icd_groundgroupminvalue = 500;
+		icd_groundgroupmaxvalue = 1000;
+	else
+		icd_groundgroupminsize = fact_enemyPop+4;
+		icd_groundgroupmaxsize = 12;
 	
+		icd_groundgroupminvalue = (fact_enemyValue + 250)*1.2;
+		icd_groundgroupmaxvalue = 2000;
+	end
+
 	local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 
-	if (unitCount > 3) then
+	if (unitCount > (4-chamberAtEnemyBase) or fact_selfValue > 1.3*(fact_enemyValue + 300)) then
 		icd_groundgroupminsize = 1
 		icd_groundgroupminvalue = 1
 	end
 
-	if (GetRank() > 2 or LabUnderAttackValue() > 100) then
+	if (GetRank() > 2 or LabUnderAttackValue() > 200) then
 		rawset(globals(), "Logic_military_setgroupsizes", nil )
 		Logic_military_setgroupsizes = save_Logic_military_setgroupsizes
 	end
@@ -409,14 +432,15 @@ function Rank2Rush_Logic_desiredhenchman()
 			sg_desired_henchman = 11
 		end
 		henchman_count = sg_desired_henchman
-
+	elseif (curRank == 2 and (fact_selfValue < 1.3*(fact_enemyValue + 300) or unitCount < 6)) then
+		henchman_count = sg_desired_henchman
 	elseif (curRank == 2 and gatherSiteOpen > 0) then
-		henchman_count = sg_desired_henchman + unitCount/2
-	elseif(gatherSiteOpen == 0 and unitCount < (Rand(3) + 3)) then
+		henchman_count = sg_desired_henchman + (unitCount-2)/3
+	elseif(gatherSiteOpen == 0 and unitCount < (Rand(3) + 4)) then
 		henchman_count = NumHenchmanActive()
 	else
-		henchman_count = 13 + unitCount/3
-		if ( NumHenchmenGuarding()>2 and NumCreaturesQ() > 3) then
+		henchman_count = 11 + unitCount/3
+		if ( NumHenchmenGuarding()>2 and fact_selfValue > 1.5*(fact_enemyValue+400)) then
 			local dist2dropoff = DistToDropOff();
 
 				aitrace("Script: dist2dropoff="..dist2dropoff);
