@@ -1,7 +1,8 @@
 Updated 3/31/2019 by Bchamp
 
 - Improve AI aggression. Add randomness for more aggressive and economy focused AI. 
-- Prioritize Henchmen Yoke Research
 - Set AI "UnderAttack" functions to better deal with being attacked
 - Can specific AI files be played on specific maps in Multiplayer mode?
 - Add randomization
+- Adjust Rank2Rush tactic to retreat earlier if enemy has SB towers.
+- Adjust Rank2Rush tactic to build foundries under certain conditions
