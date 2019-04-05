@@ -302,6 +302,7 @@ function Logic_military_setgroupsizes()
 	if (g_LOD > 0) then
 		
 		-- the closer we are the smaller the earlier groups can be
+		-------the elseif statements won't be called here. Need to reverse order of conditions. Needs changing. - Bchamp 4/5/2019
 		if (fact_closestGroundDist > 300) then
 			groupoffset = 2
 			valueoffset = 500
@@ -377,28 +378,32 @@ function Logic_military_setgroupsizes()
 	
 	----------------------------------------------------------------------------------	
 	-- added by LBFrank 01/01/19 added offset for 'spam' (WIP)
+	-- Modified by Bchamp 4/5/2019 for 2.5.3.1 Beta (WIP) -------
+	-- Maybe create a new fact_armyAvgCoal variable that only take the current level into account? Will hopefully
+	-- compensate for skewed army structures like 1314 where average between two levels doesn't work well. 
+	----------------- Turning function off until Logan can do testing --------------------------------
 	local spamOffset = 0; 
 	local currRank = GetRank()
-	local averageCoalcur = 50+(100*(currRank-1))
+	local averageCoalcur = 45+(85*(currRank-2))
 	if (currRank==5) then
-		averageCoalcur = averageCoalcur+50
+		averageCoalcur = averageCoalcur+15
 	end
 
 	local averageCoalprev = 0
 	
 	if (currRank>=2) then
-		averageCoalprev = 50+(100*(currRank-2))	
+		averageCoalprev = 45+(85*(currRank-2))
 	end
 
-	local averageCoal = ((averageCoalcur + averageCoalprev) / (3/2))
+	local averageCoal = ((averageCoalcur + averageCoalprev) / 2)
 	
 	if (fact_armyAvgCoal < 	averageCoal) then
 		spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*currRank))
 	end
 	
-	if (spamOffset > 1) then
-		icd_groundgroupminsize = icd_groundgroupminsize+spamOffset
-	end
+	--if (spamOffset > 1) then
+	--	icd_groundgroupminsize = icd_groundgroupminsize+spamOffset --Turned off 4/5/2019 by Bchamp until Logan can do testing
+	--end
 	----------------------------------------------------------------------------------
 
 	----------------------------------------------------------------------------------
@@ -758,7 +763,14 @@ function dobuildcreatures()
 
 	-- Army_CreatureCostQ( Player_Self(), sg_class_ground )
 	local creaturesQ = NumCreaturesQ();
-	
+	local totalChambers = NumBuildingActive( RemoteChamber_EC ) + NumBuildingActive( WaterChamber_EC ) + NumBuildingActive( Aviary_EC )
+	local curRank = GetRank()
+
+	-- Do not queue more units than you have chambers (incorporating rank). Saves resources for other activities. Bchamp 4/5/2019
+	if (creaturesQ - NumCreaturesActive() >= (totalChambers + curRank - 1)) then
+		return
+	end
+
 	if ( creaturesQ < sg_creature_desired and CanBuildCreature( sg_class_ground )==1) then
 		xBuildCreature( sg_class_ground )
 		aitrace("Script: build creature "..(creaturesQ+1).." of "..sg_creature_desired);

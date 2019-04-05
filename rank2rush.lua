@@ -281,7 +281,7 @@ function Rank2Rush_docreaturechamber()
 
 		--if chamber has been completed, consider adding SB tower near it and then revert to normal chamber placement function
 		else
-			if(Rand(10) > 8 and DamageTotal() < 30) then
+			if(Rand(10) < 2 and DamageTotal() < 30) then
 				if (NumBuildingQ( SoundBeamTower_EC ) < 1 and CanBuildWithEscrow( SoundBeamTower_EC ) == 1) then
 					ReleaseGatherEscrow();
 					ReleaseRenewEscrow();
@@ -305,10 +305,22 @@ function Rank2Rush_dolightningrods()
 
 	local erate = ElectricityPerSecQ()
 	local rank2rush_desired_erate = 4
-	local curRank = GetRank()	
-	local numRods = 3
-	-- ADD CODE TO BUILD 3RD ROD??? When to increase desired erate?? When NumCreaturesQ() > X???
-	-- if ( curRank == 2 and Num
+	local curRank = GetRank()
+	local numHenchman = NumHenchmanActive()	
+	local numRods = 0
+
+	if (numHenchman > 3 and NumHenchmanQ() > numHenchman) then
+		numRods = 1
+	end
+
+	if (numHenchman > 5 and NumHenchmanQ() > numHenchman) then
+		numRods = 2
+	end
+
+	-- ADD CODE TO BUILD 3RD ROD. Bchamp 4/5/2019
+	if (NumBuildingQ( RemoteChamber_EC ) > 0) then
+		numRods = 3
+	end
 
 	-- No more than 2 rods before rank2
 	if (NumBuildingQ( ResourceRenew_EC )>1 and (ResearchQ(RESEARCH_Rank2)==0 and g_LOD>0)) then
@@ -386,18 +398,20 @@ end
 
 function Rank2Rush_Logic_military_setgroupsizes()
 
+	local numSBTower = PlayersUnitCount( player_enemy, player_max, SoundBeamTower_EC )
+
 	if (chamberAtEnemyBase == 1) then
-		icd_groundgroupminsize = 4;
-		icd_groundgroupmaxsize = 4;
+		icd_groundgroupminsize = 4 + 2*numSBTower;
+		icd_groundgroupmaxsize = 5 + 3*numSBTower;
 	
-		icd_groundgroupminvalue = 500;
-		icd_groundgroupmaxvalue = 1000;
+		icd_groundgroupminvalue = 500 + (numSBTower * 200);
+		icd_groundgroupmaxvalue = 1200 + (numSBTower * 250);
 	else
-		icd_groundgroupminsize = fact_enemyPop+4;
-		icd_groundgroupmaxsize = 12;
+		icd_groundgroupminsize = fact_enemyPop+4+2*numSBTower;
+		icd_groundgroupmaxsize = 12 + 3*numSBTower;
 	
-		icd_groundgroupminvalue = (fact_enemyValue + 250)*1.2;
-		icd_groundgroupmaxvalue = 2000;
+		icd_groundgroupminvalue = (fact_enemyValue + 250)*1.2 + (numSBTower * 200);
+		icd_groundgroupmaxvalue = 2000 + (numSBTower * 300);
 	end
 
 	local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
@@ -432,15 +446,16 @@ function Rank2Rush_Logic_desiredhenchman()
 			sg_desired_henchman = 11
 		end
 		henchman_count = sg_desired_henchman
-	elseif (curRank == 2 and (fact_selfValue < 1.3*(fact_enemyValue + 300) or unitCount < 6)) then
+	elseif (curRank == 2 and chamberAtEnemyBase == 1 and (fact_selfValue < 1.3*(fact_enemyValue + 250) or unitCount < 5)) then
+		 --If Chamber Rush, How many units should AI have at L2 before building more hench, before checking if coal is filled?
 		henchman_count = sg_desired_henchman
-	elseif (curRank == 2 and gatherSiteOpen > 0) then
-		henchman_count = sg_desired_henchman + (unitCount-2)/3
-	elseif(gatherSiteOpen == 0 and unitCount < (Rand(3) + 4)) then
+	elseif (curRank == 2 and gatherSiteOpen > 0) then --How hench are built if AI is L2 and coal isnt filled
+		henchman_count = sg_desired_henchman + (unitCount-1)
+	elseif(gatherSiteOpen == 0 and unitCount < (Rand(4) + 1)) then --If coal is filled and less than this amount of units, don't build hench
 		henchman_count = NumHenchmanActive()
-	else
-		henchman_count = 11 + unitCount/3
-		if ( NumHenchmenGuarding()>2 and fact_selfValue > 1.5*(fact_enemyValue+400)) then
+	elseif (curRank >= 2) then --Once your coal is filled and you have threshold number of units, build this many hench
+		henchman_count = 11 + (unitCount-(2 + Rand(1)))/2
+		if ( NumHenchmenGuarding()>2 and fact_selfValue > 1.2*(fact_enemyValue+350)) then
 			local dist2dropoff = DistToDropOff();
 
 				aitrace("Script: dist2dropoff="..dist2dropoff);

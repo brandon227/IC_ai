@@ -691,6 +691,13 @@ function docreaturechamber()
 				-- store number of desired chambers
 				numActiveChambers = numActiveChambers+1
 			end
+
+			--Added so that computer could build a second CC at L2 if it's doing well. 
+			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
+				and ElectricityPerSecQ() > 10 and queued >= (numActiveChambers)) then
+
+				numActiveChambers = 1+Rand(1)
+			end
 			-- cap for now
 			--if (numActiveChambers>2) then
 			--	numActiveChambers = 2

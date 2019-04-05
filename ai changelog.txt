@@ -10,7 +10,6 @@
 ----basebuild----
 - removed function/string to build landing pad and gyrocopter as AI can't use those assets
 - AI should only build 2 rods before level 2
-- 8 hench should be present before more than 1 rod goes up
 - On Hard or Expert, AI will require 2 CC's before creating any SB towers to stop building only SBs when needs units. This needs tweaking to account for number of active units. 
 - AI builds 2 research clinics as opposed to one
 - Electrical Generators can now be built by AI when 2+ rods are present as opposed to all 4, 

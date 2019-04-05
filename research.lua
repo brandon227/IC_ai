@@ -44,6 +44,10 @@ function rankUp( capAt )
 	-- whats our current Rank
 	local curRank = GetRank();
 
+	if (curRank < 2 and NumHenchmanActive() < sg_desired_henchman) then
+		return
+	end
+
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
 		local gametime = GameTime()

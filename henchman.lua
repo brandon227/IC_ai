@@ -5,7 +5,7 @@ function init_henchman()
 	
 	-- henchman gathering variables
 	
-	sg_henchman_min = 20
+	sg_henchman_min = 8 --Bchamp 4/2/2019. Don't worry, this gets reset later when choosing desired henchmen. Need to keep it low for Pre-L1
 	sg_henchman_max = 55 + (Rand(2) * 10) --Changed from 90 on 3/31/2019 by Bchamp to limit too many henchmen and focus on building units. 
 	sg_desired_henchman = 50
 	
@@ -133,20 +133,42 @@ function Logic_desiredhenchman()
 	-- must take population caps into consideration at sometime (or does this matter?)
 	
 	-- INSERT LOGIC TO DETERMINE THE DESIRED NUMBER OF HENCHMAN
-		
+	local mapsizeoffset = 0
+	if (fact_closestAmphibDist>400) then
+		mapsizeoffset = 1
+	end
+	if (fact_closestAmphibDist>650) then
+		mapsizeoffset = 2
+	end
+	if (fact_closestAmphibDist>800) then
+		mapsizeoffset = 3
+	end
 
-	local henchman_count = 9
+	local henchman_count = 12
 	local curRank = GetRank()
 	local gatherSiteOpen = IsGatherSiteOpen()
 	local numFoundries = NumBuildingActive( Foundry_EC )
+--	local temp_count = henchman_count --used for L1 build order
+
+	----------------------------------------------------------------------------------
+	-- Level 1 Build here ------------------------------------------------------------
+	if (curRank < 2) then
+		if (gatherSiteOpen > 0) then
+			henchman_count = 12 + Rand(3) --maximum number of henchmen AI will build to try and fill local coal piles.
+		elseif (NumHenchmenGuarding() < (1+Rand(3) and NumHenchmanQ() < (11 + mapsizeoffset))) then
+			henchman_count = 11 + mapsizeoffset --Will make a maximum of this many henchmen unless too many henchmen are on Guard Mode (idle)
+		else
+			henchman_count = NumHenchmanQ() --Don't make henchmen if gather sites are full and too many henchman guarding.
+		end
+	end
 
 	--ADDED BY BCHAMP 3/30/2019--
 	--Makes it so that the desired henchmen is higher if there are gather sites open. Balances unit building with henchmen. 
 	--This helps fill in expansions on maps with a ton of coal when henchman_min, defined later, doesn't make enough.
 	local unitModifier = NumCreaturesQ() --variable helps to balance units with henchmen
 	local unitMultiplier = (Rand(40) + 60)/100 --helps add randomness to make AI more aggressive and prioritize units, Bchamp 3/31/2019
-	if (unitModifier > 10) then
-		unitModifier = 10
+	if (unitModifier > 16) then
+		unitModifier = 16
 	end
 	if (curRank == 2 and gatherSiteOpen > 0) then
 		henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
@@ -162,26 +184,20 @@ function Logic_desiredhenchman()
 		henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))
 
 	else --if there are no gather sites open
+		if (unitModifier > 10) then
+			unitModifier = 10
+		end
 		henchman_count = (7*numFoundries + 12 + (unitModifier * 0.5))
 	end
 
 			
-	local mapsizeoffset = 0
-	if (fact_closestAmphibDist>400) then
-		mapsizeoffset = 2
-	end
-	if (fact_closestAmphibDist>650) then
-		mapsizeoffset = 4
-	end
-	if (fact_closestAmphibDist>800) then
-		mapsizeoffset = 5
-	end
+
 	
-	henchman_count = henchman_count + mapsizeoffset
+	--Taking out map size offset 
+	--henchman_count = henchman_count + mapsizeoffset
 	
 	-- rules to expand --
-	
-	local curRank = GetRank()
+
 	local militaryValueThreshold = 400 + sg_randHenchmanVal*8 + curRank*300
 	local doexpand = 0
 	
@@ -247,7 +263,7 @@ function Command_buildhenchman()
 	end
 
 	--added by Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
-	if ((NumHenchmanQ() - NumHenchmanActive()) >= (4 - g_LOD)) then
+	if ((NumHenchmanQ() - NumHenchmanActive()) >= (3 - g_LOD)) then
 		return
 	end
 	

@@ -59,18 +59,20 @@ function oninit()
 	--Added by Bchamp 3/31/2019 to toggle aggressive behavior
 	--aggressionLevel = 2
 	
+	local notactic = 0 --do not perform tactics
 
 	-- check for this tactic
-	if (EconomyRush_CanDo() == 0) then
-		if (Rank2Rush_CanDoTactic()==0) then
-			if (Rank1Rush_CanDoTactic()==0) then
-				if (ResearchRush_CanDo()==0) then
-					FlyerRush_CanDo()
+	if (notactic == 0) then
+		if (EconomyRush_CanDo() == 0) then
+			if (Rank2Rush_CanDoTactic()==0) then
+				if (Rank1Rush_CanDoTactic()==0) then
+					if (ResearchRush_CanDo()==0) then
+						FlyerRush_CanDo()
+					end
 				end
 			end
 		end
 	end
-
 end
 
 function doweneedmoney()
