@@ -384,7 +384,7 @@ function Logic_military_setgroupsizes()
 	----------------- Turning function off until Logan can do testing --------------------------------
 	local spamOffset = 0; 
 	local currRank = GetRank()
-	local averageCoalcur = 45+(85*(currRank-2))
+	local averageCoalcur = 45+(85*(currRank-1))
 	if (currRank==5) then
 		averageCoalcur = averageCoalcur+15
 	end

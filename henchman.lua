@@ -155,7 +155,7 @@ function Logic_desiredhenchman()
 	if (curRank < 2) then
 		if (gatherSiteOpen > 0) then
 			henchman_count = 12 + Rand(3) --maximum number of henchmen AI will build to try and fill local coal piles.
-		elseif (NumHenchmenGuarding() < (1+Rand(3) and NumHenchmanQ() < (11 + mapsizeoffset))) then
+		elseif (NumHenchmenGuarding() < (1+Rand(3)) and NumHenchmanQ() < (11 + mapsizeoffset)) then
 			henchman_count = 11 + mapsizeoffset --Will make a maximum of this many henchmen unless too many henchmen are on Guard Mode (idle)
 		else
 			henchman_count = NumHenchmanQ() --Don't make henchmen if gather sites are full and too many henchman guarding.
