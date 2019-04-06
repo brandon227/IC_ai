@@ -83,8 +83,10 @@ function doupgrades()
 	-- Added by Bchamp 4/1/2019 to speed up getting Henchmen Yoke -----------------
 	-- 17 is the erate for 4 rods + fully upgraded generator without grid upgrade -
 	local curRank = GetRank()
-	if (ResearchQ(RESEARCH_HenchmanYoke) == 0 and curRank >= 3 and erate > 17) then
-		return
+	if (g_LOD >= 2) then
+		if (ResearchQ(RESEARCH_HenchmanYoke) == 0 and curRank >= 3 and erate > 17) then
+			return
+		end
 	end
 	-------------------------------------------------------------------------------
 	-------------------------------------------------------------------------------
@@ -467,10 +469,11 @@ function dofoundry()
 		alwaysBuild = 1
 	end
 	
-	local curRank = GetRank()	
+	local curRank = GetRank()
+	local minFoundries_LOD = g_LOD --Use Level of difficulty determining minimum number of foundries at each level. Assumes g_LOD is never more than 2
 
 	-- Have a minimum of 2 foundries if AI is at least lvl 2 
-	if (curRank >= 2 and numFoundries < 2) then
+	if (curRank >= 2 and numFoundries < minFoundries_LOD) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
@@ -486,7 +489,7 @@ function dofoundry()
 	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3. 
 	-- Also need minimum number of units.
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (numFoundries < 3 and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
+		if (numFoundries < (minFoundries_LOD + 1) and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -497,7 +500,7 @@ function dofoundry()
 
 	-- Have minimum 3 foundries once AI reaches Rank 4
 	if (curRank >= 4) then
-		if (numFoundries < 3 and gatherSiteOpen == 0) then
+		if (numFoundries < (minFoundries_LOD + 1) and gatherSiteOpen == 0) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -508,7 +511,7 @@ function dofoundry()
 
 	-- On small maps, have a minimum of 5 foundries if AI is at lvl 5
 	-- is this too many on small maps?? Vacation? Ring?
-	if (curRank == 5 and numFoundries < 5 and gatherSiteOpen == 0) then
+	if (curRank == 5 and numFoundries < (minFoundries_LOD + 3) and gatherSiteOpen == 0) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
@@ -624,6 +627,13 @@ end
 function docreaturechamber()
 	
 	local numActiveChambers = NumBuildingActive( RemoteChamber_EC )
+
+	-- Don't make more than one Creature Chamber on Easy Difficulty --Added by Bchamp 4/5/2019
+	if (g_LOD == 0) then
+		if (numActiveChambers > 0) then
+			return
+		end
+	end
 
 	if (numActiveChambers > 0) then
 		local underAttackVal = UnderAttackValue()
@@ -811,12 +821,42 @@ end
 function dowaterchamber()
 	
 	
+	-- Build Water Chamber when starting to research level that water units are available.
+	-- Added by Bchamp 4/5/2019
+	local curRank = GetRank()
+	local prepWC = 0
+	if (g_LOD >= 2 and ((fact_lowrank_amphib - curRank) == 1 or (fact_lowrank_swimmer - curRank) == 1) and NumBuildingQ( WaterChamber_EC ) == 0) then
+		if (curRank == 1 and ResearchQ(RESEARCH_Rank2) == 1) then
+			prepWC = 0 --Water Chambers not available to build until L2 as of current update 4/5/2019
+		elseif (curRank == 2 and ResearchQ(RESEARCH_Rank3) == 1) then
+			prepWC = 1
+		elseif (curRank == 3 and ResearchQ(RESEARCH_Rank4) == 1) then
+			prepWC = 1
+		elseif (curRank == 4 and ResearchQ(RESEARCH_Rank5) == 1) then
+			prepWC = 1
+		else
+			prepWC = 0
+		end
+
+		if (prepWC == 1 and CanBuildWithEscrow( WaterChamber_EC )==1 and IsChamberBeingBuilt() == 0) then
+			ReleaseGatherEscrow();
+			ReleaseRenewEscrow();
+			xBuild( WaterChamber_EC, PH_Best );
+			aitrace("Script: Build waterchamber");
+			return 1
+		end
+		return 0
+	end
+
+
+
 	-- if this chamber is desired and we have no other chamber this maybe a good option
 	-- this is only if we have swimmers in the current ranks of course
-	
 	if (goal_desireSwimmers == 0 or (LabUnderAttackValue() > 100 and NumChambers() > 0)) then
 		return 0
 	end
+
+
 
 	-- MORE WCs on water maps
 	if ((goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then

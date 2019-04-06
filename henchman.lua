@@ -215,14 +215,6 @@ function Logic_desiredhenchman()
 		henchman_count = henchman_count+((2+mapsizeoffset)*(curRank-1))
 	end
 	
-	if (g_LOD == 0) then
-		henchman_count = henchman_count*0.65
-	end
-
-	if (g_LOD == 1) then
-		henchman_count = henchman_count*0.9
-	end
-	
 	if (g_LOD > 0 and fact_closestAmphibDist > 400 and sg_randHenchmanVal > 70) then
 		henchman_count = henchman_count+1
 		if (sg_randHenchmanVal > 80) then
@@ -250,6 +242,15 @@ function Logic_desiredhenchman()
 
 	if (henchman_count > sg_henchman_max) then
 		henchman_count = sg_henchman_max;
+	end
+
+	--Adjust for easy difficulty
+	if (g_LOD == 0) then
+		henchman_count = henchman_count*0.65
+	end
+	--Adjust for normal difficulty
+	if (g_LOD == 1) then
+		henchman_count = henchman_count*0.9
 	end
 
 	sg_desired_henchman = henchman_count

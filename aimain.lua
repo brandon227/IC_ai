@@ -319,9 +319,13 @@ function needmoreelec()
 		sg_desired_elecrate = sg_desired_elecrate+(fact_armyAvgElec-40)/20
 	end
 
-	
+	-- Adjust desired erate for LOD
 	if (g_LOD == 0 and sg_desired_elecrate >= 6) then
-		sg_desired_elecrate = sg_desired_elecrate*0.7
+		sg_desired_elecrate = sg_desired_elecrate*0.6
+	end
+
+	if (g_LOD == 1 and sg_desired_elecrate >= 8) then
+		sg_desired_elecrate = sg_desired_elecrate*0.8
 	end
 	
 	-- if have achieved our rate and our coal rate is good and we have a

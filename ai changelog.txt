@@ -26,6 +26,7 @@
 - AI will no longer scuttle (blow up) it's own creature chambers if getting attacked and it is far away from the lab.
 	- now it will scuttle only when it's lab is being attacked...not any attack.
 - If the AI is trying to build a ton of soundbeam towers, it will first need to make sure it has 2 creature chambers at its base.
+- AI build water chambers when they start researching a level with water units.
 
 ----armyanalysis and choosecreature----
 - Artillery units are now always accompanied by Ranged Units

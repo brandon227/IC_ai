@@ -9,4 +9,3 @@ Updated 3/31/2019 by Bchamp
 
 - Adjust Henchmen Threshold and L1 build order and do testing.
 - Update Spam group sizes
-- AI build water chambers when they start researching a level with water units.

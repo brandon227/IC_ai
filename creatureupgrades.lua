@@ -50,7 +50,7 @@ function Logic_creatureupgrade()
 		-- get the number of these creatures in the world
 		local ccount = Army_NumCreatureInArmy( AIplayerindex, armyindex )
 		-- should be a few of them before upgrading them
-		if (ccount >= 6) then
+		if (ccount >= 6) then --lowered to 6 by Bchamp 4/5/2019
 			local cinfo = Army_GetUnit( AIplayerindex, armyindex );
 			local crank = ci_rank( cinfo );
 			local temparmour = ci_getattribute( cinfo, "armour" )
@@ -58,7 +58,7 @@ function Logic_creatureupgrade()
 			if (crank >= (curRank-1)) then
 				local ebpnetid = ci_ebpnetid(cinfo);
 				local upgradeCount = CreatureUpgradeNumResearched( ebpnetid )
-				if (upgradeCount < 8) then
+				if (upgradeCount < (g_LOD*4)) then --Added by Bchamp 4/5/2019 to account of LOD
 					-- save the creature we will upgrade
 					sg_creatureupgradeEbpNetId = ebpnetid;
 					-- save the armour for late use

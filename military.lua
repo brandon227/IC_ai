@@ -767,7 +767,7 @@ function dobuildcreatures()
 	local curRank = GetRank()
 
 	-- Do not queue more units than you have chambers (incorporating rank). Saves resources for other activities. Bchamp 4/5/2019
-	if (creaturesQ - NumCreaturesActive() >= (totalChambers + curRank - 1)) then
+	if (g_LOD >= 2 and (creaturesQ - NumCreaturesActive()) >= (totalChambers + curRank - 1)) then
 		return
 	end
 
