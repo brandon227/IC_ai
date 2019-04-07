@@ -116,7 +116,7 @@ function scuttle_elec()
 		Scuttle( ResourceRenew_EC )
 		return
 	end
-	if (NumBuildingActive(ElectricGenerator_EC)>0) then
+	if (NumBuildingActive(ElectricGenerator_EC)>0 and ScrapPerSec() < 8) then
 		Scuttle( ElectricGenerator_EC )
 		return
 	end
@@ -145,10 +145,6 @@ function scuttle_extrachamber()
 end
 
 function doscuttle(lowelec)
-	if (ElectricityAmountWithEscrow() > 1600) then
-		scuttle_elec()
-		return
-	end
 	if (NumBuildingActive(GeneticAmplifier_EC)>0) then
 		aitrace("ScuttleGeneticAmplifier")
 		Scuttle(GeneticAmplifier_EC)
@@ -159,12 +155,16 @@ function doscuttle(lowelec)
 		Scuttle(VetClinic_EC)
 		return
 	end
+	if (ElectricityAmountWithEscrow() > 1800) then --Changed from 1600 to 1800 4/7/2019 Bchamp
+		scuttle_elec()
+		return
+	end
 	-- if we have a foundry that is empty and if this isn't the only drop off on the map
 	if (NumEmptyFoundies() > 0 and CoalPileWithDropOffs() > 0) then
 		Scuttle(Foundry_EC)
 		return
 	end
-	if (lowelec==1 and ElectricityAmountWithEscrow() > 50) then
+	if (lowelec==1 and ElectricityAmountWithEscrow() > 150) then --Changed from 50 to 150 4/7/2019 Bchamp
 		scuttle_elec()
 		return
 	end

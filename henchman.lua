@@ -71,8 +71,10 @@ function init_henchman()
 	
 	if (g_LOD == 0) then
 		RegisterTimerFunc("dohenchman", 10 )
-	else
+	elseif (g_LOD == 1) then
 		RegisterTimerFunc("dohenchman", 3.5 )
+	else
+		RegisterTimerFunc("dohenchman", 2.0 ) --Added by Bchamp 4/7/2019 to reduce AI build henchman delay when only 1 hench is allowed to be queued at a time.
 	end
 	
 end
