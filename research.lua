@@ -50,10 +50,13 @@ function rankUp( capAt )
 
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
+		-- Added by Bchamp 4/7/2019 so that AI doesn't go Level 3 so quickly and has units and economy
 		local gametime = GameTime()
 		local numCreatures = NumCreaturesQ()
-		if (curRank == 2 and randUnitsOrRank < 80 and gametime < 4.75*60) then
+		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 85 and gametime < 4.75*60) then
 			if (numCreatures < 3+(randUnitsOrRank*0.08)) then
+				return
+			elseif (NumBuildingActive( Foundry_EC ) == 0) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 				return
 			end
 		end

@@ -135,7 +135,7 @@ function Rank2Rush_rankUp()
 
 	--If CC is supposed to be at enemy base, make sure it's queued before going L2.
 	if(chamberAtEnemyBase == 1) then
-		if (NumBuildingQ( RemoteChamber_EC ) < 1 and Rand(10) > 7) then
+		if (NumBuildingQ( RemoteChamber_EC ) < 1 and Rand(100) < 20) then
 			return
 		end
 	end
@@ -209,6 +209,10 @@ function Rank2Rush_docreaturechamber()
 		end
 	end
 
+	-- Added by Bchamp 4/7/2019 because AI could not build forward chamber on Cenote for some reason (water?). Hopefully this will cancel failed forward chambers
+	if (GetRank() > 1 and NumBuildingQ( RemoteChamber_EC ) == 0) then
+		chamberAtEnemyBase = 0
+	end
 
 	local basePlacement = PH_OutsideBase
 	--local chamberAtEnemyBase = 0
@@ -309,11 +313,12 @@ function Rank2Rush_dolightningrods()
 	local numHenchman = NumHenchmanActive()	
 	local numRods = 0
 
-	if (numHenchman > 3 and NumHenchmanQ() > numHenchman) then
+	-- and NumHenchmanQ() > numHenchman
+	if (numHenchman > 3) then
 		numRods = 1
 	end
 
-	if (numHenchman > 5 and NumHenchmanQ() > numHenchman) then
+	if (numHenchman > 5) then
 		numRods = 2
 	end
 
@@ -369,7 +374,7 @@ function Rank2Rush_dofoundry()
 	--Don't build foundry.
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
 
-	if (militaryValue < 1.3*(fact_enemyValue + 300)) then
+	if (militaryValue < 1.3*(fact_enemyValue + 200) and GameTime() < ((5.5+one_v_one)*60)) then
 		return
 	end
 
@@ -455,9 +460,8 @@ function Rank2Rush_Logic_desiredhenchman()
 		henchman_count = NumHenchmanActive()
 	elseif (curRank >= 2) then --Once your coal is filled and you have threshold number of units, build this many hench
 		henchman_count = 11 + (unitCount-(2 + Rand(1)))/2
-		if ( NumHenchmenGuarding()>2 and fact_selfValue > 1.2*(fact_enemyValue+350)) then
+		if ( NumHenchmenGuarding()>2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200))) then
 			local dist2dropoff = DistToDropOff();
-
 				aitrace("Script: dist2dropoff="..dist2dropoff);
 				if (CanBuildWithEscrow( Foundry_EC ) == 1) then
 					ReleaseGatherEscrow();

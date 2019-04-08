@@ -165,6 +165,9 @@ function dogeneticamplifier()
 	--	return 0
 	--end
 
+	if (NumBuildingActive( Foundry_EC) == 0) then
+		return
+	end
 
 	local numCreaturesNeeded = 9
 	-- make easy mode much more random in regards to building this
@@ -707,6 +710,9 @@ function docreaturechamber()
 				and ElectricityPerSecQ() > 10 and queued >= (numActiveChambers)) then
 
 				numActiveChambers = 1+Rand(1)
+				if (ScrapAmountWithEscrow() > 500) then
+					numActiveChambers = 2
+				end
 			end
 			-- cap for now
 			--if (numActiveChambers>2) then
