@@ -9,3 +9,6 @@ Updated 3/31/2019 by Bchamp
 
 - Adjust Henchmen Threshold and L1 build order and do testing.
 - Update Spam group sizes
+
+- Sometimes AI don't do Advanced Structures until L5
+- Stop AI from overbuilding hench in situations when coal piles are open but they are in danger or not mining at them for some reason. When Foundries are up but not being mined at. 

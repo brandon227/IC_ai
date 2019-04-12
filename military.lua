@@ -63,7 +63,7 @@ function init_military()
 	else
 		icd_enemyValueModifier = 0.95;
 		icd_engageEnemyValueModifier = 0.80;
-		icd_fleeEnemyValueModifier = 0.60;
+		icd_fleeEnemyValueModifier = 0.65; --the higher this value, the more easily the AI will flee. Raised from 0.60 by Bchamp 4/12/2019
 	end
 	
 	-- is the AIs current target an amphibian one

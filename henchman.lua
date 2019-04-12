@@ -35,11 +35,11 @@ function init_henchman()
 	end
 
 	-- added by LBFrank 12/30/18 increase desired hench every 6 minutes until max is reached
-	local sixMinuteStamp = 0;
-	if ((GameTime() == (sixMinuteStamp + (6*60))) and (sg_desired_henchman < sg_henchman_max)) then
-		sg_desired_henchman = (sg_desired_henchman + 6);
-		sixMinuteStamp = GameTime();
-	end
+	--local sixMinuteStamp = 0;
+	--if ((GameTime() == (sixMinuteStamp + (6*60))) and (sg_desired_henchman < sg_henchman_max)) then
+	--	sg_desired_henchman = (sg_desired_henchman + 6);
+	--	sixMinuteStamp = GameTime();
+	--end
 		
 	goal_dohenchmanexpand = 1
 	
@@ -125,7 +125,8 @@ function Logic_desiredhenchman()
 		sg_desired_henchman = 0
 		return
 	end
-	
+
+
 	Cache_henchmandata()
 	
 	-- dependant on level of diff, map size, if we are underattack, coal rate, current coal amount
@@ -150,7 +151,25 @@ function Logic_desiredhenchman()
 	local curRank = GetRank()
 	local gatherSiteOpen = IsGatherSiteOpen()
 	local numFoundries = NumBuildingActive( Foundry_EC )
---	local temp_count = henchman_count --used for L1 build order
+	
+	-----------------------------------------------------------------------------------
+	--Added by Bchamp 4/12/2019 after observation of AI building a ton of hench because it had unsafe foundries
+	-----that it wasn't mining at. 
+	--Don't build henchmen if you are mining coal inefficiently (less than expected gather rate)
+	--This may backfire for when you start running out of coal piles on map and henchmen overcrowd coal? Unsure.
+	if (curRank >= 3 and NumHenchmanActive() >= 10 and numFoundries > 0 and gatherSiteOpen > 0) then
+		local expectedGatherRate = 1.3 --Note that 10 henchmen mining 5 coal piles on Vacation is > 13 ScrapPerSec()
+		if (ResearchCompleted(RESEARCH_HenchmanYoke) == 1) then
+			expectedGatherRate = 2.0
+		end
+		if (ResearchCompleted(RESEARCH_HenchmanMotivationalSpeech) == 1) then
+			expectedGatherRate = expectedGatherRate*1.4
+		end
+		if ((ScrapPerSec() / (NumHenchmanActive() - 4)) < expectedGatherRate) then --Have 4 henchmen wiggle room for building stuff
+			return
+		end
+	end
+	----------------------------------------------------------------------------------
 
 	----------------------------------------------------------------------------------
 	-- Level 1 Build here ------------------------------------------------------------
@@ -226,7 +245,7 @@ function Logic_desiredhenchman()
 	
 	-- never request for more then we can support
 	if (henchman_count > (sg_henchmanthreshold+1)) then
-		henchman_count = sg_henchmanthreshold+1
+		henchman_count = sg_henchmanthreshold + 1 + mapsizeoffset --mapsizeoffset added by Bchamp 4/12/2019
 	end
 
 	--adjust henchman minimum after reaching rank 2 to ensure creatures get built promptly 1/4/2019 bchamp

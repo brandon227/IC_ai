@@ -48,6 +48,11 @@ function rankUp( capAt )
 		return
 	end
 
+	--On Hard and Expert, do not go L5 if AI has not researched Advanced Structures --Bchamp 4/12/2019
+	if (g_LOD >= 2 and curRank >= 4 and ResearchCompleted(RESEARCH_AdvancedStructure) == 0) then
+		return
+	end
+
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
 		-- Added by Bchamp 4/7/2019 so that AI doesn't go Level 3 so quickly and has units and economy

@@ -140,6 +140,7 @@ function Rank2Rush_rankUp()
 		end
 	end
 
+	--should AI only rank to L2 if it has enough hench? How would this affect Expert difficulty?
 
 	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
 			ReleaseGatherEscrow()

@@ -192,7 +192,7 @@ end
 
 
 function dolightningrods()
-	
+
 	local erate = ElectricityPerSecQ()
 	 
 	 -- if we have reached our desired rate then don't build anymore
