@@ -1,6 +1,6 @@
 aitrace("Script Component: ResearchRush Tactic")
 
-function ResearchRush_CanDo()
+function ResearchRush_CanDo(ForceTactic)
 
 	--local numEnemies = PlayersAlive( player_enemy )
 	
@@ -16,7 +16,7 @@ function ResearchRush_CanDo()
 	-- just hold on creatures enemy has more than X amount
 
 	-- could randomly decide to hold off on building any creature and rush to rank3
-	if (g_LOD > 1 and fact_army_maxrank >= 3) then
+	if (ForceTactic == 6 or (g_LOD > 1 and fact_army_maxrank >= 3)) then
 		
 		local rushChance = 0
 		 
@@ -28,7 +28,7 @@ function ResearchRush_CanDo()
 			rushChance = 10
 		end
 		
-		if (Rand(100) < rushChance) then
+		if (Rand(100) < rushChance or ForceTactic == 6) then
 			save_rankUp = rankUp
 			rawset(globals(), "rankUp", nil )
 			rankUp = ResearchRush_rankUp

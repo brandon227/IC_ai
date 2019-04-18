@@ -7,7 +7,7 @@
 
 aitrace("Script Component: EconomyRush Tactic")
 
-function EconomyRush_CanDo()
+function EconomyRush_CanDo(ForceTactic)
 
 	if (g_LOD < 2) then
 		return
@@ -34,20 +34,24 @@ function EconomyRush_CanDo()
 		rushChance = rushChance + 5
 	end
 
+	if (g_LOD < 2) then
+		canDo = 0
+	end
+
 	--------------------------------------
 	--TEST CODE SET FORCETACTIC TO 0 BEFORE RELEASE
-	local ForceTactic = 0
+	--local ForceTactic = 0
 
-	if (ForceTactic == 1) then
+	if (ForceTactic == 2) then
 		canDo = 1
 	end
 	--------------------------------------
 	--------------------------------------
 
 	-- could randomly decide to go for a late lvl 2 and focus on economy first.
-	if (g_LOD > 1 and fact_army_maxrank >= 3 and canDo == 1) then
+	if (fact_army_maxrank >= 3 and canDo == 1) then
 		
-		if (Rand(100) < rushChance or ForceTactic == 1) then
+		if (Rand(100) < rushChance or ForceTactic == 2) then
 			--save_Logic_set_escrow = Logic_set_escrow
 			--rawset(globals(), "Logic_set_escrow", nil )
 			--Logic_set_escrow = EconomyRush_Logic_set_escrow

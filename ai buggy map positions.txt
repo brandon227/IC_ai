@@ -2,4 +2,4 @@ some map positions have buggy ai...
 will update once more are discovered. look out for these guys
 
 -Tier-
-All positions: AI cannot build water chambers. Pools are too small
+All positions: AI cannot build water chambers. Pools are not connected to Ocean

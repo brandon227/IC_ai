@@ -4,12 +4,7 @@
 
 aitrace("Script Component: Rank2Rush Tactic")
 
-function Rank2Rush_CanDoTactic()
-
-	-- only do this in difficult and non-quick start resources
-	if (g_LOD ~= 2 or ScrapAmountWithEscrow() > 1000) then
-		return 0
-	end
+function Rank2Rush_CanDoTactic(ForceTactic)
 	
 	goal_rank2rush = 0
 
@@ -58,7 +53,21 @@ function Rank2Rush_CanDoTactic()
 			goal_rank2rush = 1
 		end
 	end
-	
+
+
+	-- only do this in difficult and non-quick start resources
+	if (g_LOD ~= 2 or ScrapAmountWithEscrow() > 1000) then
+		goal_rank2rush = 0
+	end
+
+
+	if (ForceTactic == 3) then
+		goal_rank2rush = 1
+		chamberAtEnemyBase = 0
+	elseif (ForceTactic == 4) then
+		goal_rank2rush = 1
+		chamberAtEnemyBase = 1
+	end
 	--------------
 	--TEST CODE ONLY!! REMOVE FOR RELEASE
 	--------------

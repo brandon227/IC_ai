@@ -59,20 +59,33 @@ function oninit()
 	--Added by Bchamp 3/31/2019 to toggle aggressive behavior
 	--aggressionLevel = 2
 	
-	local dotactics = 1 --should AI perform tactics?
+	local dotactic = 1 --should AI perform tactics?
 
 	-- check for this tactic
-	if (dotactics == 1) then
-		if (EconomyRush_CanDo() == 0) then
-			if (Rank2Rush_CanDoTactic()==0) then
-				if (Rank1Rush_CanDoTactic()==0) then
-					if (ResearchRush_CanDo()==0) then
+	if (dotactic == 1) then
+		if (EconomyRush_CanDo(dotactic) == 0) then
+			if (Rank2Rush_CanDoTactic(dotactic) == 0) then
+				if (Rank1Rush_CanDoTactic() == 0) then
+					if (ResearchRush_CanDo(dotactic) == 0) then
 						FlyerRush_CanDo()
 					end
 				end
 			end
 		end
 	end
+
+	if (dotactic == 2) then
+		EconomyRush_CanDo(dotactic)
+	elseif (dotactic == 3 or dotactic == 4) then
+		Rank2Rush_CanDoTactic(dotactic)
+	elseif (dotactic == 5) then 
+		return
+	elseif (dotactic == 6) then
+		ResearchRush_CanDo(dotactic)
+	elseif (dotactic == 7) then
+		return
+	end
+
 end
 
 function doweneedmoney()
