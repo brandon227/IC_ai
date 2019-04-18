@@ -64,6 +64,13 @@ function rankUp( capAt )
 			elseif (NumBuildingActive( Foundry_EC ) == 0) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 				return
 			end
+		-- Added by Bchamp 4/17/2019 to slow down L4.
+		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 85 and gametime < 6.5*60) then
+			if (numCreatures < 3+(randUnitsOrRank*0.08)) then
+				return
+			elseif (NumBuildingActive( Foundry_EC ) == 0) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+				return
+			end
 		end
 
 		-- find next rank:
@@ -212,7 +219,8 @@ function Logic_doadvancedresearch()
 	
 	-- don't research this if we are not in rank2 or we don't have some army
 	-- unless our army isn't available until r4
-	if (g_LOD == 2 and (ResearchCompleted(RESEARCH_Rank2)==0 or (fact_selfValue < 700 and fact_lowrank_all<4))) then
+	if (g_LOD == 2 and (ResearchCompleted(RESEARCH_Rank2)==0 or (fact_selfValue < 700 and fact_lowrank_all<4) or 
+		(NumBuildingActive( Foundry_EC ) < 1 and GameTime() < 8*60))) then --Don't do advanced research if no foundry before 8 minutes. Bchamp 4/17/2019
 		return
 	end
 	

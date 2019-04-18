@@ -42,7 +42,7 @@ function Rank2Rush_CanDoTactic()
 	-- If there is a rush, determine if it will be at a forward chamber at enemy base or not.
 	chamberAtEnemyBase = 0
 	local maxEnemyDistance = 500
-	if(Rand(100) < 30) then --30% chance of making a proxy chamber.
+	if(Rand(100) < 20) then --20% chance of making a proxy chamber.
 		chamberAtEnemyBase = 1
 		maxEnemyDistance = 350
 	end
@@ -405,6 +405,11 @@ end
 function Rank2Rush_Logic_military_setgroupsizes()
 
 	local numSBTower = PlayersUnitCount( player_enemy, player_max, SoundBeamTower_EC )
+	local numEnemyChamber = PlayersUnitCount( player_enemy, player_max, RemoteChamber_EC )
+	local numEnemyWC = PlayersUnitCount( player_enemy, player_max, WaterChamber_EC )
+	local totalEnemyChambers = numEnemyChamber + numEnemyWC
+
+	local difficulty = LevelOfDifficulty();
 
 	if (chamberAtEnemyBase == 1) then
 		icd_groundgroupminsize = 4 + 2*numSBTower;
@@ -412,20 +417,40 @@ function Rank2Rush_Logic_military_setgroupsizes()
 	
 		icd_groundgroupminvalue = 500 + (numSBTower * 200);
 		icd_groundgroupmaxvalue = 1200 + (numSBTower * 250);
-	else
-		icd_groundgroupminsize = fact_enemyPop+4+2*numSBTower;
+	elseif (one_v_one == 1 and chamberAtEnemyBase == 0) then
+		icd_groundgroupminsize = fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
 		icd_groundgroupmaxsize = 12 + 3*numSBTower;
 	
-		icd_groundgroupminvalue = (fact_enemyValue + 250)*1.2 + (numSBTower * 200);
+		icd_groundgroupminvalue = (fact_enemyValue + 450)*1.2 + (numSBTower * 200); --adjust to become similar to groupminsize????
+		icd_groundgroupmaxvalue = 2000 + (numSBTower * 300);
+	else
+		icd_groundgroupminsize = fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower; 
+		icd_groundgroupmaxsize = 12 + 3*numSBTower;
+	
+		--Added by Bchamp 4/17/2019 in order to stop AI from just hording units in FFA or Team games and begin attacking, even if it will lose. 
+		if (icd_groundgroupminsize > 9) then
+			icd_groundgroupminsize = 9
+		end
+
+		icd_groundgroupminvalue = (fact_enemyValue + 450)*1.2 + (numSBTower * 200);
 		icd_groundgroupmaxvalue = 2000 + (numSBTower * 300);
 	end
 
 	local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 
-	if (unitCount > (4-chamberAtEnemyBase) or fact_selfValue > 1.3*(fact_enemyValue + 300)) then
+	if (unitCount > (icd_groundgroupminsize - chamberAtEnemyBase)) then --or fact_selfValue > 1.3*(fact_enemyValue + 300) + (numSBTower * 200)) then --(2 + difficulty) -(chamberAtEnemyBase*2)
 		icd_groundgroupminsize = 1
 		icd_groundgroupminvalue = 1
 	end
+
+	--------------------------------------------------
+	icd_fleeEnemyValueModifier = 0.65;
+	if (numSBTower > 0) then
+		icd_fleeEnemyValueModifier = 0.70;
+	end
+	--------------------------------------------------
+
+
 
 	if (GetRank() > 2 or LabUnderAttackValue() > 200) then
 		rawset(globals(), "Logic_military_setgroupsizes", nil )
@@ -461,7 +486,8 @@ function Rank2Rush_Logic_desiredhenchman()
 		henchman_count = NumHenchmanActive()
 	elseif (curRank >= 2) then --Once your coal is filled and you have threshold number of units, build this many hench
 		henchman_count = 11 + (unitCount-(2 + Rand(1)))/2
-		if ( NumHenchmenGuarding()>2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200))) then
+		if ( NumHenchmenGuarding()>2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200) 
+			or (one_v_one == 0 and NumCreaturesActive() >= 10))) then
 			local dist2dropoff = DistToDropOff();
 				aitrace("Script: dist2dropoff="..dist2dropoff);
 				if (CanBuildWithEscrow( Foundry_EC ) == 1) then

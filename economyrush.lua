@@ -189,21 +189,24 @@ function EconomyRush_rankUp()
 	local curRank = GetRank();
 	numHenchForRank = sg_desired_henchman
 
+	if (NumHenchmanActive() < numHenchForRank) then
+		return
+	end
 	--Added by Bchamp 3/30/19 for maps with a ton of starting coal. AI won't build foundry so, to compensate, AI will build additional hench.
-	if (NumHenchmanActive() >= (numHenchForRank - 1) and (NumBuildingQ( Foundry_EC ) == 0)) then
-		numHenchForRank = numHenchForRank + 1
+	--if (NumHenchmanActive() >= (numHenchForRank - 1) and (NumBuildingQ( Foundry_EC ) == 0)) then
+	--	numHenchForRank = numHenchForRank + 1
+	--end
+
+	local dist2dropoff = DistToDropOff();
+
+	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+		ReleaseGatherEscrow()
+		ReleaseRenewEscrow()
+		xResearch( RESEARCH_Rank2 + curRank - 1);
+		-- var used to delay AI in easy
+		aitrace("Script: rank"..(curRank+1));
 	end
 
-
-	if (NumHenchmanActive() >= numHenchForRank) then
-		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
-			ReleaseGatherEscrow()
-			ReleaseRenewEscrow()
-			xResearch( RESEARCH_Rank2 + curRank - 1);
-			-- var used to delay AI in easy
-			aitrace("Script: rank"..(curRank+1));
-		end
-	end
 
 	if (curRank > 1 or UnderAttackValue() > 100) then
 		rawset(globals(), "rankUp", nil )
@@ -216,20 +219,16 @@ function EconomyRush_dofoundry()
 
 	if (IsGatherSiteOpen() == 0 and NumHenchmenGuarding() > 0 and NumBuildingQ( ResourceRenew_EC ) > 1) then
 
-		local dist2dropoff = DistToDropOff();
-		if (dist2dropoff > icd_maxfoundrydist) then
-
-			aitrace("Script: dist2dropoff="..dist2dropoff);
-			if (CanBuildWithEscrow( Foundry_EC ) == 1) then
-				ReleaseGatherEscrow();
-				ReleaseRenewEscrow();
-				xBuild( Foundry_EC, PH_Best );
-				aitrace("Script: build foundry");
-				return
-			end
-		
-			aitrace("Script: failed to build foundry");
+		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
+			ReleaseGatherEscrow();
+			ReleaseRenewEscrow();
+			xBuild( Foundry_EC, PH_Best );
+			aitrace("Script: build foundry");
+			return
 		end
+		
+		aitrace("Script: failed to build foundry");
+
 	end
 
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );

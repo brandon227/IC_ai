@@ -705,9 +705,9 @@ function docreaturechamber()
 				numActiveChambers = numActiveChambers+1
 			end
 
-			--Added so that computer could build a second CC at L2 if it's doing well. 
+			--Added so that computer could build a second CC at L2 if it's doing well. --Added by Bchamp 4/1/2019
 			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
-				and ElectricityPerSecQ() > 10 and queued >= (numActiveChambers)) then
+				and (ElectricityPerSecQ() >= 10 or (ElectricityPerSecQ() >= 8 and goal_rank2rush == 1)) and queued >= (numActiveChambers)) then
 
 				numActiveChambers = 1+Rand(1)
 				if (ScrapAmountWithEscrow() > 500) then

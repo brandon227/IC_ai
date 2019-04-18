@@ -47,7 +47,7 @@ function init_henchman()
 	icd_maxgathersites = 25
 	
 	-- standard and difficult
-	icd_henchman_per_scrapyard_near = 2.0;
+	icd_henchman_per_scrapyard_near = 2.0; --2.0, 2.3, 2.6
 	icd_henchman_per_scrapyard_med = 2.3;
 	icd_henchman_per_scrapyard_far = 2.6;
 		
@@ -57,10 +57,10 @@ function init_henchman()
 		icd_henchman_per_scrapyard_far = 1.7;
 	end
 	
-	icd_gatherDist_near = 35;
-	icd_gatherDist_med = 45;
-	icd_gatherDist_far = 65;
-	icd_maxfoundrydist = 50;
+	icd_gatherDist_near = 35; --35 ....these are the numbers that worked on Highland Economy Rush
+	icd_gatherDist_med = 45; --45
+	icd_gatherDist_far = 50; --50
+	icd_maxfoundrydist = 50; --50 or 40
 			
 	-- cache data every X seconds
 	timer_henchmandata = -1

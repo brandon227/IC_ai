@@ -700,7 +700,7 @@ function Logic_military_setattackpercentages()
 	local numAllies = PlayersAlive( player_ally )
 	
 	-- if the AI has more than 1.5 times more creatures than enemy then all out attack. Modified by Bchamp 4/1/2019
-	if (g_LOD>1 and fact_selfValue > (fact_enemyValue*1.5) and numAllies >= numEnemies) then
+	if (g_LOD>1 and fact_selfValue > ((fact_enemyValue+300)*1.5) and numAllies >= numEnemies) then
 		AttackNow()
 		icd_groundattackpercent = 100
 		icd_waterattackpercent = 100
