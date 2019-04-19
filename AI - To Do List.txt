@@ -16,3 +16,7 @@ Updated 4/17/2019 by Bchamp
 
 - Don't build 2nd Research Clinic in a 1v1 on small maps?
 - Make sure has units or timer hits before going L4 on 1v1s.
+
+- Rank2Rush and Economy Rush use Henchmen Threshold instead of a number in order to account for Easy or normal AI being forced to use tactic. Also for 4 vs 5 vs 6 starting coal piles.
+
+- Spam Offset
