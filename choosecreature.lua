@@ -42,7 +42,7 @@ function doMobilityChoice()
 	
 	-- if flyers are closer then amphibs 
 	if (sg_airDist*2 < sg_amphibDist) then
-		g_goalflyer = sg_goalflyer+1
+		sg_goalflyer = sg_goalflyer+1
 	end
 	
 end
@@ -392,6 +392,8 @@ function docreaturechoice()
 	sg_goalpureswimmer = 0
 	sg_goalflyingArtillery = 0
 	sg_goalstandard = 0
+	-- LBFrank 04/19/19 we dont want loners. at all.
+	sg_goalloner = -100
 		
 	-- check to see if we have a particular unit type and see if it should
 	-- be built
@@ -491,6 +493,15 @@ function docreaturechoice()
 			if (Army_IsUnitInClass( playerindex, sg_class_ground, i )==0) then
 				newvalue = newvalue + sg_goalpureswimmer
 			end	
+		end
+		if (Army_IsUnitInClass( playerindex, sg_class_flyingArtillery, i )==1) then
+			newvalue = newvalue + sg_goalflyingArtillery
+		end
+		if (Army_IsUnitInClass( playerindex, sg_class_stink, i )==1) then
+			newvalue = newvalue + sg_goalstink
+		end
+		if (Army_IsUnitInClass( playerindex, sg_class_loner, i )==1) then
+			newvalue = newvalue + sg_goalloner
 		end
 		if (Logic_CustomCreatureChoiceScore) then
 			newvalue = newvalue + Logic_CustomCreatureChoiceScore(playerindex, i)
