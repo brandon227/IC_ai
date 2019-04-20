@@ -136,7 +136,7 @@ function addAnalyzeFunc( checkFunc )
 	sg_class_last = sg_class_last+1
 	
 	-- should never ask for more than this
-	if (sg_class_last > 20) then
+	if (sg_class_last > 20) then --originally 15...Bchamp 4/19/2019
 		lua_error("AI: No More Analyze Func Space Left")
 	end
 	

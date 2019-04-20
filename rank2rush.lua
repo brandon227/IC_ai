@@ -37,7 +37,7 @@ function Rank2Rush_CanDoTactic(ForceTactic)
 	-- If there is a rush, determine if it will be at a forward chamber at enemy base or not.
 	chamberAtEnemyBase = 0
 	local maxEnemyDistance = 500
-	if(Rand(100) < 20) then --20% chance of making a proxy chamber.
+	if(Rand(100) < 20 and fact_lowrank_amphib ~= 2) then --20% chance of making a proxy chamber. Don't proxy with amphib L2's
 		chamberAtEnemyBase = 1
 		maxEnemyDistance = 350
 	end
@@ -211,12 +211,21 @@ end
 
 
 function Rank2Rush_docreaturechamber()
-	
+
 	--Check for reseraching lvl 2 in queue before building chamber at own base.
 	if (chamberAtEnemyBase == 0) then
 		if (ResearchQ(RESEARCH_Rank2) == 0) then
-			return
+			return 0
 		end
+	end
+
+	-- Build Water Chamber if Amphib L2's
+	if (fact_lowrank_amphib == 2 and NumBuildingActive( WaterChamber_EC ) == 0) then
+		return 0
+	end
+	-- Don't build CC if you have a Water Chamber and are not actively queuing units.
+	if (NumBuildingActive( WaterChamber_EC) == 1 and (NumCreaturesQ() - NumCreaturesActive()) == 0) then
+		return 0
 	end
 
 	-- Added by Bchamp 4/7/2019 because AI could not build forward chamber on Cenote for some reason (water?). Hopefully this will cancel failed forward chambers
@@ -243,9 +252,11 @@ function Rank2Rush_docreaturechamber()
 			xBuild( RemoteChamber_EC, basePlacement );
 			aitrace("Script: Build first creature chamber")
 
+			return 1
 			--reset max gatherers
 			--icd_maxgatherers = save_maxgatherers
 		end
+		return 0
 	end
 
 
@@ -333,7 +344,7 @@ function Rank2Rush_dolightningrods()
 	end
 
 	-- ADD CODE TO BUILD 3RD ROD. Bchamp 4/5/2019
-	if (NumBuildingQ( RemoteChamber_EC ) > 0) then
+	if (NumBuildingQ( RemoteChamber_EC ) > 0 or (fact_lowrank_amphib == 2 and ResearchQ( RESEARCH_Rank2 ) == 1)) then
 		numRods = 3
 	end
 
@@ -426,28 +437,31 @@ function Rank2Rush_Logic_military_setgroupsizes()
 	
 		icd_groundgroupminvalue = 500 + (numSBTower * 200);
 		icd_groundgroupmaxvalue = 1200 + (numSBTower * 250);
-	elseif (one_v_one == 1 and chamberAtEnemyBase == 0) then
-		icd_groundgroupminsize = fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
-		icd_groundgroupmaxsize = 12 + 3*numSBTower;
-	
-		icd_groundgroupminvalue = (fact_enemyValue + 450)*1.2 + (numSBTower * 200); --adjust to become similar to groupminsize????
-		icd_groundgroupmaxvalue = 2000 + (numSBTower * 300);
-	else
-		icd_groundgroupminsize = fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower; 
-		icd_groundgroupmaxsize = 12 + 3*numSBTower;
-	
-		--Added by Bchamp 4/17/2019 in order to stop AI from just hording units in FFA or Team games and begin attacking, even if it will lose. 
-		if (icd_groundgroupminsize > 9) then
-			icd_groundgroupminsize = 9
-		end
 
-		icd_groundgroupminvalue = (fact_enemyValue + 450)*1.2 + (numSBTower * 200);
-		icd_groundgroupmaxvalue = 2000 + (numSBTower * 300);
+	elseif (one_v_one == 1 and chamberAtEnemyBase == 0) then
+		icd_groundgroupminsize = 5 --fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
+		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower;
+	
+		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120; 
+		icd_groundgroupmaxvalue = 2500;
+
+	else
+		icd_groundgroupminsize = 5; 
+		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower; 
+
+		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120;
+		icd_groundgroupmaxvalue = 2500;
+
+		--Added by Bchamp 4/17/2019 in order to stop AI from just hording units in FFA or Team games and begin attacking, even if it will lose.
+		if (icd_groundgroupminvalue > (9*120)) then
+			icd_groundgroupminvalue = 9*120
+		end
 	end
 
 	local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 
-	if (unitCount > (icd_groundgroupminsize - chamberAtEnemyBase)) then --or fact_selfValue > 1.3*(fact_enemyValue + 300) + (numSBTower * 200)) then --(2 + difficulty) -(chamberAtEnemyBase*2)
+	--if (unitCount > (icd_groundgroupminsize - chamberAtEnemyBase)) then --or fact_selfValue > 1.3*(fact_enemyValue + 300) + (numSBTower * 200)) then --(2 + difficulty) -(chamberAtEnemyBase*2)
+	if (fact_selfValue > icd_groundgroupminvalue - chamberAtEnemyBase*120) then
 		icd_groundgroupminsize = 1
 		icd_groundgroupminvalue = 1
 	end
@@ -470,9 +484,9 @@ end
 
 function Rank2Rush_Logic_desiredhenchman()
 	
-	sg_desired_henchman = 8
+	sg_desired_henchman = sg_henchmanthreshold
 	if (chamberAtEnemyBase == 1) then
-		sg_desired_henchman = 9
+		sg_desired_henchman = sg_henchmanthreshold + 1
 	end
 
 	local henchman_count = sg_desired_henchman
@@ -481,9 +495,9 @@ function Rank2Rush_Logic_desiredhenchman()
 	local gatherSiteOpen = IsGatherSiteOpen()
 
 	if (curRank == 1 and gatherSiteOpen > 0) then
-		sg_desired_henchman = 10
+		sg_desired_henchman = sg_henchmanthreshold
 		if (chamberAtEnemyBase == 1) then
-			sg_desired_henchman = 11
+			sg_desired_henchman = sg_henchmanthreshold + 1
 		end
 		henchman_count = sg_desired_henchman
 	elseif (curRank == 2 and chamberAtEnemyBase == 1 and (fact_selfValue < 1.3*(fact_enemyValue + 250) or unitCount < 5)) then
@@ -492,9 +506,16 @@ function Rank2Rush_Logic_desiredhenchman()
 	elseif (curRank == 2 and gatherSiteOpen > 0) then --How hench are built if AI is L2 and coal isnt filled
 		henchman_count = sg_desired_henchman + (unitCount-1)
 	elseif(gatherSiteOpen == 0 and unitCount < (Rand(4) + 1)) then --If coal is filled and less than this amount of units, don't build hench
-		henchman_count = NumHenchmanActive()
+		henchman_count = sg_henchmanthreshold
+		-- if gather sites full and less than threshold number of units, check if ampib rush. If yes, build additional hench to account for WC build time.
+		if (fact_lowrank_amphib == 2 and NumBuildingQ(WaterChamber_EC) > 0) then
+			henchman_count = sg_henchmanthreshold + 2
+		end
 	elseif (curRank >= 2) then --Once your coal is filled and you have threshold number of units, build this many hench
-		henchman_count = 11 + (unitCount-(2 + Rand(1)))/2
+		if (NumHenchmenGuarding() >= 3) then
+			henchman_count = NumHenchmanActive()
+		end
+		henchman_count = sg_henchmanthreshold + 1 + (unitCount-(2 + Rand(2)))/2
 		if ( NumHenchmenGuarding()>2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200) 
 			or (one_v_one == 0 and NumCreaturesActive() >= 10))) then
 			local dist2dropoff = DistToDropOff();

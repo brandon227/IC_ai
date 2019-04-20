@@ -171,7 +171,7 @@ function Logic_creatureTypeDesire()
 		-- should also check if the top wanted creatures are amphibian ?
 		
 		-- does building swimmer double our options
-		if (goal_amphibTarget == 0 and swimmerCount > groundCount) then
+		if (goal_amphibTarget == 0 and swimmerCount >= groundCount) then
 			goal_desireSwimmers = 1
 		end
 			
@@ -297,6 +297,19 @@ function Logic_military_setgroupsizes()
 	
 	local groupoffset = 0
 	local valueoffset = 0
+	local rankMultiplier = 60
+	local curRank = GetRank()
+
+	--Added by bchamp 4/19/2019 for value multiplication
+	if (curRank == 2) then
+		rankMultiplier = 120
+	elseif (curRank == 3) then
+		rankMultiplier = 230
+	elseif (curRank == 4) then
+		rankMultiplier = 400
+	elseif (curRank == 5) then
+		rankMultiplier = 650 + Rand(2)*50 --add randomness
+	end
 				
 	-- increase my troop counts if the enemy has more units than I do
 	if (g_LOD > 0) then
@@ -351,7 +364,7 @@ function Logic_military_setgroupsizes()
 		valueoffset = 0 -- this is 200-1400 group value
 	end
 	
-	
+
 	-- initial group sizes for all LODs
 	icd_groundgroupminsize = groupoffset+2;
 	icd_groundgroupmaxsize = groupoffset*2+6;
@@ -383,22 +396,22 @@ function Logic_military_setgroupsizes()
 	-- compensate for skewed army structures like 1314 where average between two levels doesn't work well. 
 	----------------- Turning function off until Logan can do testing --------------------------------
 	local spamOffset = 0; 
-	local currRank = GetRank()
-	local averageCoalcur = 45+(85*(currRank-1))
-	if (currRank==5) then
+	local curRank = GetRank()
+	local averageCoalcur = 45+(85*(curRank-1))
+	if (curRank==5) then
 		averageCoalcur = averageCoalcur+15
 	end
 
 	local averageCoalprev = 0
 	
-	if (currRank>=2) then
-		averageCoalprev = 45+(85*(currRank-2))
+	if (curRank>=2) then
+		averageCoalprev = 45+(85*(curRank-2))
 	end
 
 	local averageCoal = ((averageCoalcur + averageCoalprev) / 2)
 	
 	if (fact_armyAvgCoal < 	averageCoal) then
-		spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*currRank))
+		spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*curRank))
 	end
 	
 	--if (spamOffset > 1) then
@@ -407,9 +420,17 @@ function Logic_military_setgroupsizes()
 	----------------------------------------------------------------------------------
 
 	----------------------------------------------------------------------------------
-	-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
+
 
 	if (g_LOD >= 2) then
+
+		icd_groundgroupminsize = groupoffset + 3 + Rand(3);
+		icd_groundgroupmaxsize = (groupoffset+5)*2+6;
+		
+		icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier;
+		icd_groundgroupmaxvalue = icd_groundgroupmaxsize*rankMultiplier*2;
+
+		-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
 		local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 		if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
 			icd_groundgroupminsize = Rand(5) + 2

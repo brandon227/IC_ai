@@ -630,6 +630,7 @@ end
 function docreaturechamber()
 	
 	local numActiveChambers = NumBuildingActive( RemoteChamber_EC )
+	local curRank = GetRank()
 
 	-- Don't make more than one Creature Chamber on Easy Difficulty --Added by Bchamp 4/5/2019
 	if (g_LOD == 0) then
@@ -691,6 +692,12 @@ function docreaturechamber()
 	end
 	-------------------------------------------------------------
 	-------------------------------------------------------------
+	-- Added by Bchamp so all amphib armies will still make regular CC's, assuming they have a WC 4/19/2019
+	if (NumBuildingActive(WaterChamber_EC) > 0 and curRank >= fact_lowrank_amphib) then
+		desireCC = 1
+	end
+	-------------------------------------------------------------
+
 
 	if (desireCC == 1 and (goal_needelec ~= 2 or fact_armyAvgElec<10)) then
 
@@ -709,7 +716,7 @@ function docreaturechamber()
 			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
 				and (ElectricityPerSecQ() >= 10 or (ElectricityPerSecQ() >= 8 and goal_rank2rush == 1)) and queued >= (numActiveChambers)) then
 
-				numActiveChambers = 1+Rand(1)
+				numActiveChambers = 1+Rand(2)
 				if (ScrapAmountWithEscrow() > 500) then
 					numActiveChambers = 2
 				end
@@ -865,7 +872,7 @@ function dowaterchamber()
 
 
 	-- MORE WCs on water maps
-	if ((goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then
+	if (fact_lowrank_amphib == curRank or (goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then
 		if (NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and IsChamberBeingBuilt() == 0 and 
 			CanBuildWithEscrow( WaterChamber_EC )==1) then
 				ReleaseGatherEscrow();
