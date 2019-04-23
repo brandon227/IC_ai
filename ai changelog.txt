@@ -1,6 +1,6 @@
 -- ai changelog --
 ------------------
-Last Updated 22 April 2019 by Bchamp and LBFrank
+Last Updated 23 April 2019 by Bchamp and LBFrank
 ------------------
 
 ---- aimain ----
@@ -66,6 +66,11 @@ Last Updated 22 April 2019 by Bchamp and LBFrank
 - Only 6 units are required before AI will begin to upgrade them (previously 7)
 - AI can now fully upgrde their units, previously only 3 upgrades were allowed*
 - Hitpoints are now prioritized to upgrade and Area Attack Radius is deprioritized.
+- 5 different Creature Upgrade Orders added, dependent on the creature's stats.
+ > base upgrade order (the one originally present)
+ > low melee base order (no melee upgrade)
+ > 2 range glass orders (one with melee upgrade, one without, for low melee units)
+ > melee glass order
 
 
 ---- flyerrush ----
