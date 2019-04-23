@@ -76,19 +76,51 @@ function Logic_creatureupgrade()
 end
 
 function pickupgrade( creature, armour )
-
-	-- based on creature type choose the next best upgrade for this creauture
 	
+	-- Added by LBFrank 4/22/19 different upgrade orders for different classes of units
+	-- the standard upgrade order
 	local upgradeOrder = {
-			CREATUREUPGRADE_HitPoints,
-			CREATUREUPGRADE_RangedDamage,
-			CREATUREUPGRADE_SplashDamage,
-			CREATUREUPGRADE_MeleeDamage,
-			CREATUREUPGRADE_Defense,
-			CREATUREUPGRADE_Speed,
-			CREATUREUPGRADE_SightRadius,
-			CREATUREUPGRADE_AreaAttackRadius
-			};
+			CREATUREUPGRADE_HitPoints, CREATUREUPGRADE_RangedDamage, CREATUREUPGRADE_SplashDamage,
+			CREATUREUPGRADE_MeleeDamage, CREATUREUPGRADE_Defense, CREATUREUPGRADE_Speed, 
+			CREATUREUPGRADE_SightRadius, CREATUREUPGRADE_AreaAttackRadius };
+
+	-- don't do melee upgrade on 'meat' or very low melee damage units in general
+	if ( ci_getattribute( creature, "melee_damage" ) <= 2 + ci_rank( creature ) ) then
+		
+		upgradeOrder = {
+			CREATUREUPGRADE_HitPoints, CREATUREUPGRADE_RangedDamage, CREATUREUPGRADE_SplashDamage,
+			CREATUREUPGRADE_Defense, CREATUREUPGRADE_Speed, CREATUREUPGRADE_SightRadius,
+			CREATUREUPGRADE_AreaAttackRadius };
+	end	
+
+	
+	-- upgrade orders for 'glass cannons.' Damage and speed, then other stats should be prioritized over HP.
+	-- will need eHP for this
+	local eHP = ci_getattribute( creature, "hitpoints" ) / (1 - ci_getattribute( creature, "armour" ))
+
+	-- ranged glass
+	if ( ci_rangedamage( creature ) >= (eHP / (5*ci_rank( creature ))) ) then
+		-- low melee ranged glass
+		if ( ci_getattribute( creature, "melee_damage" ) <= 2 + ci_rank( creature ) ) then
+			upgradeOrder = {
+				CREATUREUPGRADE_RangedDamage, CREATUREUPGRADE_SplashDamage, CREATUREUPGRADE_Speed,
+				CREATUREUPGRADE_SightRadius, CREATUREUPGRADE_HitPoints, CREATUREUPGRADE_Defense,
+				CREATUREUPGRADE_AreaAttackRadius };
+		else
+			upgradeOrder = {
+				CREATUREUPGRADE_RangedDamage, CREATUREUPGRADE_SplashDamage, CREATUREUPGRADE_Speed,
+				CREATUREUPGRADE_MeleeDamage, CREATUREUPGRADE_SightRadius, CREATUREUPGRADE_HitPoints,
+				CREATUREUPGRADE_Defense, CREATUREUPGRADE_AreaAttackRadius };
+		end
+	end
+
+	-- melee glass cannon
+	if (ci_rangedamage( creature ) == 0 and ( ci_meleedamage( creature ) >= (eHP / (5*ci_rank( creature ))) )) then
+		upgradeOrder = {
+			CREATUREUPGRADE_MeleeDamage, CREATUREUPGRADE_Speed, CREATUREUPGRADE_SightRadius, 
+			CREATUREUPGRADE_HitPoints, CREATUREUPGRADE_Defense,
+			CREATUREUPGRADE_AreaAttackRadius };
+	end
 	
 	local count = getn( upgradeOrder )
 	
@@ -129,5 +161,8 @@ function Command_creatureupgrade( )
 	
 
 end
+
+
+
 
 
