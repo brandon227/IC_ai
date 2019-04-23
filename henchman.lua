@@ -188,6 +188,12 @@ function Logic_desiredhenchman()
 	--This helps fill in expansions on maps with a ton of coal when henchman_min, defined later, doesn't make enough.
 	local unitModifier = NumCreaturesQ() --variable helps to balance units with henchmen
 	local unitMultiplier = (Rand(40) + 60)/100 --helps add randomness to make AI more aggressive and prioritize units, Bchamp 3/31/2019
+
+	--added by Bchamp 4/22/2019 in order to account for island maps
+	if ( fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer and unitModifier == 0) then
+		unitModifier = 10
+	end
+	-- Don't count to many units
 	if (unitModifier > 16) then
 		unitModifier = 16
 	end

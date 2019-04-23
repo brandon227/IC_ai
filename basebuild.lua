@@ -283,8 +283,10 @@ function dosoundbeamtowers()
 	end
 	
 	local numTowerActive = NumBuildingActive( SoundBeamTower_EC )
-	if (NumHenchmanActive() > 5 and fact_closestGroundDist < 150 and numTowerActive<1 and curRank==1) then
-		buildTowers = 1
+	if (fact_closestGroundDist ~= 0) then
+		if (NumHenchmanActive() > 5 and fact_closestGroundDist < 150 and numTowerActive<1 and curRank==1) then
+			buildTowers = 1
+		end
 	end
 	
 	-- check for camo digger units

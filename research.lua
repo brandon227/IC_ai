@@ -40,9 +40,15 @@ end
 -- rank helper function
 randUnitsOrRank = Rand(100) --Random variable used to help decide if AI should build more units before ranking up.
 
+
 function rankUp( capAt )
 	-- whats our current Rank
 	local curRank = GetRank();
+	
+	-- Adjust for island map logic or not being able to build units
+	if (curRank < fact_lowrank_all or (fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer)) then
+		randUnitsOrRank = 100
+	end
 
 	if (curRank < 2 and NumHenchmanActive() < sg_desired_henchman) then
 		return
