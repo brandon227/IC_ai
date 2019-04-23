@@ -389,39 +389,10 @@ function Logic_military_setgroupsizes()
 		
 	end
 	
-	----------------------------------------------------------------------------------	
-	-- added by LBFrank 01/01/19 added offset for 'spam' (WIP)
-	-- Modified by Bchamp 4/5/2019 for 2.5.3.1 Beta (WIP) -------
-	-- Maybe create a new fact_armyAvgCoal variable that only take the current level into account? Will hopefully
-	-- compensate for skewed army structures like 1314 where average between two levels doesn't work well. 
-	----------------- Turning function off until Logan can do testing --------------------------------
-	local spamOffset = 0; 
-	local curRank = GetRank()
-	local averageCoalcur = 45+(85*(curRank-1))
-	if (curRank==5) then
-		averageCoalcur = averageCoalcur+15
-	end
 
-	local averageCoalprev = 0
 	
-	if (curRank>=2) then
-		averageCoalprev = 45+(85*(curRank-2))
-	end
-
-	local averageCoal = ((averageCoalcur + averageCoalprev) / 2)
-	
-	if (fact_armyAvgCoal < 	averageCoal) then
-		spamOffset = ((averageCoal - fact_armyAvgCoal) / (3*curRank))
-	end
-	
-	--if (spamOffset > 1) then
-	--	icd_groundgroupminsize = icd_groundgroupminsize+spamOffset --Turned off 4/5/2019 by Bchamp until Logan can do testing
-	--end
 	----------------------------------------------------------------------------------
-
-	----------------------------------------------------------------------------------
-
-
+	-- Added by Bchamp 4/22/2019 to ensure that groupminvalue is used to account for spam or low power units. Also adjusted for rank
 	if (g_LOD >= 2) then
 
 		icd_groundgroupminsize = groupoffset + 3 + Rand(3);
@@ -559,6 +530,7 @@ function Logic_military_setdesiredcreatures()
 	
 	removeExtraGroundCreatures() --This kills own ground creatures if we have enough in order to make room for amphib and air. Should AI be killing own units? Bchamp 3/31/2019
 	
+
 	------------------------------------------------------------------------------
 	-- RULES BELOW - these all put caps on creatures to give money to other areas
 	------------------------------------------------------------------------------
@@ -588,7 +560,7 @@ function Logic_military_setdesiredcreatures()
 
 	-- if we are at least L3 and comfortable but do not have Henchmen Yoke, slow down creature production. 
 	-- Added by Bchamp 4/1/2019. Tested and this does help AI research Yoke about a minute faster.
-	if (curRank >= 3 and ResearchCompleted(RESEARCH_HenchmanYoke) == 0) then
+	if (g_LOD >= 2 and curRank >= 3 and ResearchCompleted(RESEARCH_HenchmanYoke) == 0) then
 		if (UnderAttackValue() < 100 and NumCreaturesActive() > 5 and NumHenchmanActive() > 18 and fact_selfValue > fact_enemyValue) then
 			sg_creature_desired = numCreatures + 1
 			return
@@ -645,7 +617,28 @@ sg_militaryRand = Rand(100)
 -- function that gets called on a timer
 function attack_now_timer()
 		
-	
+	--This does nothing as far as I can tell.....Let's try and work on this later? Bchamp 4/22/2019
+	SetTargetTypePriority( Creature_EC, 20 )
+	SetTargetTypePriority( SoundBeamTower_EC, 20 )
+	SetTargetTypePriority( AntiAirTower_EC, 20 )
+	SetTargetTypePriority( ElectricGenerator_EC, 1000 )
+	SetTargetTypePriority( RemoteChamber_EC, 20 )
+	SetTargetTypePriority( WaterChamber_EC, 20 )
+	SetTargetTypePriority( Aviary_EC, 20 )
+	SetTargetTypePriority( ResourceRenew_EC, 20 )
+	SetTargetTypePriority( Foundry_EC, 20 )
+	SetTargetTypePriority( VetClinic_EC, 20 )
+	SetTargetTypePriority( GeneticAmplifier_EC, 20 )
+	SetTargetTypePriority( LandingPad_EC, 20 )
+	SetTargetTypePriority( BrambleFence_EC, 20 )
+	SetTargetTypePriority( Lab_EC, 20 )
+	SetTargetTypePriority( Henchman_EC, 20 )
+
+	SetTargetPriority( ElectricGenerator_EC, 10000 )
+	SetTargetPriority( Henchman_EC, 20 )
+	SetTargetPriority( Creature_EC, 20 )
+	SetTargetPriority( Lab_EC , 0)
+
 	AttackNow();
 	aitrace("Script: Attack Now")
 end

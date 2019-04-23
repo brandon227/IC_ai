@@ -161,11 +161,7 @@ end
 
 function dogeneticamplifier()
 	
-	--if (checkToBuildAdvancedStructures(5) == 0) then
-	--	return 0
-	--end
-
-	if (NumBuildingActive( Foundry_EC) == 0) then
+	if (g_LOD > 0 and NumBuildingActive( Foundry_EC ) == 0) then
 		return
 	end
 
@@ -374,11 +370,6 @@ function doantiairtowers()
 	local numQueued = NumBuildingQ( AntiAirTower_EC )
 	local numtowersBeRequested =  numQueued - numActive
 	
-	-- don't build more than one at a time
-	--if (numtowersBeRequested > 0) then
-		--return
-	--end
-	
 	-- make sure one more is being built if we are underattack by flyers
 	if ((NumUnprotectedAASite() > 0 or NumSitesWithZeroAA() > 0) and numQueued == numtowers) then
 		numtowers = numActive+1
@@ -413,7 +404,8 @@ function dovetclinic()
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
 	local maxVetClinic = 1
 	if (curRank > 2) then
-		if (sg_randval > 70) then
+		-- 30% chance of building a single vet clinic. Also will only build a single clinic if doing a 1v1 on a small map.
+		if (sg_randval < 30 or ((PlayersAlive( player_ally ) == 1 and PlayersAlive( player_enemy ) == 1) and fact_closestAmphibDist < 450)) then
 			maxVetClinic = 1
 		else
 			maxVetClinic = 2
@@ -603,16 +595,7 @@ function dofoundry()
 	if (NumBuildingQ( Foundry_EC ) - NumBuildingActive( Foundry_EC ) > 0) then
 		return
 	end
-	--Only build foundry if other foundries are full....doesn't work. Stops all foundries from being built.
-	--if (CoalPileWithDropOffs() > 0) then
-	--	 return
-	--end
 
-	local dist2dropoff = DistToDropOff();
-	--Commenting this if statement out because it causes AI on some maps to not build foundries at all in specific positions. 1/4/2019 Bchamp
-	--if (dist2dropoff > icd_maxfoundrydist) then
-
-		--aitrace("Script: dist2dropoff="..dist2dropoff);
 		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
@@ -622,8 +605,7 @@ function dofoundry()
 			return
 		end
 		
-		--aitrace("Script: failed to build foundry");
-	--end
+
 end
 
 
@@ -721,10 +703,7 @@ function docreaturechamber()
 					numActiveChambers = 2
 				end
 			end
-			-- cap for now
-			--if (numActiveChambers>2) then
-			--	numActiveChambers = 2
-			--end
+
 			
 		else
 			-- store number of desired chambers

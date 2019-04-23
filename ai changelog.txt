@@ -1,51 +1,138 @@
--- Changelog for AI --
-----------------------
+-- ai changelog --
+------------------
+Last Updated 22 April 2019 by Bchamp and LBFrank
+------------------
 
-----aimain----
-- Set initial desired electricity rate to 4, and increased how much the desired rate increases,
-  making henchmen go for gens quicker and more of them
-- Desired electricity rate spike at level 4 to encite the building of more generators for the push
-  to level 5
+---- aimain ----
+- Added rank2rush.lua tactic and filepath
+- Added economyrush.lua tactic and filepath
+- Added dotactic variable to allow for add-ons to force ai to perform specific tactics/build orders at game start
 
-----basebuild----
-- removed function/string to build landing pad and gyrocopter as AI can't use those assets
-- AI should only build 2 rods before level 2
-- On Hard or Expert, AI will require 2 CC's before creating any SB towers to stop building only SBs when needs units. This needs tweaking to account for number of active units. 
-- AI builds 2 research clinics as opposed to one
-- Electrical Generators can now be built by AI when 2+ rods are present as opposed to all 4, 
-  but will only be built once a workshop is set up
-- AI will now expand more to try to meet these goals:
-	-min 2 workshops at level 2
-	-min 3 workshops at 3 on large maps
-	-min 3 workshops at 4
-	-min 5 workshops at 5 on small/medium maps, and 6 on large maps
-- AI builds 4 water chambers if amphib army/map, only builds 2 if ground
-- Changed distance of Creature Chamber to base to hopefully allow for more spacing between chambers.
-- Number of Chambers will at minimum = # of foundrys + what they feel they need
-- Distance from base should now be further based on # foundrys present (also dependent on map size). More aggro chambers xd
-- AI will no longer scuttle (blow up) it's own creature chambers if getting attacked and it is far away from the lab.
-	- now it will scuttle only when it's lab is being attacked...not any attack.
-- If the AI is trying to build a ton of soundbeam towers, it will first need to make sure it has 2 creature chambers at its base.
-- AI build water chambers when they start researching a level with water units.
+- Are less likely to scuttle lighning rods and generators
+- AI desire more coal (25/sec compared to 15/sec)
 
-----armyanalysis and choosecreature----
-- Artillery units are now always accompanied by Ranged Units
-- AI also now recognizes niche units such as flying artillery and units with certain abilities, such as stink and deflect, 
-  and will use/counter them accordingly
+- Adjusted desired elec rate to increase as the AI builds more foundries (workshops)
+- Additional adjustments so that AI desire more elec.
 
-----military----
-- Created a 'spam' offset so unit groups are larger the 'spammier' the available units are, based on average viable creature costs.
 
-----(henchman) henchmansworth----
-- increased minimum henchmen, desired number of henchmen, and max amount of henchmen AI aims to have
-- made it so that henchmen are balanced with creature production after lvl 2 and before first workshop has been made
+---- armyanalysis ----
+- Added analyzers for units for stink, flying artillery, deflection armor, loner, sonic, and Level 2 Rush units
 
-----flyerrush----
--Previously henchman were told not to expand during a flyer rush. That cancellation was removed.
 
-----research----
-- AI can now research Henchmen Yoke and Speed (fixed bug that existed previously)
-- AI can now fully upgrade units (previously could only upgrade 3 things)
+---- basebuild ----
+- AI can no longer build landing pad since it never used it properly.
+- Electric Generator Upgrades are postponed/slowed down if Henchman Yoke hasn't been researched*
+- Foundry is required to build a genetic amplifier*
+- Require 8 active henchman before building second rod
+- AI will only build 2 lightning rods before starting Level 2 research
+- AI will build soundbeam towers to combat low level sonic units.
+- AI will build 1 anti air tower for every 5 enemy fliers. Previously 1 for every 10 enemy fliers.
+	- AI can also build more than 1 AA tower at a time now.
+- Build research clinic only when comfortable (e.g. lab not under attack, have ample henchmen and creatures)
+- AI may build 2 research clinics (randomly decided) but only one at a time.
 
-----rank2rush----
--Created a Rank2 Chamber Rush that can randomly happen
+- AI now expand across the map and build more workshops (foundries)
+	- Number of desired workshops increases with each level
+	- AI will not build a new workshop until all of its workshops are full.
+	- AI now take into account whether or not they can beat an enemy attack on a workshop before fleeing and building a new one
+	- AI will slow down workshop expansion to research henchman yoke.
+	- Only build one workshop at a time.
+	- dist2dropoff > icd_maxfoundrydist removed since it stopped AI from expanding on certain maps where coal was too close to lab.
+
+- AI now build more creature chambers and build them further from lab to be more aggressive
+	- Easy difficulty AI only build one creature chamber
+	- Won't build a creature chamber before L2 if it's L2 units are amphib. Will instead wait for water chamber to be built.
+	- Number of desired creature chambers is dependent on the number of foundries the AI has. This way AI build more CC's as game progresses.
+	- Distance that creature chambers are built from lab is based on number of foundries.
+	- AI can build a second creature chamber at L2 if it is doing well and comfortable.
+
+- Only build electrical generator after two or more rods are present and after building a foundry.
+- Water Chambers can now be built while AI is researching level that will require amphib units so that they are ready immediately upon ranking up.
+- More water chambers are desired on water maps and more are built as the game progresses.
+- Air Chambers never built before reaching Level 3
+
+
+---- choosecreature ----
+- Artillery units are now always accompanied by ranged units
+- Desire more fliers on water maps. 
+- Units with Stink Cloud are mixed with standard melee units.
+- AI now recognize the utility of Flying artillery units and build them preferentially in certain scenarios
+- AI now responds to enemy stink cloud and deflection armor with melee and fliers
+- AI will not build loners ever.
+
+
+---- creatureupgrades ----
+- Function performed faster so that AI will complete upgrades more quickly with less delays between them.
+- Only 6 units are required before AI will begin to upgrade them (previously 7)
+- AI can now fully upgrde their units, previously only 3 upgrades were allowed*
+- Hitpoints are now prioritized to upgrade and Area Attack Radius is deprioritized.
+
+
+---- flyerrush ----
+- Previously AI would not expand when performing this tactic. That was removed.
+
+
+---- henchman ----
+- Henchman minimums and maximums adjusted and increased.
+- Function runs more quickly so that AI build henchman faster.
+- icd_gatherDist variables adjusted after bugs found on certain maps. Unsure what these variables do specifically, as adjusting them too much caused weird and unpredictable AI behavior. 
+- Pre-L2 build order improved and optimized.
+- AI will now agressively build henchmen to fill coal piles and workshop expansions* 
+- AI will stop building henchman if it notices inefficient gathering (i.e. coal piles are running out of coal and 10 henchmen are mining one coal pile)
+- AI now balances henchmen production with units production
+- AI will queue no more than 1 henchman at a time at the lab*
+
+
+---- holdfunctions ----
+- No Changes
+
+
+---- military ----
+- Enemy are more likely to retreat when outnumbered by enemy
+- Multiple tweaks so that current Research Level is incorporated into military decisions including which chambers to build units from and attack size.
+- AI will make larger groups of Spam Units when attacking compared to regular units be requiring a theshold amount of "value" per attack group*
+- Slow creature production if L3 but have not yet researched Henchman Yoke*
+- AI are more aggressive, especially when winning*
+- AI will queue less units at it's chambers so that it has more resources to spend on other things. 
+
+
+---- rank1rush ----
+- No Changes
+
+
+---- research ----
+- AI now research Henchman Binoculars but they do not reserach Henchman Heal
+- AI only start researching L2 after obtaining desired number of henchmen. 
+- Do not research L5 until advanced structures has been researched*
+- AI will randomly decide whether or not it needs to build more units/foundries/research yoke before starting L3 or L4 research. Helps to slow down tech speed and increase military and economic expansion.*
+- Will not perform advanced research before building a foundry before 8 minutes. Helps promote expansion and henchman building*
+- Prioritize Henchman Yoke research over other research.
+- Deprioritize Electrical Grid Research unless waiting for L3 to research to be completed.
+
+
+---- researchrush ----
+- Forcetactic added for compatibility with Add-Ons
+- Lowered chance of performing tactic.
+- RankUp and Logic_desiredhenchman functions added to better get to L3 faster. Needs tweaking.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+------------------------------------- NEW SCRIPTS ADDED TO BOOST AI FUNCTIONALITY -----------------------------------------
+
+---- rank2rush ----
+- AI can now perform a fast L2 build order and prioritize creating units.
+- Will behave differently in a 1v1 battle as compared to a team for free for all battle.
+	- Even more aggressive
+	- Will only attack if it has a sizable number more units than enemy
+- Will occassionally perform a proxy chamber rush by building a creature chamber outside enemy base.
+	- AI will continuously produce and send units as they are built after the initial attack. 
+	- AI will balance henchman production and economy with units to some extent
+	- Will blow up chamber if rush is intercepted.
+- Retreat more easily in presence of a soundbeam tower.
+- Expand more slowly and prioritizes spending resources on units and combat.
+
+
+---- economyrush ----
+- Slow L2 build order 
+- AI will build 15-17 henchmen (on a map with 5 starting lab coal piles) before starting research level 2
+	- Also will build a workshop and generator before starting L2 research to get a head start on expansion 
