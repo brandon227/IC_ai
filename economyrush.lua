@@ -24,10 +24,10 @@ function EconomyRush_CanDo(ForceTactic)
 	elseif (totalPlayers > 2 and PlayersAlive( player_ally ) == 1) then
 		--probably a free for all, but could also be on an outnumbered team.
 		canDo = 1
-		ruchChance = 40
+		ruchChance = 35
 	elseif (PlayersAlive( player_ally ) > PlayersAlive( player_enemy )) then
 		canDo = 1
-		rushChance = 45
+		rushChance = 40
 	end
 
 	if (fact_closestAmphibDist > 400) then
@@ -112,11 +112,14 @@ function EconomyRush_Logic_desiredhenchman()
 
 	--If there is open lab coal then set goal hench. 
 	if (IsGatherSiteOpen() > 0 and NumBuildingQ( Foundry_EC ) == 0) then
-		henchman_count = 18 --max henchmen to build at lab if gather sites still open.
+		henchman_count = 15 + Rand(4) --max henchmen to build at lab if gather sites still open.
 	elseif (IsGatherSiteOpen() == 0 and NumBuildingQ( Foundry_EC ) == 0) then
 		henchman_count = sg_henchmanthreshold + 3 --Have +3 hench over threshold if gather sites full and no Foundry
+		if (sg_henchmanthreshold > 15 and Rand(100) < 40) then
+			henchman_count = sg_henchmanthreshold
+		end
 	else
-		henchman_count = sg_henchmanthreshold + 5 + Rand(3) 
+		henchman_count = sg_henchmanthreshold + 3 + Rand(4) 
 	end
 
 	sg_desired_henchman = henchman_count

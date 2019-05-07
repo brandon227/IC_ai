@@ -54,29 +54,52 @@ function rankUp( capAt )
 		return
 	end
 
-	--On Hard and Expert, do not go L5 if AI has not researched Advanced Structures --Bchamp 4/12/2019
-	if (g_LOD >= 2 and curRank >= 4 and ResearchCompleted(RESEARCH_AdvancedStructure) == 0) then
+	--On Hard and Expert, do not go L4 if AI has not researched Advanced Structures --Bchamp 5/5/2019
+	if (g_LOD >= 2 and curRank >= 3 and ResearchCompleted(RESEARCH_AdvancedStructure) == 0) then
 		return
 	end
 
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
 		-- Added by Bchamp 4/7/2019 so that AI doesn't go Level 3 so quickly and has units and economy
+		-- Edited by Bchamp 5/5/2019 to adjust for new L4 costs, 1000/2000. 
 		local gametime = GameTime()
 		local numCreatures = NumCreaturesQ()
-		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 85 and gametime < 4.75*60) then
-			if (numCreatures < 3+(randUnitsOrRank*0.08)) then
-				return
-			elseif (NumBuildingActive( Foundry_EC ) == 0) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
-				return
+		local is_alone = 0
+		if ( PlayersAlive( player_ally ) == 1 ) then
+			is_alone = 1
+		end
+
+		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 90) then
+			if (gametime < 4.5*60) then
+				if (numCreatures < 5 + (randUnitsOrRank*0.07) + is_alone*Rand(3)) then
+					return
+				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					return
+				end
+			elseif (gametime < 5.25*60) then
+				if (numCreatures < 3+(randUnitsOrRank*0.06) + is_alone*Rand(3)) then
+					return
+				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					return
+				end
 			end
 		-- Added by Bchamp 4/17/2019 to slow down L4.
-		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 85 and gametime < 7.0*60) then
-			if (numCreatures < 3+(randUnitsOrRank*0.08)) then
-				return
-			end
-			if (NumBuildingActive( Foundry_EC ) == 0 and ResearchCompleted(RESEARCH_HenchmanYoke) == 0) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
-				return
+		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 90) then
+			if (gametime < 7.5*60) then
+				if (numCreatures < 6+(randUnitsOrRank*0.07) + is_alone*Rand(3)) then
+					return
+				end
+				if (NumBuildingActive( Foundry_EC ) == 0 or ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					return
+				end
+			elseif (gametime < 9*60) then
+				if (numCreatures < 5+(randUnitsOrRank*0.06) + is_alone*Rand(3)) then
+					return
+				end
+				if (ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					return
+				end
 			end
 		end
 
