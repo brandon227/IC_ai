@@ -204,7 +204,7 @@ function Logic_desiredhenchman()
 			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
 		-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
 		-- this will focus priority on getting henchman yoke. -------
-		elseif (ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1) then
+		elseif (ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1 and g_LOD >= 2) then
 			henchman_count = 0
 		end
 	elseif (curRank >= 4 and gatherSiteOpen > 0) then
@@ -277,7 +277,7 @@ function Logic_desiredhenchman()
 	end
 	--Adjust for normal difficulty
 	if (g_LOD == 1) then
-		henchman_count = henchman_count*0.9
+		henchman_count = henchman_count*0.85 --changed from 0.9 by Bchamp 9/15/2019
 	end
 
 	sg_desired_henchman = henchman_count

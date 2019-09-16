@@ -306,8 +306,8 @@ function dovetclinicresearch()
 		end
 		
 		if (ResearchQ(RESEARCH_HenchmanYoke) == 1 or 
-			(GetRank() == 2 and ResearchQ(RESEARCH_Rank3) == 1 and UnderAttackValue() < 200 and NumCreaturesQ() >= 5)) then
-			--If need elec, then strengthen electrical grid. Added by Bchamp 3/9/19
+			(g_LOD >= 2 and GetRank() == 2 and ResearchQ(RESEARCH_Rank3) == 1 and UnderAttackValue() < 200 and NumCreaturesQ() >= 5)) then
+			--If need elec, then strengthen electrical grid. Added by Bchamp 3/9/19, added g_LOD >= 2 on 9/15/2019
 			if (NumBuildingActive( ElectricGenerator_EC ) > 0 and ElectricityPerSecQ() < sg_desired_elecrate) then
 				if (sg_research[RESEARCH_StrengthenElectricalGrid] == 1 and goal_needelec == 1 and 
 					CanResearchWithEscrow(RESEARCH_StrengthenElectricalGrid) == 1) then

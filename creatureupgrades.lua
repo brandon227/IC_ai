@@ -50,7 +50,7 @@ function Logic_creatureupgrade()
 		-- get the number of these creatures in the world
 		local ccount = Army_NumCreatureInArmy( AIplayerindex, armyindex )
 		-- should be a few of them before upgrading them
-		if (ccount >= 6) then --lowered to 6 by Bchamp 4/5/2019
+		if (ccount >= (12-(3*g_LOD))) then --lowered to 6 by Bchamp 4/5/2019 --9/15/2019 adjusted for LOD by Bchamp
 			local cinfo = Army_GetUnit( AIplayerindex, armyindex );
 			local crank = ci_rank( cinfo );
 			local temparmour = ci_getattribute( cinfo, "armour" )

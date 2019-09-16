@@ -405,7 +405,7 @@ function dovetclinic()
 	
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
 	local maxVetClinic = 1
-	if (curRank > 2) then
+	if (curRank > 2 and g_LOD >= 2) then
 		-- 30% chance of building a single vet clinic. Also will only build a single clinic if doing a 1v1 on a small map.
 		if (sg_randval < 30 or ((PlayersAlive( player_ally ) == 1 and PlayersAlive( player_enemy ) == 1) and fact_closestAmphibDist < 450)) then
 			maxVetClinic = 1
@@ -468,6 +468,9 @@ function dofoundry()
 	
 	local curRank = GetRank()
 	local minFoundries_LOD = g_LOD --Use Level of difficulty determining minimum number of foundries at each level. Assumes g_LOD is never more than 2
+	if (minFoundries_LOD > 2) then
+		minFoundries_LOD = 2
+	end
 
 	-- Have a minimum of 2 foundries if AI is at least lvl 2 
 	if (curRank >= 2 and numFoundries < minFoundries_LOD) then
@@ -518,7 +521,7 @@ function dofoundry()
 
 
 	-- On large maps, have a minimum of 6 foundries if AI is at lvl 5
-	if (fact_closestGroundDist > 500 and curRank == 5 and numFoundries < 6) then
+	if (fact_closestGroundDist > 500 and curRank == 5 and numFoundries < (minFoundries_LOD + 4)) then
 		if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 			alwaysBuild = 0
 		else
@@ -529,7 +532,7 @@ function dofoundry()
 	----------------------------------------------------------------------------------------------
 	-- Added by Bchamp 4/1/2019 to speed up henchmen yoke. Would rather get 1.5x resources from
 	----- yoke rather than spend money on foundry and henchmen to fill it ------------------------
-	if (curRank >= 3 and ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1) then
+	if (curRank >= 3 and ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1 and g_LOD >= 2) then
 		alwaysBuild = 0
 		if (ScrapPerSec() > 22) then --10 henchmen mining at 5 coal piles ~12 ScrapPerSec
 			return
