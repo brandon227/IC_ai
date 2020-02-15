@@ -1,6 +1,6 @@
 -- ai changelog --
 ------------------
-Last Updated 23 April 2019 by Bchamp and LBFrank
+Last Updated 15 Feb 2020 by Bchamp and LBFrank
 ------------------
 
 ---- aimain ----
@@ -50,6 +50,7 @@ Last Updated 23 April 2019 by Bchamp and LBFrank
 - Water Chambers can now be built while AI is researching level that will require amphib units so that they are ready immediately upon ranking up.
 - More water chambers are desired on water maps and more are built as the game progresses.
 - Air Chambers never built before reaching Level 3
+- Normal and Easy Difficulty AI adjusted to accomodate for changes to Hard and Expert levels of difficulty. Do not build as many workshops or do as much research as Hard or Expert AI.
 
 
 ---- choosecreature ----
@@ -74,7 +75,7 @@ Last Updated 23 April 2019 by Bchamp and LBFrank
 
 
 ---- flyerrush ----
-- Previously AI would not expand when performing this tactic. That was removed.
+- Previously AI would not expand when performing this tactic. Now they do.
 
 
 ---- henchman ----
@@ -99,6 +100,7 @@ Last Updated 23 April 2019 by Bchamp and LBFrank
 - Slow creature production if L3 but have not yet researched Henchman Yoke*
 - AI are more aggressive, especially when winning*
 - AI will queue less units at it's chambers so that it has more resources to spend on other things. 
+- When lab under attack, AI will only queue a maximum of 2 units at defensive chamber before beginning to build at other chambers.
 
 
 ---- rank1rush ----

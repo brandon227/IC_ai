@@ -186,15 +186,20 @@ function doRPSchoice_easy(chosenEnemy)
 	if (flyerPercent >= 70) then
 		--sg_goalmelee = sg_goalmelee-1
 		--sg_goalartillery = sg_goalartillery+1
-		--sg_goalflyer = sg_goalflyer-1
+		sg_goalflyer = sg_goalflyer+1
 		sg_goalrange = sg_goalrange-1.5
 	elseif (flyerPercent >= 35) then
 		--sg_goalmelee = sg_goalmelee-1
 		--sg_goalartillery = sg_goalartillery+0
-		--sg_goalflyer = sg_goalflyer+1
+		sg_goalflyer = sg_goalflyer+1
 		sg_goalrange = sg_goalrange-1
 	end
 		
+	sg_goalmelee = sg_goalmelee*2
+	sg_goalartillery = sg_goalartillery*2
+	sg_goalflyer = sg_goalflyer*2
+	sg_goalrange = sg_goalrange*2
+	
 	-- debug code
 	if (1) then
 		debug_totalValue = totalValue

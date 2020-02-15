@@ -366,7 +366,7 @@ function doantiairtowers()
 	end
 	
 	-- constants
-	local numtowers = 1+enemyFlyers/5;
+	local numtowers = 1+enemyFlyers/5*(GetRank()-2); --Updated by Bchamp 2/15/2020
 	
 	local numActive = NumBuildingActive( AntiAirTower_EC )
 	local numQueued = NumBuildingQ( AntiAirTower_EC )
@@ -615,7 +615,7 @@ end
 
 
 function docreaturechamber()
-	
+
 	local numActiveChambers = NumBuildingActive( RemoteChamber_EC )
 	local curRank = GetRank()
 
@@ -849,10 +849,15 @@ function dowaterchamber()
 
 	-- if this chamber is desired and we have no other chamber this maybe a good option
 	-- this is only if we have swimmers in the current ranks of course
-	if (goal_desireSwimmers == 0 or (LabUnderAttackValue() > 100 and NumChambers() > 0)) then
-		return 0
-	end
-
+	
+	---------------------------------------------------
+	--Removed by Bchamp 10/12/2019 after noticing that Rex Chance army (which at the time had no amphib till L4) did not build WCs on Islets
+	--at all for the entire game on Normal Difficulty. This fixes it, although it may be inelegant. We should take time to investigate why goal_desireSwimmers == 0 in this situation,
+	--since it doesn't look like it should in military.lua
+	--if (goal_desireSwimmers == 0 or (LabUnderAttackValue() > 100 and NumChambers() > 0)) then
+		--return 0 
+	--end
+	---------------------------------------------------
 
 
 	-- MORE WCs on water maps

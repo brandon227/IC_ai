@@ -257,7 +257,9 @@ function Logic_ChamberChoice()
 
 	icd_chooseDefendChamber = 0
 	-- must choose defend chamber or offensive chamber
-	if (LabUnderAttackValue() > 0) then
+	-- Noticed problem where AI would queue 9+ units at single chamber at lab, when it could be building units at multiple chambers
+	-- Will queue units at other chambers if num creatures queued is 2 or more, added by Bchamp 2/15/2020
+	if (LabUnderAttackValue() > 0 and (NumCreaturesQ() - NumCreaturesActive() > 1)) then
 		icd_chooseDefendChamber = 1
 	end
 	
