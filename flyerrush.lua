@@ -1,5 +1,5 @@
 aitrace("Script Component: FlyerRush Tactic")
-
+--This has not been modified for L2 flyers 2/20/2022 Bchamp
 function FlyerRush_CanDo()
 
 	local closestenemy = ClosestEnemy(1)

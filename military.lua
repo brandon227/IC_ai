@@ -620,7 +620,8 @@ sg_militaryRand = Rand(100)
 function attack_now_timer()
 		
 	--This does nothing as far as I can tell.....Let's try and work on this later? Bchamp 4/22/2019
-	SetTargetTypePriority( Creature_EC, 20 )
+	SetTargetTypePriority( Creature_EC, 0 )
+	RemoveTargetPriority( Creature_EC )
 	SetTargetTypePriority( SoundBeamTower_EC, 20 )
 	SetTargetTypePriority( AntiAirTower_EC, 20 )
 	SetTargetTypePriority( ElectricGenerator_EC, 1000 )

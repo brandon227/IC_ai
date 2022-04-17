@@ -279,6 +279,11 @@ class_check_func[sg_class_camoflauge+1] = function( creatureinfo )
 		return 1
 	end
 	
+	-- include digging units as camo for use in SB tower code
+	if (ci_getattribute( creatureinfo, "can_dig" ) == 1) then
+		return 1
+	end
+	
 	return 0
 end
 

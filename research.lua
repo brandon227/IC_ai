@@ -50,7 +50,7 @@ function rankUp( capAt )
 		randUnitsOrRank = 100
 	end
 
-	if (curRank < 2 and NumHenchmanActive() < sg_desired_henchman) then
+	if (curRank < 2 and NumHenchmanQ() < sg_desired_henchman and NumHenchmenGuarding() < 3) then --added NumHenchmenGuarding just in case not enough active henchmen and tons of idle hench 2/20/2022
 		return
 	end
 
@@ -295,7 +295,8 @@ function dovetclinicresearch()
 			end
 			
 			-- RESEARCH_HenchmanMotivationalSpeech
-			if (sg_research[RESEARCH_HenchmanMotivationalSpeech] == 1 and CanResearchWithEscrow(RESEARCH_HenchmanMotivationalSpeech) == 1) then
+			if ((sg_research[RESEARCH_HenchmanMotivationalSpeech] == 1 and CanResearchWithEscrow(RESEARCH_HenchmanMotivationalSpeech) == 1)  
+				or (g_LOD >= 2 and GetRank() == 2 and ResearchQ(RESEARCH_Rank3) == 1 and UnderAttackValue() < 200 and NumCreaturesQ() >= 5)) then
 				ReleaseGatherEscrow()
 				ReleaseRenewEscrow()
 				Research( RESEARCH_HenchmanMotivationalSpeech );
@@ -305,8 +306,7 @@ function dovetclinicresearch()
 			
 		end
 		
-		if (ResearchQ(RESEARCH_HenchmanYoke) == 1 or 
-			(g_LOD >= 2 and GetRank() == 2 and ResearchQ(RESEARCH_Rank3) == 1 and UnderAttackValue() < 200 and NumCreaturesQ() >= 5)) then
+		if (ResearchQ(RESEARCH_HenchmanYoke) == 1) then
 			--If need elec, then strengthen electrical grid. Added by Bchamp 3/9/19, added g_LOD >= 2 on 9/15/2019
 			if (NumBuildingActive( ElectricGenerator_EC ) > 0 and ElectricityPerSecQ() < sg_desired_elecrate) then
 				if (sg_research[RESEARCH_StrengthenElectricalGrid] == 1 and goal_needelec == 1 and 

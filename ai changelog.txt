@@ -1,6 +1,16 @@
 -- ai changelog --
 ------------------
-Last Updated 15 Feb 2020 by Bchamp and LBFrank
+17 Apr 2022 by Bchamp
+------------------
+For Tellurian 2.9.2
+-AI knows stink does not counter range
+-AI knows that SB towers can damage flyers more
+-AI will now build SB towers in response to digging units as well as camo
+-Bug fixed where AI would not build workshop or creatures in certain situations
+-Hard and Expert AI will research motivational speech when they begin researching L3 and are not under attack 
+
+------------------
+15 Feb 2020 by Bchamp and LBFrank
 ------------------
 
 ---- aimain ----

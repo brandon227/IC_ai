@@ -322,7 +322,7 @@ function dosoundbeamtowers()
 		-- don't build more than one at a time, if so, build a second creature chamber on hard difficulty
 		-- modified by bchamp 10/1/2018 to stop AI from building a ton of SB towers when they really need to build units
 		if (numtowersBeRequested > 0) then
-			if (g_LOD == 2 and NumBuildingQ( RemoteChamber_EC ) < 2 and CanBuildWithEscrow( RemoteChamber_EC ) == 1 ) then
+			if (g_LOD >= 2 and NumBuildingQ( RemoteChamber_EC ) < 2 and CanBuildWithEscrow( RemoteChamber_EC ) == 1 ) then
 				
 				ReleaseGatherEscrow();
 				ReleaseRenewEscrow();
@@ -365,13 +365,22 @@ function doantiairtowers()
 		return
 	end
 	
+
+
 	-- constants
 	local numtowers = 1+enemyFlyers/5*(GetRank()-2); --Updated by Bchamp 2/15/2020
-	
 	local numActive = NumBuildingActive( AntiAirTower_EC )
 	local numQueued = NumBuildingQ( AntiAirTower_EC )
 	local numtowersBeRequested =  numQueued - numActive
 	
+	--added for Rank 2 Flyers 2/20/2022
+	if (GetRank() == 2) then
+		numtowers = 1 --build at least one AA if there are enemy flyers
+		if (enemyFlyers > 5) then
+			numtowers = 1 + enemyFlyers/10 - (NumBuildingActive( SoundBeamTower_EC )/3) --SB towers will count as 1/3 an AA at L2
+		end
+	end
+
 	-- make sure one more is being built if we are underattack by flyers
 	if ((NumUnprotectedAASite() > 0 or NumSitesWithZeroAA() > 0) and numQueued == numtowers) then
 		numtowers = numActive+1
@@ -483,6 +492,10 @@ function dofoundry()
 			else
 				alwaysBuild = 1
 			end
+		end
+	else --if Rank is 1 and you have idle henchmen and are not under attack, build a foundry
+		if (NumHenchmenGuarding() >= 2 and gatherSiteOpen == 0 and UnderAttackValue() < 0.5*fact_selfValue) then
+			alwaysBuild = 1
 		end
 	end
 	

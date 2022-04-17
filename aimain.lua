@@ -33,6 +33,7 @@ dofilepath("data:ai/rank2rush.lua")
 dofilepath("data:ai/economyrush.lua")
 
 
+
 function oninit()
 	
 	init_basebuild();
@@ -59,9 +60,10 @@ function oninit()
 	--Added by Bchamp 3/31/2019 to toggle aggressive behavior
 	--aggressionLevel = 2
 	
-	local dotactic = 1 --should AI perform tactics?
+	local dotactic = 1 --should AI perform tactics? 
 
-	-- check for this tactic
+	-- Perform Tactic Functions
+	-- Each function is called in order below. If rejected, the CanDo function will return 0 and the next tactic will be called.
 	if (dotactic == 1) then
 		if (EconomyRush_CanDo(dotactic) == 0) then
 			if (Rank2Rush_CanDoTactic(dotactic) == 0) then
@@ -74,6 +76,7 @@ function oninit()
 		end
 	end
 
+	--Force Tactic Functions
 	if (dotactic == 2) then
 		EconomyRush_CanDo(dotactic)
 	elseif (dotactic == 3 or dotactic == 4) then
@@ -89,7 +92,6 @@ function oninit()
 end
 
 function doweneedmoney()
-	
 	-- we have no henchman
 	if (NumHenchmanQ() == 0 and ScrapAmount() < 100) then
 		 if (ScrapAmountWithEscrow()>=100) then
@@ -408,7 +410,7 @@ function Logic_set_escrow()
 end
 
 function doai()
-	
+
 	doweneedmoney();
 	needmorecoal();
 	needmoreelec();

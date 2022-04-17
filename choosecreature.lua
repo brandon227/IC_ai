@@ -96,18 +96,19 @@ function checkSelfArmy()
 		sg_goalrange = sg_goalrange+1
 	end
 	
+	-- Bchamp 2/20/2022 removed this since stink no longer prevents range attacks in Tel 2.9.1.6
 	-- LBFrank 12/31/18 ensure mixing standard melee with stink when stink is being used
-	local stinkValue = PlayersUnitTypeValue( playerindex, player_max, sg_class_stink )
-	local standardValue = PlayersUnitTypeValue( playerindex, player_max, sg_class_standard )
-	if ((stinkValue == 1) and (standardValue == 0)) then
-		standardValue = 1
-	end
-	local standardtostinkRatio = stinkValue / standardValue
-	if (standardtostinkRatio > 1.5) then
-		sg_goalstink = sg_goalstink-1
-		-- increase desire of standard melee
-		sg_goalstandard = sg_goalstandard+2
-	end
+	-- local stinkValue = PlayersUnitTypeValue( playerindex, player_max, sg_class_stink )
+	-- local standardValue = PlayersUnitTypeValue( playerindex, player_max, sg_class_standard )
+	-- if ((stinkValue == 1) and (standardValue == 0)) then
+	-- 	standardValue = 1
+	-- end
+	-- local standardtostinkRatio = stinkValue / standardValue
+	-- if (standardtostinkRatio > 1.5) then
+	-- 	sg_goalstink = sg_goalstink-1
+	-- 	-- increase desire of standard melee
+	-- 	sg_goalstandard = sg_goalstandard+2
+	-- end
 
 	if (1) then
 		
@@ -317,21 +318,22 @@ function doRPSchoice(chosenEnemy)
 		sg_goalantidefence = sg_goalantidefence + 0.75
 	end
 
+	-- Commented out by Bchamp 2/20/2022 for Tel 2.9.1.6 when Stink no longer stops range attacks
 	-- added by LBFrank 10/15/18 so when enemy has stink, AI prioritizes melee and flyers
-	local highStValue = PlayersUnitTypeValue( chosenEnemy, player_max, sg_class_stink )
-	local highStPercent = highStValue/totalValue*100
+	-- local highStValue = PlayersUnitTypeValue( chosenEnemy, player_max, sg_class_stink )
+	-- local highStPercent = highStValue/totalValue*100
 	
-	-- if enemy has alot of stink, build alot of melee and flyers (avoiding range and art a little)
-	if (highStPercent >= 60) then
-		sg_goalmelee = sg_goalmelee+3
-		sg_goalflyer = sg_goalflyer+3
-		sg_goalrange = sg_goalrange-1
-		sg_goalartillery = sg_goalartillery-1
-		sg_goalflyingArtillery = sg_goalflyingArtillery-1
-	elseif (highStPercent >= 25) then
-		sg_goalmelee = sg_goalmelee+1
-		sg_goalflyer = sg_goalflyer+1
-	end
+	-- -- if enemy has alot of stink, build alot of melee and flyers (avoiding range and art a little)
+	-- if (highStPercent >= 60) then
+	-- 	sg_goalmelee = sg_goalmelee+3
+	-- 	sg_goalflyer = sg_goalflyer+3
+	-- 	sg_goalrange = sg_goalrange-1
+	-- 	sg_goalartillery = sg_goalartillery-1
+	-- 	sg_goalflyingArtillery = sg_goalflyingArtillery-1
+	-- elseif (highStPercent >= 25) then
+	-- 	sg_goalmelee = sg_goalmelee+1
+	-- 	sg_goalflyer = sg_goalflyer+1
+	-- end
 	
 	-- added by LBFrank 01/01/19 so when enemy has deflect, AI also prioritizes melee and flyers
 	local highdeflectValue = PlayersUnitTypeValue( chosenEnemy, player_max, sg_class_deflect )

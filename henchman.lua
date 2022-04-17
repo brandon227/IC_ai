@@ -237,8 +237,8 @@ function Logic_desiredhenchman()
 		doexpand = 0
 	end
 
-	if (doexpand==1) then
-		-- build more henchman for next gathersite
+	if (doexpand==1 and NumHenchmenGuarding() < (1+Rand(3))) then
+		-- build more henchman for next gathersite if we don't have idle hench
 		henchman_count = henchman_count+((2+mapsizeoffset)*(curRank-1))
 	end
 	
