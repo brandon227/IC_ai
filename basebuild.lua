@@ -310,8 +310,17 @@ function dosoundbeamtowers()
 
 	if (buildTowers == 1) then
 	
-		local desiredAmount = 1 + CoalPileWithDropOffs()
-		
+		local desiredAmount = 1
+		if curRank >= 2 and sg_randval > 50 then
+			desiredAmount = desiredAmount + NumBuildingActive( Foundry_EC )
+		elseif curRank >= 2 and sg_randval > 30 then
+			desiredAmount = desiredAmount + CoalPileWithDropOffs()
+		end
+
+		if curRank >= 4 then
+			desiredAmount = desiredAmount + curRank - 2
+		end
+
 		if (curRank<3 and underAttackVal>400 and fact_selfValue < 400) then
 			desiredAmount = desiredAmount+1
 		elseif (curRank >= 3 and underAttackVal > 1200) then

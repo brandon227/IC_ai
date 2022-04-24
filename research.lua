@@ -72,7 +72,7 @@ function rankUp( capAt )
 
 		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 90) then
 			if (gametime < 4.5*60) then
-				if (numCreatures < 5 + (randUnitsOrRank*0.08) + is_alone*Rand(4)) then
+				if (numCreatures < 5 + (randUnitsOrRank*0.1) + is_alone*Rand(4)) then
 					return
 				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
