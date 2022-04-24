@@ -7,7 +7,6 @@ function init_military()
 
 	aitrace("init_military()")
 
-
 	icd_groundgroupminsize = 8;
 	icd_groundgroupmaxsize = 40;
 	
@@ -99,7 +98,7 @@ function init_military()
 			icd_startAtRank = 2
 		end
 	end
-	
+
 	--What does this do? I *think* to means that the "docreaturebuild" function will re-run every X seconds? Bchamp 3/31/2019 
 	if (g_LOD == 0) then
 		RegisterTimerFunc("docreaturebuild", 10 )
@@ -254,21 +253,34 @@ function armydecisions() -- static info
 end
 
 function Logic_ChamberChoice()
+	-- 4/24/2022 the variable icd_chooseDefendChamber doesn't seem to work
 
-	icd_chooseDefendChamber = 0
 	-- must choose defend chamber or offensive chamber
 	-- Noticed problem where AI would queue 9+ units at single chamber at lab, when it could be building units at multiple chambers
-	-- Will queue units at other chambers if num creatures queued is 2 or more, added by Bchamp 2/15/2020
-	if (LabUnderAttackValue() > 0 and (NumCreaturesQ() - NumCreaturesActive() > 1)) then
-		icd_chooseDefendChamber = 1
+
+	if (LabUnderAttackValue() > 0) then
+		if icd_chooseDefendChamber == 0 then
+			icd_chooseDefendChamber = 1
+		elseif (NumCreaturesQ() - NumCreaturesActive() > 3) then --Build at other chambers if already building from defend chamber with large queue
+			icd_chooseDefendChamber = 0
+		end
+		return
 	end
+
+	--if you have a lot of stuff queued at offensive chambers, build at defensive chambers for variety
+	if (icd_chooseDefendChamber == 0) and (NumCreaturesQ() - NumCreaturesActive() > numActiveChambers) then
+		icd_chooseDefendChamber = 1
+		return
+	end
+
+	icd_chooseDefendChamber = 0
 	
 end
 
 function docreaturebuild()
 		
 	armydecisions();
-	
+
 	-- check game state and change group sizes
 	Logic_military_setgroupsizes()
 	

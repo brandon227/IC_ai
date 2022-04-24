@@ -289,18 +289,17 @@ function dosoundbeamtowers()
 		end
 	end
 	
-	-- check for camo digger units
-	if (buildTowers==0 and numTowerActive==0) then
-		local numCamo = PlayersUnitTypeCount( player_enemy, player_max, sg_class_camoflauge )
-		if (curRank < 3 and numCamo > (3+sg_randval/40)) then
+
+	if g_LOD >= 2 then
+		-- check for camo and digger units
+		local numEnemyCamo = PlayersUnitTypeCount( player_enemy, player_max, sg_class_camoflauge )
+		if (curRank < 3 and numEnemyCamo > (1+sg_randval/40)) then
 			buildTowers = 1
-		elseif (numCamo > 10) then
+		elseif (numEnemyCamo > 7) then
 			buildTowers = 1
 		end
-	end
-	
-	-- added by LBFrank 3/31/19 to check for sonic units (useful in the wake of L2/L3 sonic)
-	if (buildTowers==0 and numTowerActive==0) then
+
+		-- added by LBFrank 3/31/19 to check for sonic units (useful in the wake of L2/L3 sonic)
 		local numSonic = PlayersUnitTypeCount( player_enemy, player_max, sg_class_sonic )
 		if (curRank < 4 and numSonic > (3+sg_randval/60)) then
 			buildTowers = 1
@@ -315,6 +314,8 @@ function dosoundbeamtowers()
 		
 		if (curRank<3 and underAttackVal>400 and fact_selfValue < 400) then
 			desiredAmount = desiredAmount+1
+		elseif (curRank >= 3 and underAttackVal > 1200) then
+			desiredAmount = 0 --don't build when under a large attack, AI are not smart enough to micro these situations and end up wasting resources.
 		end
 				
 		local numtowersBeRequested = NumBuildingQ( SoundBeamTower_EC ) - numTowerActive
@@ -333,8 +334,6 @@ function dosoundbeamtowers()
 			return
 		end
 		
-
-
 
 		if (NumBuildingQ( SoundBeamTower_EC ) < desiredAmount and CanBuildWithEscrow( SoundBeamTower_EC )==1) then
 			ReleaseGatherEscrow();
@@ -728,55 +727,57 @@ function docreaturechamber()
 			numActiveChambers = 1
 		end
 
-		-- build chamber when we have more than X number of henchman and a foundry
-		
-		-- function that will hopefully increase distance chambers are spread out
-		-- have it based on # foundrys if there are more than 2 chambers present
-		
-		-- mapsizeoffset so jump distance is also map dependent
-		local mapsizeoffset = 1
-		if (fact_closestAmphibDist>400) then
-			mapsizeoffset = 1.2
-		end
-		if (fact_closestAmphibDist>650) then
-			mapsizeoffset = 1.5
-		end
-		if (fact_closestAmphibDist>800) then
-			mapsizeoffset = 1.7
-		end
-		local jump = 0
-		if (NumBuildingQ( RemoteChamber_EC ) >= 2) then
-			jump = 60*((NumBuildingQ( Foundry_EC ))^0.75)*mapsizeoffset
-		elseif (NumBuildingQ( RemoteChamber_EC ) < 2) then
-			jump = 0
-		end
-
-		-- if lab under attack, change chamber location to PH_Best, which will be near lab if possible, or remote if unsafe
-		chamberLocation = PH_OutsideBase
-		if (LabUnderAttackValue() > 200) then
-			chamberLocation = PH_Best
-		end
 
 		if (NumBuildingQ( RemoteChamber_EC ) < numActiveChambers and 
 			IsChamberBeingBuilt() == 0 and metRankRequirement == 1
 			and CanBuildWithEscrow( RemoteChamber_EC ) == 1) then 
-
-			-- randomize the distance from the base with spread.
-			icd_chamberDistFromBase = (jump + 25 + (2*Rand(10)))
-			-- if an amphibian map then stay closer to the base
-			if (goal_amphibTarget==1) then
-				icd_chamberDistFromBase = 30
-			end
 			
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
-			xBuild( RemoteChamber_EC, chamberLocation );
+			xBuild( RemoteChamber_EC, ChamberLocation() );
 			aitrace("Script: Build creature chamber")
 			return 1
 		end
 	end
 	
 	return 0
+end
+
+function ChamberLocation()
+
+    if (LabUnderAttackValue() > 200) then
+        return PH_Best
+    elseif sg_randval > 50 then
+        return PH_DefendSite
+    else --build chambers further from base but not necessarily near workshop
+		-- this will hopefully increase distance chambers are spread out
+		-- have it based on # foundrys if there are more than 2 chambers present
+		local mapsizeoffset = 1
+		local jump = 0
+		
+		if (fact_closestAmphibDist>400) then
+			mapsizeoffset = 1.2
+		elseif (fact_closestAmphibDist>650) then
+			mapsizeoffset = 1.5
+		elseif (fact_closestAmphibDist>800) then
+			mapsizeoffset = 1.7
+		end
+	
+		if (NumBuildingQ( RemoteChamber_EC ) >= 2) then
+			jump = 60*((NumBuildingQ( Foundry_EC ))^0.75)*mapsizeoffset
+		elseif (NumBuildingQ( RemoteChamber_EC ) < 2) then
+			jump = 0
+		end
+		-- randomize the distance from the base with spread.
+		icd_chamberDistFromBase = (jump + 25 + (2*Rand(10)))
+		-- if an amphibian map then stay closer to the base
+		if (goal_amphibTarget==1) then
+			icd_chamberDistFromBase = 30
+		end
+
+        return PH_OutsideBase
+    end
+    
 end
 
 function doelectricalgenerator()

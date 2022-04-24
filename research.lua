@@ -35,10 +35,10 @@ function init_research()
 	else
 		Logic_setmaxrank = Logic_setmaxrank_hard
 	end
+	-- rank helper function
+	randUnitsOrRank = Rand(100) --Random variable used to help decide if AI should build more units before ranking up.
 end
 
--- rank helper function
-randUnitsOrRank = Rand(100) --Random variable used to help decide if AI should build more units before ranking up.
 
 
 function rankUp( capAt )
@@ -46,7 +46,7 @@ function rankUp( capAt )
 	local curRank = GetRank();
 	
 	-- Adjust for island map logic or not being able to build units
-	if (curRank < fact_lowrank_all or (fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer)) then
+	if (curRank >= 2 and (curRank < fact_lowrank_all or (fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer))) then
 		randUnitsOrRank = 100
 	end
 
@@ -72,13 +72,13 @@ function rankUp( capAt )
 
 		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 90) then
 			if (gametime < 4.5*60) then
-				if (numCreatures < 5 + (randUnitsOrRank*0.07) + is_alone*Rand(3)) then
+				if (numCreatures < 5 + (randUnitsOrRank*0.08) + is_alone*Rand(4)) then
 					return
 				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
 				end
 			elseif (gametime < 5.25*60) then
-				if (numCreatures < 3+(randUnitsOrRank*0.06) + is_alone*Rand(3)) then
+				if (numCreatures < 3+(randUnitsOrRank*0.08) + is_alone*Rand(3)) then
 					return
 				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
@@ -87,7 +87,7 @@ function rankUp( capAt )
 		-- Added by Bchamp 4/17/2019 to slow down L4.
 		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 90) then
 			if (gametime < 7.5*60) then
-				if (numCreatures < 6+(randUnitsOrRank*0.07) + is_alone*Rand(3)) then
+				if (numCreatures < 6+(randUnitsOrRank*0.08) + is_alone*Rand(3)) then
 					return
 				end
 				if (NumBuildingActive( Foundry_EC ) == 0 or ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
@@ -372,7 +372,7 @@ function dovetclinicresearch()
 			end
 	
 			-- RESEARCH_TowerUpgrade
-			if (sg_research[RESEARCH_TowerUpgrade] == 1 and (TowerCount() >= 2 or (TowerCount() >= 1 and ResearchCompleted(RESEARCH_HenchmanYoke) == 1)) and CanResearchWithEscrow(RESEARCH_TowerUpgrade) == 1) then
+			if (sg_research[RESEARCH_TowerUpgrade] == 1 and (TowerCount() >= 4 or (TowerCount() >= 2 and ResearchCompleted(RESEARCH_HenchmanYoke) == 1)) and CanResearchWithEscrow(RESEARCH_TowerUpgrade) == 1) then
 				ReleaseGatherEscrow()
 				ReleaseRenewEscrow()
 				Research( RESEARCH_TowerUpgrade );

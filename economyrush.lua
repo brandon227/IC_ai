@@ -52,6 +52,14 @@ function EconomyRush_CanDo(ForceTactic)
 	if (fact_army_maxrank >= 3 and canDo == 1) then
 		
 		if (Rand(100) < rushChance or ForceTactic == 2) then
+
+			if (Rand(100) < 20) then
+				foundryFirst = 1;
+			elseif (sg_numscrapyardsWithinDist_near < 5 and Rand(100) < 75) then
+				foundryFirst = 1;
+			else
+				foundryFirst = 0;
+			end
 			--save_Logic_set_escrow = Logic_set_escrow
 			--rawset(globals(), "Logic_set_escrow", nil )
 			--Logic_set_escrow = EconomyRush_Logic_set_escrow
@@ -119,7 +127,7 @@ function EconomyRush_Logic_desiredhenchman()
 			henchman_count = sg_henchmanthreshold
 		end
 	else
-		henchman_count = sg_henchmanthreshold + 3 + Rand(4) 
+		henchman_count = sg_henchmanthreshold + 3 + Rand(4) + foundryFirst;
 	end
 
 	sg_desired_henchman = henchman_count
@@ -160,6 +168,11 @@ function EconomyRush_dolightningrods()
 		return
 	end
 		
+	--if doing a foundry first build order, wait to build rods
+	if (foundryFirst == 1 and NumBuildingActive( Foundry_EC ) == 0) then
+		return
+	end
+
 	local numActive = NumBuildingActive( ResourceRenew_EC )
 	local numQ = NumBuildingQ( ResourceRenew_EC )
 	
@@ -224,7 +237,17 @@ end
 
 function EconomyRush_dofoundry()
 
-	if (IsGatherSiteOpen() == 0 and NumHenchmenGuarding() > 0 and NumBuildingQ( ResourceRenew_EC ) > 1) then
+	if foundryFirst == 1 and NumBuildingQ( Foundry_EC ) == 0 and (NumHenchmanActive() >= 6+Rand(2)) then
+		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
+			ReleaseGatherEscrow();
+			ReleaseRenewEscrow();
+			xBuild( Foundry_EC, PH_Best );
+			aitrace("Script: build foundry");
+			return
+		end
+		aitrace("Script: failed to build foundry");
+
+	elseif (IsGatherSiteOpen() == 0 and NumHenchmenGuarding() > 0 and NumBuildingQ( ResourceRenew_EC ) > 1) then
 
 		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
 			ReleaseGatherEscrow();
