@@ -694,7 +694,7 @@ function docreaturechamber()
 	if (desireCC == 1 and (goal_needelec ~= 2 or fact_armyAvgElec<10)) then
 
 
-		if (numActiveChambers > 0  and ScrapAmountWithEscrow() > 500) then
+		if (numActiveChambers > 0  and ScrapAmountWithEscrow() > 360) then
 			local groundActive = Army_NumCreature( Player_Self(), sg_class_ground );
 			local groundQ = Army_NumCreatureQ( Player_Self(), sg_class_ground );
 			local queued = groundQ - groundActive

@@ -260,68 +260,63 @@ function Rank2Rush_docreaturechamber()
 			--reset max gatherers
 			--icd_maxgatherers = save_maxgatherers
 		end
-		return 0
 	end
 
+	--if taking damage and chamber isn't up yet, cancel rush
+	if (DamageTotal() > 50 and NumBuildingActive(RemoteChamber_EC) == 0 and NumBuildingQ(RemoteChamber_EC) > 0 ) then	
 
+		if (chamberAtEnemyBase == 1) then
+			Scuttle( RemoteChamber_EC )
+		end
+
+		rawset(globals(), "docreaturechamber", nil )
+		docreaturechamber = save_docreaturechamber
+
+		rawset(globals(), "dosoundbeamtowers", nil )
+		dosoundbeamtowers = save_dosoundbeamtowers
+
+		rawset(globals(), "dolightningrods", nil )
+		dolightningrods = save_dolightningrods
+
+		rawset(globals(), "dofoundry", nil )
+		dofoundry = save_dofoundry
+
+		rawset(globals(), "Logic_military_setattacktimer", nil )
+		Logic_military_setattacktimer = save_Logic_military_setattacktimer
+
+		rawset(globals(), "Logic_military_setgroupsizes", nil )
+		Logic_military_setgroupsizes = save_Logic_military_setgroupsizes
+
+		rawset(globals(), "Logic_desiredhenchman", nil )
+		Logic_desiredhenchman = save_Logic_desiredhenchman
+
+		rawset(globals(), "Logic_set_escrow", nil )
+		Logic_set_escrow = save_Logic_set_escrow
+
+		rawset(globals(), "Logic_military_setdesiredcreatures", nil )
+		Logic_military_setdesiredcreatures = save_Logic_military_setdesiredcreatures
+
+		rawset(globals(), "rankUp", nil )
+		rankUp = save_rankUp
+
+		return 0
+	end
 	
 	-- Decide to maybe Build SB tower, then return to normal logic once the chamber is up
-	if (NumBuildingActive(RemoteChamber_EC) > 0 or DamageTotal() > 50) then
-		
-		--if the CC has not been built yet, blow CC, cancel rush and reset all modified functions.
-		if (NumBuildingActive(RemoteChamber_EC) == 0 and NumBuildingQ(RemoteChamber_EC) > 0 ) then
-			
-
-			if (chamberAtEnemyBase == 1) then
-				Scuttle( RemoteChamber_EC )
-			end
-
-			rawset(globals(), "docreaturechamber", nil )
-			docreaturechamber = save_docreaturechamber
-
-			rawset(globals(), "dosoundbeamtowers", nil )
-			dosoundbeamtowers = save_dosoundbeamtowers
-
-			rawset(globals(), "dolightningrods", nil )
-			dolightningrods = save_dolightningrods
-
-			rawset(globals(), "dofoundry", nil )
-			dofoundry = save_dofoundry
-
-			rawset(globals(), "Logic_military_setattacktimer", nil )
-			Logic_military_setattacktimer = save_Logic_military_setattacktimer
-
-			rawset(globals(), "Logic_military_setgroupsizes", nil )
-			Logic_military_setgroupsizes = save_Logic_military_setgroupsizes
-
-			rawset(globals(), "Logic_desiredhenchman", nil )
-			Logic_desiredhenchman = save_Logic_desiredhenchman
-
-			rawset(globals(), "Logic_set_escrow", nil )
-			Logic_set_escrow = save_Logic_set_escrow
-
-			rawset(globals(), "Logic_military_setdesiredcreatures", nil )
-			Logic_military_setdesiredcreatures = save_Logic_military_setdesiredcreatures
-
-			rawset(globals(), "rankUp", nil )
-			rankUp = save_rankUp
-		
-
+	if (NumBuildingActive(RemoteChamber_EC) > 0) then
 
 		--if chamber has been completed, consider adding SB tower near it and then revert to normal chamber placement function
-		else
-			if(Rand(10) < 2 and DamageTotal() < 30) then
-				if (NumBuildingQ( SoundBeamTower_EC ) < 1 and CanBuildWithEscrow( SoundBeamTower_EC ) == 1) then
-					ReleaseGatherEscrow();
-					ReleaseRenewEscrow();
-					xBuild( SoundBeamTower_EC, basePlacement );
-					aitrace("Script: Build SB Tower")
-				end
+		if(rand10a < 2 and DamageTotal() < 30) then
+			if (NumBuildingQ( SoundBeamTower_EC ) < 1 and CanBuildWithEscrow( SoundBeamTower_EC ) == 1) then
+				ReleaseGatherEscrow();
+				ReleaseRenewEscrow();
+				xBuild( SoundBeamTower_EC, basePlacement );
+				aitrace("Script: Build SB Tower")
 			end
-			-- add the old code back in
-			rawset(globals(), "docreaturechamber", nil )
-			docreaturechamber = save_docreaturechamber
 		end
+		-- add the old code back in
+		rawset(globals(), "docreaturechamber", nil )
+		docreaturechamber = save_docreaturechamber
 	end
 
 end
@@ -436,22 +431,22 @@ function Rank2Rush_Logic_military_setgroupsizes()
 	local difficulty = LevelOfDifficulty();
 
 	if (chamberAtEnemyBase == 1) then
-		icd_groundgroupminsize = 4 + 2*numSBTower;
-		icd_groundgroupmaxsize = 5 + 3*numSBTower;
+		icd_groundgroupminsize = 4 + 2*numSBTower + rand1a;
+		icd_groundgroupmaxsize = 5 + 3*numSBTower + rand2a;
 	
 		icd_groundgroupminvalue = 500 + (numSBTower * 200);
 		icd_groundgroupmaxvalue = 1200 + (numSBTower * 250);
 
 	elseif (one_v_one == 1 and chamberAtEnemyBase == 0) then
-		icd_groundgroupminsize = 5 --fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
-		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower;
+		icd_groundgroupminsize = 5 + rand1a; --fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
+		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand2b;
 	
 		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120; 
 		icd_groundgroupmaxvalue = 2500;
 
 	else
-		icd_groundgroupminsize = 5; 
-		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower; 
+		icd_groundgroupminsize = 5 + rand4c; 
+		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand4c; 
 
 		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120;
 		icd_groundgroupmaxvalue = 2500;
