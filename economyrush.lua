@@ -120,14 +120,14 @@ function EconomyRush_Logic_desiredhenchman()
 
 	--If there is open lab coal then set goal hench. 
 	if (IsGatherSiteOpen() > 0 and NumBuildingQ( Foundry_EC ) == 0) then
-		henchman_count = 15 + Rand(4) --max henchmen to build at lab if gather sites still open.
+		henchman_count = 15 + rand4a --max henchmen to build at lab if gather sites still open.
 	elseif (IsGatherSiteOpen() == 0 and NumBuildingQ( Foundry_EC ) == 0) then
 		henchman_count = sg_henchmanthreshold + 3 --Have +3 hench over threshold if gather sites full and no Foundry
 		if (sg_henchmanthreshold > 15 and Rand(100) < 40) then
 			henchman_count = sg_henchmanthreshold
 		end
 	else
-		henchman_count = sg_henchmanthreshold + 3 + Rand(4) + foundryFirst;
+		henchman_count = sg_henchmanthreshold + 3 + rand4b + foundryFirst;
 	end
 
 	sg_desired_henchman = henchman_count
@@ -237,7 +237,7 @@ end
 
 function EconomyRush_dofoundry()
 
-	if foundryFirst == 1 and NumBuildingQ( Foundry_EC ) == 0 and (NumHenchmanActive() >= 6+Rand(2)) then
+	if foundryFirst == 1 and NumBuildingQ( Foundry_EC ) == 0 and (NumHenchmanActive() >= 6 + rand2b) then
 		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();

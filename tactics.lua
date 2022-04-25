@@ -12,8 +12,31 @@ dofilepath("data:ai/rank2rush.lua")
 --
 dofilepath("data:ai/economyrush.lua")
 --
+function init_randomness()
+    --need to replace all Rand(x) with these in code
+    sg_randomNumber =
+	{
+		rand1a = Rand(1),
+		rand1b = Rand(1),
+		rand1c = Rand(1),
+		rand2a = Rand(2),
+		rand2b = Rand(2),
+		rand2c = Rand(2),
+		rand3a = Rand(3),
+		rand3b = Rand(3),
+		rand3c = Rand(3),
+		rand4a = Rand(4),
+		rand4b = Rand(4),
+		rand4c = Rand(4)
+	};
+
+    sg_aggressiveness = Rand(100); --100 is more aggressive, attacks more often
+
+end
+
 function ChooseTactic(forceTactic)
 
+    --only do on hard/expert or if forced.
     if (g_LOD < 2 and forceTactic == 0) then
         return
     end
@@ -82,10 +105,10 @@ function ChamberLocation()
 
     if (LabUnderAttackValue() > 200) then
         return PH_Best
-    elseif sg_randval > 50 then
+    elseif rand100a > 50 then
         return PH_DefendSite
     else
         return PH_OutsideBase
     end
-    
+
 end

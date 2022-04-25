@@ -1,8 +1,7 @@
 Updated 4/17/2022 by Bchamp
 - L2 Flyer Rush
 - Create Add-on helper lua to assist with tactic selection. Modify existing tactic luas to match.
-- SB Tower Upgrade Timing
-- Economy Rush goes L3 too quick after turned off
+- rank2rush build foundry when winning, decrease lab down time
 
 Updated 4/19/2019 by Bchamp
 

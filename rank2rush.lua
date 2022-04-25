@@ -142,6 +142,10 @@ function Rank2Rush_rankUp()
 
 	local curRank = GetRank();
 
+	if NumHenchmanQ() < sg_desired_henchman then
+		return
+	end
+
 	--If CC is supposed to be at enemy base, make sure it's queued before going L2.
 	if(chamberAtEnemyBase == 1) then
 		if (NumBuildingQ( RemoteChamber_EC ) < 1 and Rand(100) < 20) then
@@ -335,11 +339,11 @@ function Rank2Rush_dolightningrods()
 	local numRods = 0
 
 	-- and NumHenchmanQ() > numHenchman
-	if (numHenchman > 3) then
+	if (numHenchman > 3 + rand1a) then
 		numRods = 1
 	end
 
-	if (numHenchman > 5) then
+	if (numHenchman > 5 + rand1b) then
 		numRods = 2
 	end
 
@@ -366,8 +370,8 @@ function Rank2Rush_dolightningrods()
 		return
 	end
 	
-	--Only build 4th rod if more than 6 units.
-	if (NumCreaturesActive() > 6) then
+	--Only build 4th rod if enough creatures
+	if (NumCreaturesActive() > 5 + rand1c) then
 		numRods = 4
 	end
 
@@ -495,9 +499,9 @@ function Rank2Rush_Logic_desiredhenchman()
 	local gatherSiteOpen = IsGatherSiteOpen()
 
 	if (curRank == 1 and gatherSiteOpen > 0) then
-		sg_desired_henchman = sg_henchmanthreshold
+		sg_desired_henchman = sg_henchmanthreshold + rand2a
 		if (chamberAtEnemyBase == 1) then
-			sg_desired_henchman = sg_henchmanthreshold + 1
+			sg_desired_henchman = sg_henchmanthreshold + 1 + rand2a
 		end
 		henchman_count = sg_desired_henchman
 	elseif (curRank == 2 and chamberAtEnemyBase == 1 and (fact_selfValue < 1.3*(fact_enemyValue + 250) or unitCount < 5)) then
@@ -505,7 +509,7 @@ function Rank2Rush_Logic_desiredhenchman()
 		henchman_count = sg_desired_henchman
 	elseif (curRank == 2 and gatherSiteOpen > 0) then --How hench are built if AI is L2 and coal isnt filled
 		henchman_count = sg_desired_henchman + (unitCount-1)
-	elseif(gatherSiteOpen == 0 and unitCount < (Rand(4) + 1)) then --If coal is filled and less than this amount of units, don't build hench
+	elseif(gatherSiteOpen == 0 and unitCount < ( rand4a + 1)) then --If coal is filled and less than this amount of units, don't build hench
 		henchman_count = sg_henchmanthreshold
 		-- if gather sites full and less than threshold number of units, check if ampib rush. If yes, build additional hench to account for WC build time.
 		if (fact_lowrank_amphib == 2 and NumBuildingQ(WaterChamber_EC) > 0) then
@@ -515,8 +519,8 @@ function Rank2Rush_Logic_desiredhenchman()
 		if (NumHenchmenGuarding() >= 3) then
 			henchman_count = NumHenchmanActive()
 		end
-		henchman_count = sg_henchmanthreshold + 1 + (unitCount-(2 + Rand(2)))/2
-		if ( NumHenchmenGuarding()>2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200) 
+		henchman_count = sg_henchmanthreshold + 1 + (unitCount-(2 + rand2b))/2
+		if ( NumHenchmenGuarding()>=2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200) 
 			or (one_v_one == 0 and NumCreaturesActive() >= 10))) then
 			local dist2dropoff = DistToDropOff();
 				aitrace("Script: dist2dropoff="..dist2dropoff);

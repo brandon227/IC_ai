@@ -175,9 +175,9 @@ function Logic_desiredhenchman()
 	-- Level 1 Build here ------------------------------------------------------------
 	if (curRank < 2) then
 		if (gatherSiteOpen > 0) then
-			henchman_count = 12 + Rand(3) --maximum number of henchmen AI will build to try and fill local coal piles.
-		elseif (NumHenchmenGuarding() < (1+Rand(3)) and NumHenchmanQ() < (11 + mapsizeoffset)) then
-			henchman_count = 11 + mapsizeoffset --Will make a maximum of this many henchmen unless too many henchmen are on Guard Mode (idle)
+			henchman_count = sg_henchmanthreshold + 2 + rand3a --maximum number of henchmen AI will build to try and fill local coal piles.
+		elseif (NumHenchmenGuarding() < (1+ rand3b) and NumHenchmanQ() < (sg_henchmanthreshold + 1 + mapsizeoffset)) then
+			henchman_count = sg_henchmanthreshold + 1 + mapsizeoffset --Will make a maximum of this many henchmen unless too many henchmen are on Guard Mode (idle)
 		else
 			henchman_count = NumHenchmanQ() --Don't make henchmen if gather sites are full and too many henchman guarding.
 		end
@@ -187,7 +187,7 @@ function Logic_desiredhenchman()
 	--Makes it so that the desired henchmen is higher if there are gather sites open. Balances unit building with henchmen. 
 	--This helps fill in expansions on maps with a ton of coal when henchman_min, defined later, doesn't make enough.
 	local unitModifier = NumCreaturesQ() --variable helps to balance units with henchmen
-	local unitMultiplier = (Rand(40) + 60)/100 --helps add randomness to make AI more aggressive and prioritize units, Bchamp 3/31/2019
+	local unitMultiplier = ( rand40a + 60)/100 --helps add randomness to make AI more aggressive and prioritize units, Bchamp 3/31/2019
 
 	--added by Bchamp 4/22/2019 in order to account for island maps
 	if ( fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer and unitModifier == 0) then
@@ -237,7 +237,7 @@ function Logic_desiredhenchman()
 		doexpand = 0
 	end
 
-	if (doexpand==1 and NumHenchmenGuarding() < (1+Rand(3))) then
+	if (doexpand==1 and NumHenchmenGuarding() < (1+ rand3c)) then
 		-- build more henchman for next gathersite if we don't have idle hench
 		henchman_count = henchman_count+((2+mapsizeoffset)*(curRank-1))
 	end

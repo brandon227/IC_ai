@@ -72,13 +72,13 @@ function rankUp( capAt )
 
 		if (g_LOD >= 2 and curRank == 2 and randUnitsOrRank < 90) then
 			if (gametime < 4.5*60) then
-				if (numCreatures < 5 + (randUnitsOrRank*0.1) + is_alone*Rand(4)) then
+				if (numCreatures < 5 + (randUnitsOrRank*0.1) + is_alone* rand4b) then
 					return
 				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
 				end
 			elseif (gametime < 5.25*60) then
-				if (numCreatures < 3+(randUnitsOrRank*0.08) + is_alone*Rand(3)) then
+				if (numCreatures < 3+(randUnitsOrRank*0.08) + is_alone* rand3a) then
 					return
 				elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
@@ -87,14 +87,14 @@ function rankUp( capAt )
 		-- Added by Bchamp 4/17/2019 to slow down L4.
 		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 90) then
 			if (gametime < 7.5*60) then
-				if (numCreatures < 6+(randUnitsOrRank*0.08) + is_alone*Rand(3)) then
+				if (numCreatures < 6+(randUnitsOrRank*0.08) + is_alone* rand3b) then
 					return
 				end
 				if (NumBuildingActive( Foundry_EC ) == 0 or ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
 				end
 			elseif (gametime < 9*60) then
-				if (numCreatures < 5+(randUnitsOrRank*0.06) + is_alone*Rand(3)) then
+				if (numCreatures < 5+(randUnitsOrRank*0.06) + is_alone* rand3c) then
 					return
 				end
 				if (ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp

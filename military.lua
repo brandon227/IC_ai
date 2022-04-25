@@ -322,7 +322,7 @@ function Logic_military_setgroupsizes()
 	elseif (curRank == 4) then
 		rankMultiplier = 400
 	elseif (curRank == 5) then
-		rankMultiplier = 650 + Rand(2)*50 --add randomness
+		rankMultiplier = 650 + rand2c*50 --add randomness
 	end
 				
 	-- increase my troop counts if the enemy has more units than I do
@@ -418,7 +418,7 @@ function Logic_military_setgroupsizes()
 		-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
 		local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 		if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
-			icd_groundgroupminsize = Rand(5) + 2
+			icd_groundgroupminsize = rand4c + rand1b + 2
 			icd_groundgroupminvalue = 100
 		end
 	end
@@ -560,7 +560,7 @@ function Logic_military_setdesiredcreatures()
 		
 	-- don't build more then 2 rank1s if you are not underattack - only used on standard
 	if (g_LOD == 1 and curRank == 1 and UnderAttackValue() < 150 and ScrapAmountWithEscrow() < 1000) then
-		sg_creature_desired = sg_militaryRand*0.06 - 3
+		sg_creature_desired = rand100a*0.06 - 3
 		if sg_creature_desired < 0 then
 			sg_creature_desired = 0
 		end
@@ -624,8 +624,6 @@ function Logic_military_setdesiredcreatures()
 	
 end
 
-sg_militaryRand = Rand(100)
-
 -- when the next wave attack will happen (global var)
 
 -- function that gets called on a timer
@@ -663,13 +661,13 @@ function Logic_military_setattacktimer()
 	-- when does the AI start attacking
 	local timedelay = 30
 	-- how often does it send another wave
-	local wavedelay = 60 + sg_militaryRand*0.3
+	local wavedelay = 60 + rand100a*0.3
 	
 	-- check level of difficult and modify when the AI first attacks if not
 	-- attacked by the player
 	if (g_LOD == 0) then
-		timedelay = 60*6.5 + sg_militaryRand*2.4
-		wavedelay = 60*2.5 + sg_militaryRand*0.8
+		timedelay = 60*6.5 + rand100a*2.4
+		wavedelay = 60*2.5 + rand100a*0.8
 		local chosenEnemy = GetChosenEnemy()
 		if (chosenEnemy ~= -1) then
 			-- if the enemy has no-one or the time is greater then 12 minutes
@@ -678,19 +676,19 @@ function Logic_military_setattacktimer()
 			end
 		end
 	elseif (g_LOD == 1) then
-		timedelay = 60*4.5 + sg_militaryRand*1.2
-		wavedelay = 60*2 + sg_militaryRand*0.6
+		timedelay = 60*4.5 + rand100a*1.2
+		wavedelay = 60*2 + rand100a*0.6
 	end
 	
 	if (g_LOD >= 2) then
 		local moreEnemies = PlayersAlive( player_enemy )-PlayersAlive( player_ally )
 		if (moreEnemies > 0) then
 			-- delay initial attack
-			timedelay = timedelay + sg_militaryRand*moreEnemies/2
+			timedelay = timedelay + rand100a*moreEnemies/2
 		else --Added 4/1/19 by Bchamp to shorten wave delay if winning to keep pressure on opponent.
 			local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 			if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
-				wavedelay = 10 + sg_militaryRand*0.10
+				wavedelay = 10 + rand100a*0.10
 			end
 		end
 	end

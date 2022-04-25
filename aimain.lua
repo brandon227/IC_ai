@@ -31,11 +31,17 @@ dofilepath("data:ai/choosecreature.lua")
 dofilepath("data:ai/rank2rush.lua")
 --
 dofilepath("data:ai/economyrush.lua")
+--
+dofilepath("data:ai/tactics.lua")
 
 
 
 function oninit()
-	
+	-- sg_number =
+	-- {
+
+	-- };
+
 	init_basebuild();
 	init_military();
 	init_research();
@@ -54,6 +60,10 @@ function oninit()
 	-----------------------------
 	sg_chamberAttempts = 0
 	sg_foundryAttempts = 0
+	-----------------------------
+    --need to replace all Rand(x) with these in code
+
+
 	-- run this once in the beginning so henchman will act on this as soon as possible
 	dobasebuild();
 	
@@ -64,6 +74,8 @@ function oninit()
 
 	-- Perform Tactic Functions
 	-- Each function is called in order below. If rejected, the CanDo function will return 0 and the next tactic will be called.
+	ChooseTactic(dotactic);
+
 	if (dotactic == 1) then
 		if (EconomyRush_CanDo(dotactic) == 0) then
 			if (Rank2Rush_CanDoTactic(dotactic) == 0) then

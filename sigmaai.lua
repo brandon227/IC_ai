@@ -1,12 +1,34 @@
 aitrace("Script: Starting AI");
 
 -- table of all variables that need to be saved
-AIG = {}
+	AIG = {}
 
 -- cache gameinfo options that AI will need
-g_LOD = LevelOfDifficulty();
-g_GameType = GetGameType();
-g_GameMode = GetGameMode();
+	g_LOD = LevelOfDifficulty();
+	g_GameType = GetGameType();
+	g_GameMode = GetGameMode();
+
+--Initialize random variables
+	rand1a = Rand(1);
+	rand1b = Rand(1);
+	rand1c = Rand(1);
+	rand2a = Rand(2);
+	rand2b = Rand(2);
+	rand2c = Rand(2);
+	rand3a = Rand(3);
+	rand3b = Rand(3);
+	rand3c = Rand(3);
+	rand4a = Rand(4);
+	rand4b = Rand(4);
+	rand4c = Rand(4);
+	rand10a = Rand(10);
+	rand10b = Rand(10);
+	rand10c = Rand(10);
+	rand40a = Rand(40);
+	rand40b = Rand(40);
+	rand100a = Rand(100);
+	rand100b = Rand(100);
+	rand100c = Rand(100)
 
 -- forces higher level of difficulty levels to hard
 if (g_LOD > 2) then

@@ -24,18 +24,6 @@ function init_basebuild()
 	sg_buildstructure[LandingPad_EC] = 0
 	sg_buildstructure[BrambleFence_EC] = 1
 	
-	--local randFactor = 1000
-	--if (g_LOD == 0) then
-	--	randFactor = 0
-	--elseif (g_LOD == 1) then
-	--	randFactor = 6
-	--end
-	
---	 randomly decide if we will ever build fences
---	if (Rand(10) > 5) then
---		sg_buildstructure[BrambleFence_EC] = 1
---	end
-	
 	sg_lightningrod_cap = 4
 	
 	-- the distance from the base the AI will build its chamber (using PH_OutsideBase flag)
@@ -110,10 +98,6 @@ function doupgrades()
 	end
 end
 
-
-
-sg_randval = Rand(100)
-
 -- check to see if we should build a vetclinic or genamp
 function checkToBuildAdvancedStructures( extraoffset )
 	
@@ -134,11 +118,11 @@ function checkToBuildAdvancedStructures( extraoffset )
 	
 	-- make this more available in the lower levels
 	if (g_LOD == 0) then
-		offset = offset - sg_randval/8
+		offset = offset - rand100a/8
 	elseif (g_LOD == 1) then
-		offset = offset - sg_randval/20
+		offset = offset - rand100a/20
 	elseif (g_LOD == 2) then
-		offset = offset + sg_randval/20
+		offset = offset + rand100a/20
 	end
 	
 	-- if AI has tons of money - no need to check military counts - AI should be building creatures
@@ -168,7 +152,7 @@ function dogeneticamplifier()
 	local numCreaturesNeeded = 9
 	-- make easy mode much more random in regards to building this
 	if (g_LOD == 0) then
-		numCreaturesNeeded = 6+sg_randval*0.05
+		numCreaturesNeeded = 6+ rand100b*0.05
 	end
 	
 	-- extra check - should check for HaveElectricityPreqrequisite instead of just having an egen - no ElecNeed
@@ -255,7 +239,7 @@ function dosoundbeamtowers()
 	
 	-- early game (not research first rank yet)
 	if (curRank == 1 and fact_selfValue < 400) then
-		local randval = 300 + sg_randval*3
+		local randval = 300 + rand100b * 3
 		if (fact_enemyValue > randval or underAttackVal>90) then
 			buildTowers = 1
 		end
@@ -293,7 +277,7 @@ function dosoundbeamtowers()
 	if g_LOD >= 2 then
 		-- check for camo and digger units
 		local numEnemyCamo = PlayersUnitTypeCount( player_enemy, player_max, sg_class_camoflauge )
-		if (curRank < 3 and numEnemyCamo > (1+sg_randval/40)) then
+		if (curRank < 3 and numEnemyCamo > (1+ rand100c/40)) then
 			buildTowers = 1
 		elseif (numEnemyCamo > 7) then
 			buildTowers = 1
@@ -301,7 +285,7 @@ function dosoundbeamtowers()
 
 		-- added by LBFrank 3/31/19 to check for sonic units (useful in the wake of L2/L3 sonic)
 		local numSonic = PlayersUnitTypeCount( player_enemy, player_max, sg_class_sonic )
-		if (curRank < 4 and numSonic > (3+sg_randval/60)) then
+		if (curRank < 4 and numSonic > (3+ rand100a/60)) then
 			buildTowers = 1
 		elseif (numSonic > 7) then
 			buildTowers = 1
@@ -311,9 +295,9 @@ function dosoundbeamtowers()
 	if (buildTowers == 1) then
 	
 		local desiredAmount = 1
-		if curRank >= 2 and sg_randval > 50 then
+		if curRank >= 2 and rand100b > 50 then
 			desiredAmount = desiredAmount + NumBuildingActive( Foundry_EC )
-		elseif curRank >= 2 and sg_randval > 30 then
+		elseif curRank >= 2 and rand100c > 30 then
 			desiredAmount = desiredAmount + CoalPileWithDropOffs()
 		end
 
@@ -364,7 +348,7 @@ function doantiairtowers()
 	local dmgFromFlyer = DamageFromFlyer()
 	local enemyFlyers = PlayersUnitTypeCount( player_enemy, player_max, sg_class_flyer );
 	-- if AI has not been attacked by flyers yet or they just have lots hidden away
-	if (dmgFromFlyer == 0 and enemyFlyers < (5+(sg_randval*0.06))) then
+	if (dmgFromFlyer == 0 and enemyFlyers < (5+( rand100a*0.06))) then
 		return
 	end
 	
@@ -409,7 +393,7 @@ function dovetclinic()
 
 
 	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
-	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < (sg_randval*0.06 + 1) or NumHenchmanActive() < 12 ) then
+	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < ( rand100b*0.06 + 1) or NumHenchmanActive() < 12 ) then
 		return
 	end
 
@@ -424,7 +408,7 @@ function dovetclinic()
 	local maxVetClinic = 1
 	if (curRank > 2 and g_LOD >= 2) then
 		-- 30% chance of building a single vet clinic. Also will only build a single clinic if doing a 1v1 on a small map.
-		if (sg_randval < 30 or ((PlayersAlive( player_ally ) == 1 and PlayersAlive( player_enemy ) == 1) and fact_closestAmphibDist < 450)) then
+		if ( rand100c < 30 or ((PlayersAlive( player_ally ) == 1 and PlayersAlive( player_enemy ) == 1) and fact_closestAmphibDist < 450)) then
 			maxVetClinic = 1
 		else
 			maxVetClinic = 2
@@ -495,7 +479,7 @@ function dofoundry()
 			alwaysBuild = 0
 		else
 			--Minimum of 16 henchmen before building second foundry. Also make sure foundry's are full. 3/30/2019 Bchamp
-			if (numFoundries == 1 and (NumHenchmanQ() < 16 or gatherSiteOpen > 0 or NumCreaturesQ() < (sg_randval*0.05 + 1))) then
+			if (numFoundries == 1 and (NumHenchmanQ() < 16 or gatherSiteOpen > 0 or NumCreaturesQ() < ( rand100a*0.05 + 1))) then
 				alwaysBuild = 0
 			else
 				alwaysBuild = 1
@@ -510,7 +494,7 @@ function dofoundry()
 	-- On larger maps, have a minimum of 3 foundries if AI is at least lvl 3. 
 	-- Also need minimum number of units.
 	if (fact_closestGroundDist > 500 and curRank >= 3) then
-		if (numFoundries < (minFoundries_LOD + 1) and gatherSiteOpen == 0 and NumCreaturesQ() > (sg_randval*0.07 + 2)) then
+		if (numFoundries < (minFoundries_LOD + 1) and gatherSiteOpen == 0 and NumCreaturesQ() > ( rand100b*0.07 + 2)) then
 			if (LabUnderAttackValue() > 100 and ScrapPerSec() > 8) then
 				alwaysBuild = 0
 			else
@@ -724,7 +708,7 @@ function docreaturechamber()
 			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
 				and (ElectricityPerSecQ() >= 10 or (ElectricityPerSecQ() >= 8 and goal_rank2rush == 1)) and queued >= (numActiveChambers)) then
 
-				numActiveChambers = 1+Rand(2)
+				numActiveChambers = 1 + rand2a
 				if (ScrapAmountWithEscrow() > 500) then
 					numActiveChambers = 2
 				end
@@ -756,7 +740,7 @@ function ChamberLocation()
 
     if (LabUnderAttackValue() > 200) then
         return PH_Best
-    elseif sg_randval > 50 then
+    elseif rand100c > 50 then
         return PH_DefendSite
     else --build chambers further from base but not necessarily near workshop
 		-- this will hopefully increase distance chambers are spread out
@@ -812,7 +796,7 @@ function doelectricalgenerator()
 	end
 	
 	-- make sure AI has some military or make sure have met our lowrank requirement
-	if (fact_selfValue < (100+sg_randval*5) and GetRank() >= fact_lowrank_all) then
+	if (fact_selfValue < (100+ rand100b*5) and GetRank() >= fact_lowrank_all) then
 		buildGen = 0
 	end
 	
