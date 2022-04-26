@@ -260,6 +260,14 @@ function dosoundbeamtowers()
 			buildTowers = 1
 		end
 		
+		if (underAttackVal > curRank*200 and NumHenchmenGuarding() >= 4) then
+			buildTowers = 1
+		end
+
+		if (underAttackVal > 120 and NumChambers() == 0) then
+			buildTowers = 1
+		end
+
 		-- if we are being attacked by more than 1.5 times the AIs military worth
 		if (g_LOD < 2 and ResearchCompleted( RESEARCH_TowerUpgrade ) == 1 and underAttackVal > fact_selfValue*1.3 ) then
 			buildTowers = 1
@@ -322,9 +330,9 @@ function dosoundbeamtowers()
 				ReleaseRenewEscrow();
 				xBuild( RemoteChamber_EC, PH_Best );
 				aitrace("Script: Build second defense creature chamber")
+				return 1
 			end
 
-			return
 		end
 		
 
@@ -393,7 +401,7 @@ function dovetclinic()
 
 
 	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
-	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < ( rand100b*0.06 + 1) or NumHenchmanActive() < 12 ) then
+	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < ( rand4a + rand2b + 1) or NumHenchmanActive() < 12 ) then
 		return
 	end
 
@@ -426,7 +434,7 @@ function dovetclinic()
 		end
 	end
 
-	 if (goal_needcoal ~= 2) then
+	if (goal_needcoal ~= 2) then
 		-- typical check for building
 		if (NumBuildingQ( VetClinic_EC ) < maxVetClinic and CanBuildWithEscrow( VetClinic_EC )==1) then
 			ReleaseGatherEscrow();
@@ -852,7 +860,20 @@ function dowaterchamber()
 		return 0
 	end
 
+	if (fact_lowrank_amphib <= curRank and NumBuildingQ( WaterChamber_EC ) < (curRank-1) and IsChamberBeingBuilt() == 0 and 
+		CanBuildWithEscrow( WaterChamber_EC )==1) then
 
+		--if you have a water chamber and are in danger, and already have at least 2 chambers, don't worry about more
+		if (NumBuildingQ( WaterChamber_EC ) >= 3 and UnderAttackValue() > 400*curRank) then
+			return 0
+		end
+
+			ReleaseGatherEscrow();
+			ReleaseRenewEscrow();
+			xBuild( WaterChamber_EC, PH_Best );
+			aitrace("Script: Build waterchamber");
+		return 1
+	end
 
 	-- if this chamber is desired and we have no other chamber this maybe a good option
 	-- this is only if we have swimmers in the current ranks of course
@@ -868,27 +889,27 @@ function dowaterchamber()
 
 
 	-- MORE WCs on water maps
-	if (fact_lowrank_amphib == curRank or (goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then
-		if (NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and IsChamberBeingBuilt() == 0 and 
-			CanBuildWithEscrow( WaterChamber_EC )==1) then
-				ReleaseGatherEscrow();
-				ReleaseRenewEscrow();
-				xBuild( WaterChamber_EC, PH_Best );
-				aitrace("Script: Build waterchamber");
-				return 1
-		end
-		return 0
-	else
-		if (NumBuildingQ( WaterChamber_EC ) < 2 and NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and
-			IsChamberBeingBuilt() == 0 and CanBuildWithEscrow( WaterChamber_EC )==1) then
-				ReleaseGatherEscrow();
-				ReleaseRenewEscrow();
-				xBuild( WaterChamber_EC, PH_Best );
-				aitrace("Script: Build waterchamber");
-				return 1
-		end
-		return 0
-	end
+	-- if (fact_lowrank_amphib == curRank or (goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then
+	-- 	if (NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and IsChamberBeingBuilt() == 0 and 
+	-- 		CanBuildWithEscrow( WaterChamber_EC )==1) then
+	-- 			ReleaseGatherEscrow();
+	-- 			ReleaseRenewEscrow();
+	-- 			xBuild( WaterChamber_EC, PH_Best );
+	-- 			aitrace("Script: Build waterchamber");
+	-- 			return 1
+	-- 	end
+	-- 	return 0
+	-- else
+	-- 	if (NumBuildingQ( WaterChamber_EC ) < 2 and NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and
+	-- 		IsChamberBeingBuilt() == 0 and CanBuildWithEscrow( WaterChamber_EC )==1) then
+	-- 			ReleaseGatherEscrow();
+	-- 			ReleaseRenewEscrow();
+	-- 			xBuild( WaterChamber_EC, PH_Best );
+	-- 			aitrace("Script: Build waterchamber");
+	-- 			return 1
+	-- 	end
+	-- 	return 0
+	-- end
 end
 
 function doaviary()

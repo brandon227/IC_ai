@@ -334,7 +334,7 @@ function Rank2Rush_dolightningrods()
 	local numRods = 0
 
 	-- and NumHenchmanQ() > numHenchman
-	if (numHenchman > 3 + rand1a) then
+	if (numHenchman > 3 + rand2a) then
 		numRods = 1
 	end
 
@@ -411,8 +411,25 @@ end
 --Send units continuously unless after 5.5 minutes on game time or Lab Under Attack--
 function Rank2Rush_Logic_military_setattacktimer()
 
+	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max )
 	local wavedelay = 0
-	RegisterTimerFunc("attack_now_timer", wavedelay )
+
+	if (militaryValue > icd_groundgroupminvalue - chamberAtEnemyBase*120) then
+			wavedelay = 0;
+			icd_fleeEnemyValueModifier = 0.65;
+			aitrace("Script: Attacktimer added")
+			-- this will also call attacknow instantly
+			RegisterTimerFunc("attack_now_timer", wavedelay )
+		return
+	elseif ((militaryValue < (icd_groundgroupminvalue * 0.7) - chamberAtEnemyBase*120) and IsTimerFuncRegistered("attack_now_timer") == 1) then
+		wavedelay = 60 + rand100a*0.3;
+		RegisterTimerFunc("attack_now_timer", wavedelay )
+		icd_fleeEnemyValueModifier = 0.95;
+		return
+
+	end
+
+	--RegisterTimerFunc("attack_now_timer", wavedelay )
 
 	if (LabUnderAttackValue() > 100 or GameTime() > (5.5*60)) then
 		rawset(globals(), "Logic_military_setattacktimer", nil )
@@ -434,26 +451,26 @@ function Rank2Rush_Logic_military_setgroupsizes()
 		icd_groundgroupminsize = 4 + 2*numSBTower + rand1a;
 		icd_groundgroupmaxsize = 5 + 3*numSBTower + rand2a;
 	
-		icd_groundgroupminvalue = 500 + (numSBTower * 200);
-		icd_groundgroupmaxvalue = 1200 + (numSBTower * 250);
+		icd_groundgroupminvalue = 550 + (numSBTower * 200);
+		icd_groundgroupmaxvalue = 1500 + (numSBTower * 250);
 
 	elseif (one_v_one == 1 and chamberAtEnemyBase == 0) then
 		icd_groundgroupminsize = 5 + rand1a; --fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
 		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand2b;
 	
-		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120; 
+		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*150; 
 		icd_groundgroupmaxvalue = 2500;
 
 	else
 		icd_groundgroupminsize = 5 + rand4c; 
 		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand4c; 
 
-		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*120;
+		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-1)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*150;
 		icd_groundgroupmaxvalue = 2500;
 
 		--Added by Bchamp 4/17/2019 in order to stop AI from just hording units in FFA or Team games and begin attacking, even if it will lose.
-		if (icd_groundgroupminvalue > (9*120)) then
-			icd_groundgroupminvalue = 9*120
+		if (icd_groundgroupminvalue > (10*150)) then
+			icd_groundgroupminvalue = 10*150
 		end
 	end
 
@@ -477,6 +494,7 @@ function Rank2Rush_Logic_military_setgroupsizes()
 	if (GetRank() > 2 or LabUnderAttackValue() > 200) then
 		rawset(globals(), "Logic_military_setgroupsizes", nil )
 		Logic_military_setgroupsizes = save_Logic_military_setgroupsizes
+		icd_fleeEnemyValueModifier = 0.65;
 	end
 end
 
@@ -493,7 +511,7 @@ function Rank2Rush_Logic_desiredhenchman()
 	local unitCount = NumCreaturesQ() --Formerly: PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 	local gatherSiteOpen = IsGatherSiteOpen()
 
-	if (curRank == 1 and gatherSiteOpen > 0) then
+	if (curRank == 1) then
 		sg_desired_henchman = sg_henchmanthreshold + rand2a
 		if (chamberAtEnemyBase == 1) then
 			sg_desired_henchman = sg_henchmanthreshold + 1 + rand2a
@@ -504,7 +522,7 @@ function Rank2Rush_Logic_desiredhenchman()
 		henchman_count = sg_desired_henchman
 	elseif (curRank == 2 and gatherSiteOpen > 0) then --How hench are built if AI is L2 and coal isnt filled
 		henchman_count = sg_desired_henchman + (unitCount-1)
-	elseif(gatherSiteOpen == 0 and unitCount < ( rand4a + 1)) then --If coal is filled and less than this amount of units, don't build hench
+	elseif(curRank == 2 and gatherSiteOpen == 0 and unitCount < ( rand4a + 1)) then --If coal is filled and less than this amount of units, don't build hench
 		henchman_count = sg_henchmanthreshold
 		-- if gather sites full and less than threshold number of units, check if ampib rush. If yes, build additional hench to account for WC build time.
 		if (fact_lowrank_amphib == 2 and NumBuildingQ(WaterChamber_EC) > 0) then
@@ -515,8 +533,8 @@ function Rank2Rush_Logic_desiredhenchman()
 			henchman_count = NumHenchmanActive()
 		end
 		henchman_count = sg_henchmanthreshold + 1 + (unitCount-(2 + rand2b))/2
-		if ( NumHenchmenGuarding()>=2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 450 and UnderAttackValue() < 200) 
-			or (one_v_one == 0 and NumCreaturesActive() >= 10))) then
+		if (NumHenchmenGuarding() >= 4 or ( NumHenchmenGuarding()>=2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 400) 
+			or (one_v_one == 0 and NumCreaturesActive() >= 10)))) then
 			local dist2dropoff = DistToDropOff();
 				aitrace("Script: dist2dropoff="..dist2dropoff);
 				if (CanBuildWithEscrow( Foundry_EC ) == 1) then
@@ -546,7 +564,7 @@ end
 function Rank2Rush_Logic_set_escrow()
 
 	-- piggy back this call to make sure its called
-	AttackNow()
+	--AttackNow()
 	
 	SetGatherEscrowPercentage(10)
 	SetRenewEscrowPercentage(10)
@@ -591,6 +609,8 @@ function CancelRank2Rush()
 
 	rawset(globals(), "rankUp", nil )
 	rankUp = save_rankUp
+
+	icd_fleeEnemyValueModifier = 0.65;
 	--ReleaseGatherEscrow();
 	--ReleaseRenewEscrow();
 	--xBuild( GeneticAmplifier_EC );

@@ -200,12 +200,12 @@ function Logic_desiredhenchman()
 	if (curRank == 2 and gatherSiteOpen > 0) then
 		henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
 	elseif (curRank == 3) then
-		if (gatherSiteOpen > 0) then
+		if (gatherSiteOpen > 0 and numFoundries <= 1) then
 			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
 		-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
 		-- this will focus priority on getting henchman yoke. -------
-		elseif (ResearchQ(RESEARCH_HenchmanYoke) == 0 and numFoundries > 1 and g_LOD >= 2) then
-			henchman_count = 0
+		elseif (ResearchQ( RESEARCH_AdvancedStructure ) == 0 and numFoundries > 1 and g_LOD >= 2 and NumHenchmanActive() >= sg_henchmanthreshold + 3 + rand4b) then
+			henchman_count = 0;
 		end
 	elseif (curRank >= 4 and gatherSiteOpen > 0) then
 		henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))

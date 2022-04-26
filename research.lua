@@ -249,9 +249,12 @@ function Logic_doadvancedresearch()
 	
 	-- don't research this if we are not in rank2 or we don't have some army
 	-- unless our army isn't available until r4
-	if (g_LOD == 2 and (ResearchCompleted(RESEARCH_Rank2)==0 or (fact_selfValue < 700 and fact_lowrank_all<4) or 
-		(NumBuildingActive( Foundry_EC ) < 1 and GameTime() < 8*60))) then --Don't do advanced research if no foundry before 8 minutes. Bchamp 4/17/2019
-		return
+	if g_LOD >= 2 then --Don't do advanced research if no foundry before 8 minutes. Bchamp 4/17/2019
+		if GetRank() < 2 then
+			return 0
+		elseif (NumBuildingActive(Foundry_EC) == 0 and GameTime() < 8*60) then
+			return 0
+		end
 	end
 	
 	-- if in standard randomly do this research before rank2 research (so most of the time the AI will wait for r2)
@@ -267,6 +270,8 @@ function Logic_doadvancedresearch()
 		xResearch( RESEARCH_AdvancedStructure );
 		aitrace("Script: Advanced structure research")
 	end
+
+
 end
 
 function TowerCount()
