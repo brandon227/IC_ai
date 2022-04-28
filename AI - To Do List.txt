@@ -2,6 +2,11 @@ Updated 4/17/2022 by Bchamp
 - L2 Flyer Rush
 - Create Add-on helper lua to assist with tactic selection. Modify existing tactic luas to match.
 - rank2rush build foundry when winning, decrease lab down time
+- Play with changing group sizes and enemy modifiers under certain conditions. 
+- AI build too many henchmen when coal runs out on map.
+- Play with escrow stuff
+- more army analysis of enemy and self
+- AI didn't build SB towers when it saw my sonic units?
 
 Updated 4/19/2019 by Bchamp
 
