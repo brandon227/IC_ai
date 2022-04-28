@@ -4,7 +4,7 @@ aitrace("Script: Starting AI");
 	AIG = {}
 
 -- cache gameinfo options that AI will need
-	g_LOD = LevelOfDifficulty();
+	g_LOD = LevelOfDifficulty(); --easy is 0, normal is 1, hard is 2, expert is 3
 	g_GameType = GetGameType();
 	g_GameMode = GetGameMode();
 
@@ -30,10 +30,6 @@ aitrace("Script: Starting AI");
 	rand100b = Rand(100);
 	rand100c = Rand(100)
 
--- forces higher level of difficulty levels to hard
-if (g_LOD > 2) then
-	g_LOD = 2
-end
 
 -- Add any scripts specific to each level of AI (apparently none)
 if (g_LOD == 0) then

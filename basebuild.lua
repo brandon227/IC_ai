@@ -121,7 +121,7 @@ function checkToBuildAdvancedStructures( extraoffset )
 		offset = offset - rand100a/8
 	elseif (g_LOD == 1) then
 		offset = offset - rand100a/20
-	elseif (g_LOD == 2) then
+	elseif (g_LOD >= 2) then
 		offset = offset + rand100a/20
 	end
 	

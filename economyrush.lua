@@ -217,7 +217,6 @@ function EconomyRush_rankUp()
 	--	numHenchForRank = numHenchForRank + 1
 	--end
 
-	local dist2dropoff = DistToDropOff();
 
 	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
 		ReleaseGatherEscrow()

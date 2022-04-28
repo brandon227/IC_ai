@@ -291,7 +291,7 @@ function Command_buildhenchman()
 	end
 
 	--added by Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
-	if ((NumHenchmanQ() - NumHenchmanActive()) >= (3 - g_LOD)) then
+	if ((NumHenchmanQ() - NumHenchmanActive()) >= (4 - g_LOD)) then
 		return
 	end
 	

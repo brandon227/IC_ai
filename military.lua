@@ -59,10 +59,14 @@ function init_military()
 		icd_enemyValueModifier = 0.85; 
 		icd_engageEnemyValueModifier = 0.70;
 		icd_fleeEnemyValueModifier = 0.55;
-	else
-		icd_enemyValueModifier = 0.95;
-		icd_engageEnemyValueModifier = 0.80;
+	elseif (g_LOD == 2) then
+		icd_enemyValueModifier = 1.0;
+		icd_engageEnemyValueModifier = 1.0; --0.80
 		icd_fleeEnemyValueModifier = 0.65; --the higher this value, the more easily the AI will flee. Raised from 0.60 by Bchamp 4/12/2019
+	else --Expert
+		icd_enemyValueModifier = 2.0; --multiplier for enemy value. Value = total resources of all active military units, including towers
+		icd_engageEnemyValueModifier = 1.2; --only engage enemy if you have a bigger army
+		icd_fleeEnemyValueModifier = 0.70; --flee when you army starts to get small
 	end
 	
 	-- is the AIs current target an amphibian one
@@ -409,7 +413,7 @@ function Logic_military_setgroupsizes()
 	-- Added by Bchamp 4/22/2019 to ensure that groupminvalue is used to account for spam or low power units. Also adjusted for rank
 	if (g_LOD >= 2) then
 
-		icd_groundgroupminsize = groupoffset + 3 + Rand(3);
+		icd_groundgroupminsize = groupoffset + 3 + Rand(3); 
 		icd_groundgroupmaxsize = (groupoffset+5)*2+6;
 		
 		icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier;
@@ -630,30 +634,33 @@ end
 function attack_now_timer()
 		
 	--This does nothing as far as I can tell.....Let's try and work on this later? Bchamp 4/22/2019
-	SetTargetTypePriority( Creature_EC, 0 )
-	RemoveTargetPriority( Creature_EC )
-	SetTargetTypePriority( SoundBeamTower_EC, 20 )
-	SetTargetTypePriority( AntiAirTower_EC, 20 )
-	SetTargetTypePriority( ElectricGenerator_EC, 1000 )
-	SetTargetTypePriority( RemoteChamber_EC, 20 )
-	SetTargetTypePriority( WaterChamber_EC, 20 )
-	SetTargetTypePriority( Aviary_EC, 20 )
-	SetTargetTypePriority( ResourceRenew_EC, 20 )
-	SetTargetTypePriority( Foundry_EC, 20 )
-	SetTargetTypePriority( VetClinic_EC, 20 )
-	SetTargetTypePriority( GeneticAmplifier_EC, 20 )
-	SetTargetTypePriority( LandingPad_EC, 20 )
-	SetTargetTypePriority( BrambleFence_EC, 20 )
-	SetTargetTypePriority( Lab_EC, 20 )
-	SetTargetTypePriority( Henchman_EC, 20 )
+	SetTargetPriority( ElectricGenerator_EC, 5000 );
+	SetTargetTypePriority( Creature_EC, -1000 )
+	RemoveTargetPriority( Lab_EC )
+	SetTargetTypePriority( SoundBeamTower_EC, 0 )
+	SetTargetTypePriority( AntiAirTower_EC, 0 )
+	SetTargetTypePriority( ElectricGenerator_EC, 2000 )
+	SetTargetTypePriority( RemoteChamber_EC, 4 )
+	SetTargetTypePriority( WaterChamber_EC, 0 )
+	SetTargetTypePriority( Aviary_EC, 0 )
+	SetTargetTypePriority( ResourceRenew_EC, 0 )
+	SetTargetTypePriority( Foundry_EC, 5 )
+	SetTargetTypePriority( VetClinic_EC, 0 )
+	SetTargetTypePriority( GeneticAmplifier_EC, 0 )
+	SetTargetTypePriority( LandingPad_EC, 0 )
+	SetTargetTypePriority( BrambleFence_EC, 0 )
+	SetTargetTypePriority( Lab_EC, 3 )
+	SetTargetTypePriority( Henchman_EC, 0 )
 
-	SetTargetPriority( ElectricGenerator_EC, 10000 )
-	SetTargetPriority( Henchman_EC, 20 )
-	SetTargetPriority( Creature_EC, 20 )
-	SetTargetPriority( Lab_EC , 0)
+	-- SetTargetPriority( ElectricGenerator_EC, 10000 )
+	-- SetTargetPriority( Henchman_EC, 0 )
+	-- SetTargetPriority( Creature_EC, 0 )
+	-- SetTargetPriority( Lab_EC , 0)
 
-	AttackNow();
-	aitrace("Script: Attack Now")
+
+		AttackNow();
+		aitrace("Script: Attack Now")
+
 end
 
 function Logic_military_setattacktimer()
