@@ -1,4 +1,6 @@
+-------------------------------
 Updated 4/17/2022 by Bchamp
+-------------------------------
 - L2 Flyer Rush
 - Create Add-on helper lua to assist with tactic selection. Modify existing tactic luas to match.
 - rank2rush build foundry when winning, decrease lab down time
@@ -7,26 +9,33 @@ Updated 4/17/2022 by Bchamp
 - Play with escrow stuff
 - more army analysis of enemy and self
 - AI didn't build SB towers when it saw my sonic units?
+- Scouting function with AI
+- Cancel Rush switch tactics
+- Rank2rush with barrier destroy
+- Rank2rush trickle and retreat when take damage... only trickle in certain conditions like if no damage taken plus slow build order
+- WHY DO CLINICS AND GENAMPS NOT GET BUILT UNTIL L4?@?@@?
+- WHY ARE CHAMBERS BEING BUILT SO CLOSE TO THE GOD DAMN LAB
+----------------------
+Skitter Watch To do list:
+--------------------
+-Check water chamber functions for AI
+-AI should build foundry if it has idle hench
+-AI should have larger group sizes on larger maps. 
+-during workshop first build order, check elec amount and keep building hench/rods if still waiting on elec. 
+   -also consider not doing it for maps where first coal pile is far away. Can build function iterating through CoalPileWithinDist function at start of game to find distance of first expo.
 
+-build genetic amplifier!!!!! And upgrade speed on large maps
+-Build more units! Does not desire enough creatures, even with excess resources
+-Yoke before Building integrity!
+-Check if CoalPileWithinDist() increases once workshop is built. If yes, we can use it to count number of open coal to workshops and choose how many hench to build.
+
+
+-------------------------
 Updated 4/19/2019 by Bchamp
-
+-------------------------
 - Improve AI aggression. Add randomness for more aggressive and economy focused AI. 
 - Set AI "UnderAttack" functions to better deal with being attacked
 - Can specific AI files be played on specific maps in Multiplayer mode?
 - Add randomization
 
-- Add support for Amphib Rushes at L2 rank2rush (done 4/19)
-- Increase minimum group sizes for attacking (done 4/17)
-- Incorporate soundbeams into flee value (done 4/17)
-- Creature Chambers built at workshops. (I don't think we can do this)
-- Change resource bonus for Hard AI (done 4/17)
-- Build second CC for rank2rush expert AI (done 4/17)
-
 - Consider for AI team games during late game to have less hench per coal pile to account for high probability for sharing coal while allies still alive.
-
-- Don't build 2nd Research Clinic in a 1v1 on small maps?
-- Make sure has units or timer hits before going L4 on 1v1s. (done 4/19)
-
-- Rank2Rush and Economy Rush use Henchmen Threshold instead of a number in order to account for Easy or normal AI being forced to use tactic. Also for 4 vs 5 vs 6 starting coal piles. (done 4/19)
-
-- Spam Offset (done 4/19)

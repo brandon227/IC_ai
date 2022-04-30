@@ -237,6 +237,7 @@ function Rank2Rush_docreaturechamber()
 		chamberAtEnemyBase = 0
 	end
 
+
 	local basePlacement = PH_OutsideBase
 	--local chamberAtEnemyBase = 0
 	if(chamberAtEnemyBase == 1) then

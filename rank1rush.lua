@@ -123,7 +123,7 @@ function Rank1Rush_docreaturechamber()
 			basePlacement = PH_EnemyBase
 		end
 		
-		xBuild( RemoteChamber_EC, basePlacement );
+		xBuild( RemoteChamber_EC, ChamberLocation() );
 		aitrace("Script: Build first creature chamber")
 	end
 	

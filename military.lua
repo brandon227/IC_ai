@@ -25,10 +25,12 @@ function init_military()
 	icd_airgroupminvalue = 500;
 	icd_airgroupmaxvalue = 7500;
 		
-	icd_groundattackpercent = 100
-	icd_waterattackpercent = 100
-	icd_airattackpercent = 100
+	icd_groundattackpercent = 100;
+	icd_waterattackpercent = 100;
+	icd_airattackpercent = 100;
 	
+	rankValue = [80,170,300,450,650];
+
 	-- creature choice desires for each of these creature types
 	sg_goalamphib = 0
 	sg_goalmelee = 0
@@ -317,32 +319,34 @@ function Logic_military_setgroupsizes()
 	local valueoffset = 0
 	local rankMultiplier = 60
 	local curRank = GetRank()
-
-	--Added by bchamp 4/19/2019 for value multiplication
-	if (curRank == 2) then
-		rankMultiplier = 120
-	elseif (curRank == 3) then
-		rankMultiplier = 230
-	elseif (curRank == 4) then
-		rankMultiplier = 400
-	elseif (curRank == 5) then
-		rankMultiplier = 650 + rand2c*50 --add randomness
-	end
+	local rankMultiplier = rankValue[curRank]
+	-- --Added by bchamp 4/19/2019 for value multiplication
+	-- if (curRank == 2) then
+	-- 	rankMultiplier = 120
+	-- elseif (curRank == 3) then
+	-- 	rankMultiplier = 230
+	-- elseif (curRank == 4) then
+	-- 	rankMultiplier = 400
+	-- elseif (curRank == 5) then
+	-- 	rankMultiplier = 650 + rand2c*50 --add randomness
+	-- end
 				
 	-- increase my troop counts if the enemy has more units than I do
 	if (g_LOD > 0) then
 		
 		-- the closer we are the smaller the earlier groups can be
-		-------the elseif statements won't be called here. Need to reverse order of conditions. Needs changing. - Bchamp 4/5/2019
-		if (fact_closestGroundDist > 300) then
-			groupoffset = 2
-			valueoffset = 500
-		elseif (fact_closestGroundDist > 600) then
+		if (fact_closestGroundDist < 300) then
 			groupoffset = 3
-			valueoffset = 750
-		elseif (fact_closestGroundDist > 900) then
+			valueoffset = groupoffset*rankMultiplier
+		elseif (fact_closestGroundDist < 600) then
+			groupoffset = 4
+			valueoffset = groupoffset*rankMultiplier
+		elseif (fact_closestGroundDist < 900) then
 			groupoffset = 5
-			valueoffset = 1000
+			valueoffset = groupoffset*rankMultiplier
+		else
+			groupoffset = 6
+			valueoffset = groupoffset*rankMultiplier
 		end
 		
 		local moreEnemies = PlayersAlive( player_enemy )-PlayersAlive( player_ally )
@@ -350,31 +354,31 @@ function Logic_military_setgroupsizes()
 		-- in FFA games, create bigger groups
 		if (moreEnemies > 0) then
 			groupoffset = groupoffset + 1 + moreEnemies/2
-			valueoffset = valueoffset + 100 + moreEnemies*100
+			valueoffset = groupoffset*rankMultiplier
 		end
 		
 		groupoffset = groupoffset + 1;
 		
 		--All these are the same. Also, how does Pop work now with Tellurian? I think maybe we should use a number of enemy units rather than these fact values.
 		--Bchamp 3/31/2019
-		if (fact_enemyPop > 10 or fact_militaryPop > 10) then
-			groupoffset = groupoffset + 1;
-			valueoffset = valueoffset + 200;
-		end
+		-- if (fact_enemyPop > 10 or fact_militaryPop > 10) then
+		-- 	groupoffset = groupoffset + 1;
+		-- 	valueoffset = groupoffset*rankMultiplier
+		-- end
 		
-		if (fact_enemyPop > 20 or fact_militaryPop > 20) then
-			groupoffset = groupoffset + 1;
-			valueoffset = valueoffset + 200;
-		end
+		-- if (fact_enemyPop > 20 or fact_militaryPop > 20) then
+		-- 	groupoffset = groupoffset + 1;
+		-- 	valueoffset = groupoffset*rankMultiplier
+		-- end
 		
-		if (fact_enemyPop > 35 or fact_militaryPop > 35) then
-			groupoffset = groupoffset + 1;
-			valueoffset = valueoffset + 200;
-		end
+		-- if (fact_enemyPop > 35 or fact_militaryPop > 35) then
+		-- 	groupoffset = groupoffset + 1;
+		-- 	valueoffset = groupoffset*rankMultiplier
+		-- end
 		
-		if (fact_enemyPop > fact_militaryPop) then
-			groupoffset = groupoffset + 1;
-			valueoffset = valueoffset + 200;
+		if (fact_enemyValue > fact_selfValue) then
+			groupoffset = groupoffset + g_LOD;
+			valueoffset = groupoffset*rankMultiplier
 		end
 	else
 		-- for easy
@@ -384,11 +388,11 @@ function Logic_military_setgroupsizes()
 	
 
 	-- initial group sizes for all LODs
-	icd_groundgroupminsize = groupoffset+2;
-	icd_groundgroupmaxsize = groupoffset*2+6;
+	icd_groundgroupminsize = groupoffset + 2;
+	icd_groundgroupmaxsize = max(groupoffset*2+6, NumCreaturesActive()*0.65);
 	
-	icd_groundgroupminvalue = valueoffset+200;
-	icd_groundgroupmaxvalue = valueoffset*2+1400;
+	icd_groundgroupminvalue = icd_groundgroupminsize * rankMultiplier;
+	icd_groundgroupmaxvalue = icd_groundgroupmaxsize * rankMultiplier;
 		
 	-- increase group sizes over time - or based on income the more money we have coming in
 	-- the bigger the groups should be - if we start with tons of money, group sizes
@@ -421,9 +425,10 @@ function Logic_military_setgroupsizes()
 
 		-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
 		local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+		unitCount = PlayersUnitCount( Player_Self, player_max, Creature_EC);
 		if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
-			icd_groundgroupminsize = rand4c + rand1b + 2
-			icd_groundgroupminvalue = 100
+			icd_groundgroupminsize = rand4a + 1
+			icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier
 		end
 	end
 	----------------------------------------------------------------------------------
@@ -551,6 +556,7 @@ function Logic_military_setdesiredcreatures()
 
 	------------------------------------------------------------------------------
 	-- RULES BELOW - these all put caps on creatures to give money to other areas
+	-- ORDER MATTERS -------------------------------------------------------------
 	------------------------------------------------------------------------------
 
 	-- run some island map logic. If no amphib or fliers available, only builds a few creatures for defense then returns 1. 
@@ -561,7 +567,20 @@ function Logic_military_setdesiredcreatures()
 	-- determine rank and standing to see if we should cap our units 
 	-- so that we try to rank up
 	local curRank = GetRank()
-		
+
+	-- if we have lots of coal and elec, build more units. 
+	-- consider setting escrow percentages here
+	-- moved up by Bchamp
+	if (g_LOD >= 2 and ScrapAmount() > 1000 and ElectricityAmount() > 1000) then
+		-- make creatures, until this money drops down
+		sg_creature_desired = popmax-10
+		-- for standard, don't go too crazy
+		if (g_LOD == 1) then
+			sg_creature_desired = popmax-20
+		end
+		return
+	end
+
 	-- don't build more then 2 rank1s if you are not underattack - only used on standard
 	if (g_LOD == 1 and curRank == 1 and UnderAttackValue() < 150 and ScrapAmountWithEscrow() < 1000) then
 		sg_creature_desired = rand100a*0.06 - 3
@@ -586,17 +605,6 @@ function Logic_military_setdesiredcreatures()
 	end
 
 
-	-- if we have lots of coal and elec, enough to rank up, build more units
-	if (g_LOD > 1 and ScrapAmountWithEscrow() > 1100 and ElectricityAmountWithEscrow() > 1600) then
-		-- make creatures, until this money drops down
-		sg_creature_desired = popmax-10
-		-- for standard, don't go too crazy
-		if (g_LOD == 1) then
-			sg_creature_desired = popmax-20
-		end
-		return
-	end
-
 	-- if we are at max rank - don't put any limits on creature count
 	if (fact_army_maxrank == curRank) then
 		return
@@ -619,7 +627,7 @@ function Logic_military_setdesiredcreatures()
 			
 	-- not underattack or we have a better army, so cap unit production for the time being so
 	-- we can leave money for ranking up
-	if (ResearchQ(RESEARCH_Rank5)==0 and fact_selfValue > (1000*curRank)) then
+	if (ResearchQ(RESEARCH_Rank5)==0 and fact_selfValue > fact_enemyValue*2) then
 		-- if have a low desire, keep it there otherwise cap it
 		if (sg_creature_desired > 13) then
 			sg_creature_desired = 13;

@@ -27,7 +27,7 @@ function init_basebuild()
 	sg_lightningrod_cap = 4
 	
 	-- the distance from the base the AI will build its chamber (using PH_OutsideBase flag)
-	icd_chamberDistFromBase = 25
+	icd_chamberDistFromBase = 35
 	
 	if (g_LOD == 0 ) then
 		RegisterTimerFunc("dobasebuild", 8.0 )
@@ -102,7 +102,7 @@ end
 function checkToBuildAdvancedStructures( extraoffset )
 	
 	-- check for rank3 unless we are going for an upgraded early rank tactic?
-	if (g_LOD>0 and ResearchCompleted(RESEARCH_Rank3)==0) then
+	if (g_LOD>0 and ResearchCompleted(RESEARCH_Rank2)==0) then
 		return 0
 	end
 	
@@ -145,18 +145,15 @@ end
 
 function dogeneticamplifier()
 	
+	--don't build before a foundry
 	if (g_LOD > 0 and NumBuildingActive( Foundry_EC ) == 0) then
 		return
 	end
 
-	local numCreaturesNeeded = 9
-	-- make easy mode much more random in regards to building this
-	if (g_LOD == 0) then
-		numCreaturesNeeded = 6+ rand100b*0.05
-	end
+	local numCreaturesNeeded = 7 + rand4c;
 	
 	-- extra check - should check for HaveElectricityPreqrequisite instead of just having an egen - no ElecNeed
-	 if (NumChambers() > 0 and NumCreaturesActive()>=numCreaturesNeeded) then
+	 if (NumChambers() > 0 and NumCreaturesActive() >= numCreaturesNeeded) then
 		-- typical check for building
 		if (NumBuildingQ( GeneticAmplifier_EC ) < 1 and CanBuildWithEscrow( GeneticAmplifier_EC )==1) then
 			ReleaseGatherEscrow();
@@ -226,16 +223,14 @@ function dosoundbeamtowers()
 
 	-- constants
 	local buildTowers = 0;
-	
 	local curRank = GetRank()
-	
 	local underAttackVal = UnderAttackValue()
-	
 	local flyerAttackPercentage = 0
+
 	if (underAttackVal > 0) then
 		flyerAttackPercentage = UnderFlyerAttackValue() / underAttackVal
 	end
-		
+
 	
 	-- early game (not research first rank yet)
 	if (curRank == 1 and fact_selfValue < 400) then
@@ -256,7 +251,7 @@ function dosoundbeamtowers()
 	if (flyerAttackPercentage < 0.6) then
 		-- if we have no creatures and we are underattack and we have no spawners then build 
 		-- sound beam towers - this is check at every rank
-		if (curRank < 3 and underAttackVal > 150 and fact_selfValue*1.2 < underAttackVal) then
+		if (curRank < 3 and underAttackVal > 150 and fact_selfValue < underAttackVal) then
 			buildTowers = 1
 		end
 		
@@ -281,21 +276,21 @@ function dosoundbeamtowers()
 		end
 	end
 	
-
+	local numEnemyCamo = PlayersUnitTypeCount( player_enemy, player_max, sg_class_camoflauge )
+	local numEnemySonic = PlayersUnitTypeCount( player_enemy, player_max, sg_class_sonic )
+	
 	if g_LOD >= 2 then
 		-- check for camo and digger units
-		local numEnemyCamo = PlayersUnitTypeCount( player_enemy, player_max, sg_class_camoflauge )
-		if (curRank < 3 and numEnemyCamo > (1+ rand100c/40)) then
+		if (curRank < 3 and numEnemyCamo > (1+ rand3a)) then
 			buildTowers = 1
 		elseif (numEnemyCamo > 7) then
 			buildTowers = 1
 		end
 
 		-- added by LBFrank 3/31/19 to check for sonic units (useful in the wake of L2/L3 sonic)
-		local numSonic = PlayersUnitTypeCount( player_enemy, player_max, sg_class_sonic )
-		if (curRank < 4 and numSonic > (3+ rand100a/60)) then
+		if (curRank < 4 and numEnemySonic > (3 + rand2c)) then
 			buildTowers = 1
-		elseif (numSonic > 7) then
+		elseif (numEnemySonic > 7) then
 			buildTowers = 1
 		end
 	end
@@ -318,32 +313,53 @@ function dosoundbeamtowers()
 		elseif (curRank >= 3 and underAttackVal > 1200) then
 			desiredAmount = 0 --don't build when under a large attack, AI are not smart enough to micro these situations and end up wasting resources.
 		end
-				
-		local numtowersBeRequested = NumBuildingQ( SoundBeamTower_EC ) - numTowerActive
-	
+		
+		if g_LOD >= 2 then
+			if numEnemySonic > 25 then
+				numEnemySonic = 25
+			end
+			desiredAmount = desiredAmount + numEnemySonic/5
+		end
+
+		--don't build if there is a lot of enemy artillery
+		local enemyArtilleryValue = PlayersUnitTypeValue( player_enemy, player_max, sg_class_artillery )
+		local enemyArtilleryPercent = enemyArtilleryValue/fact_enemyValue
+		if (enemyArtilleryPercent > 0.5) and (enemyArtilleryValue > curRank*250) then
+			return 0
+		elseif (enemyArtilleryValue > curRank*250) then
+			desiredAmount = desiredAmount - 2
+		end
+			
+		--don't build more than desired amount
+		if NumBuildingQ( SoundBeamTower_EC ) >= desiredAmount then
+			return 0
+		end
+
 		-- don't build more than one at a time, if so, build a second creature chamber on hard difficulty
 		-- modified by bchamp 10/1/2018 to stop AI from building a ton of SB towers when they really need to build units
-		if (numtowersBeRequested > 0) then
+		local numtowersInProgress = NumBuildingQ( SoundBeamTower_EC ) - numTowerActive
+		if (numtowersInProgress > 0) then
 			if (g_LOD >= 2 and NumBuildingQ( RemoteChamber_EC ) < 2 and CanBuildWithEscrow( RemoteChamber_EC ) == 1 ) then
 				
 				ReleaseGatherEscrow();
 				ReleaseRenewEscrow();
-				xBuild( RemoteChamber_EC, PH_Best );
+				xBuild( RemoteChamber_EC, ChamberLocation() );
 				aitrace("Script: Build second defense creature chamber")
 				return 1
 			end
-
 		end
 		
 
-		if (NumBuildingQ( SoundBeamTower_EC ) < desiredAmount and CanBuildWithEscrow( SoundBeamTower_EC )==1) then
+		if (CanBuildWithEscrow( SoundBeamTower_EC )==1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( SoundBeamTower_EC, PH_DefendSite );
 			aitrace("Script:build sound beam tower "..(numTowerActive+1).."of "..desiredAmount);
+			return 1
 		else
 			aitrace("Script:could not afford tower");
 			sg_needSBTower = 1
+			return 0
 		end
 		
 	end
@@ -401,7 +417,7 @@ function dovetclinic()
 
 
 	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
-	if (LabUnderAttackValue() > 200 or NumCreaturesQ() < ( rand4a + rand2b + 1) or NumHenchmanActive() < 12 ) then
+	if (LabUnderAttackValue() > fact_selfValue/2 or NumCreaturesActive() < ( rand4a + rand2b + 1) or NumHenchmanActive() < sg_henchmanthreshold ) then
 		return
 	end
 
@@ -427,22 +443,20 @@ function dovetclinic()
 	-- in the late game. Added by Bchamp 3/31/2019
 	-- LBFrank 4/01/19 they may want one clinic to research tower upgrade if they have the towers for it. if not then yeah we don't need em
 	if (ResearchCompleted(RESEARCH_HenchmanYoke) == 1 and ResearchCompleted(RESEARCH_HenchmanMotivationalSpeech) == 1 and ResearchCompleted(RESEARCH_StrengthenElectricalGrid) == 1 and ResearchCompleted(RESEARCH_IncBuildingIntegrity) == 1) then
-		if (ResearchCompleted(RESEARCH_TowerUpgrade) == 0 and (NumBuildingActive( SoundBeamTower_EC ) + NumBuildingActive( AntiAirTower_EC )) <= 1) then
+		if (ResearchCompleted(RESEARCH_TowerUpgrade) == 0 and (NumBuildingActive( SoundBeamTower_EC ) + NumBuildingActive( AntiAirTower_EC )) >= 2) then
 			maxVetClinic = 1
 		else
 			maxVetClinic = 0
 		end
 	end
 
-	if (goal_needcoal ~= 2) then
-		-- typical check for building
-		if (NumBuildingQ( VetClinic_EC ) < maxVetClinic and CanBuildWithEscrow( VetClinic_EC )==1) then
-			ReleaseGatherEscrow();
-			ReleaseRenewEscrow();
-			xBuild( VetClinic_EC, PH_Best );
-			aitrace("Script: Build vetclinic")
-			return 1
-		end
+	-- typical check for building
+	if (NumBuildingQ( VetClinic_EC ) < maxVetClinic and CanBuildWithEscrow( VetClinic_EC )==1) then
+		ReleaseGatherEscrow();
+		ReleaseRenewEscrow();
+		xBuild( VetClinic_EC, PH_Best );
+		aitrace("Script: Build vetclinic")
+		return 1
 	end
 	
 	return 0
@@ -493,8 +507,8 @@ function dofoundry()
 				alwaysBuild = 1
 			end
 		end
-	else --if Rank is 1 and you have idle henchmen and are not under attack, build a foundry
-		if (NumHenchmenGuarding() >= 2 and gatherSiteOpen == 0 and UnderAttackValue() < 0.5*fact_selfValue) then
+	elseif (curRank == 1) then --if Rank is 1 and you have idle henchmen and are not under attack, build a foundry
+		if (NumHenchmenGuarding() >= rand2a and gatherSiteOpen == 0 and UnderAttackValue() < 0.5*fact_selfValue) then
 			alwaysBuild = 1
 		end
 	end
@@ -635,9 +649,10 @@ function docreaturechamber()
 	-- Don't make more than one Creature Chamber on Easy Difficulty --Added by Bchamp 4/5/2019
 	if (g_LOD == 0) then
 		if (numActiveChambers > 0) then
-			return
+			return 0
 		end
 	end
+
 
 	if (numActiveChambers > 0) then
 		local underAttackVal = UnderAttackValue()
@@ -646,7 +661,7 @@ function docreaturechamber()
 			Scuttle( RemoteChamber_EC )
 			if (goal_rank2rush == 1) then
 				CancelRank2Rush();
-
+				return 0
 			end
 		end
 	end
@@ -685,7 +700,7 @@ function docreaturechamber()
 		if (curRank < 2) then
 			local swimmerCount = Army_NumCreaturesInClass( Player_Self(), sg_class_swimmer, curRank-1, curRank+1 );
 			if (swimmerCount > 0) then 
-				return
+				return 0
 			end
 		end
 		desireCC = 1
@@ -748,7 +763,7 @@ function ChamberLocation()
 
     if (LabUnderAttackValue() > 200) then
         return PH_Best
-    elseif rand100c > 50 then
+    elseif rand100c > 50 and NumBuildingActive( RemoteChamber_EC ) >= 2 then
         return PH_DefendSite
     else --build chambers further from base but not necessarily near workshop
 		-- this will hopefully increase distance chambers are spread out
@@ -756,11 +771,11 @@ function ChamberLocation()
 		local mapsizeoffset = 1
 		local jump = 0
 		
-		if (fact_closestAmphibDist>400) then
+		if (fact_closestAmphibDist < 400) then
 			mapsizeoffset = 1.2
-		elseif (fact_closestAmphibDist>650) then
+		elseif (fact_closestAmphibDist < 650) then
 			mapsizeoffset = 1.5
-		elseif (fact_closestAmphibDist>800) then
+		elseif (fact_closestAmphibDist < 800) then
 			mapsizeoffset = 1.7
 		end
 	
@@ -828,11 +843,15 @@ function doelectricalgenerator()
 			aitrace("Script: Build egen")
 		end
 	end
+	return 0
 end
 
 function dowaterchamber()
 	
-	
+	if NumBuildingQ( WaterChamber_EC ) >= (curRank-1) then --Don't make more than this many water chambers
+		return 0
+	end
+
 	-- Build Water Chamber when starting to research level that water units are available.
 	-- Added by Bchamp 4/5/2019
 	local curRank = GetRank()
@@ -860,56 +879,27 @@ function dowaterchamber()
 		return 0
 	end
 
-	if (fact_lowrank_amphib <= curRank and NumBuildingQ( WaterChamber_EC ) < (curRank-1) and IsChamberBeingBuilt() == 0 and 
-		CanBuildWithEscrow( WaterChamber_EC )==1) then
+	-- Build Water chamber if you have water units available
+	if (fact_lowrank_amphib <= curRank) then
 
-		--if you have a water chamber and are in danger, and already have at least 2 chambers, don't worry about more
-		if (NumBuildingQ( WaterChamber_EC ) >= 3 and UnderAttackValue() > 400*curRank) then
+		if IsChamberBeingBuilt() == 1 then
 			return 0
 		end
 
+		--if you have a water chamber and are in danger, and already have at least 2 chambers, don't worry about more
+		if (NumBuildingQ( WaterChamber_EC ) >= 2 and UnderAttackValue() > 0.7*fact_selfValue) then
+			return 0
+		end
+
+		if CanBuildWithEscrow( WaterChamber_EC )==1 then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( WaterChamber_EC, PH_Best );
 			aitrace("Script: Build waterchamber");
-		return 1
+			return 1
+		end
 	end
-
-	-- if this chamber is desired and we have no other chamber this maybe a good option
-	-- this is only if we have swimmers in the current ranks of course
-	
-	---------------------------------------------------
-	--Removed by Bchamp 10/12/2019 after noticing that Rex Chance army (which at the time had no amphib till L4) did not build WCs on Islets
-	--at all for the entire game on Normal Difficulty. This fixes it, although it may be inelegant. We should take time to investigate why goal_desireSwimmers == 0 in this situation,
-	--since it doesn't look like it should in military.lua
-	--if (goal_desireSwimmers == 0 or (LabUnderAttackValue() > 100 and NumChambers() > 0)) then
-		--return 0 
-	--end
-	---------------------------------------------------
-
-
-	-- MORE WCs on water maps
-	-- if (fact_lowrank_amphib == curRank or (goal_amphibTarget==1) or (Army_NumCreature( Player_Self(), sg_class_amphib ) == Army_NumCreature( Player_Self(), sg_class_ground ))) then
-	-- 	if (NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and IsChamberBeingBuilt() == 0 and 
-	-- 		CanBuildWithEscrow( WaterChamber_EC )==1) then
-	-- 			ReleaseGatherEscrow();
-	-- 			ReleaseRenewEscrow();
-	-- 			xBuild( WaterChamber_EC, PH_Best );
-	-- 			aitrace("Script: Build waterchamber");
-	-- 			return 1
-	-- 	end
-	-- 	return 0
-	-- else
-	-- 	if (NumBuildingQ( WaterChamber_EC ) < 2 and NumBuildingQ( WaterChamber_EC ) < (GetRank()-1) and
-	-- 		IsChamberBeingBuilt() == 0 and CanBuildWithEscrow( WaterChamber_EC )==1) then
-	-- 			ReleaseGatherEscrow();
-	-- 			ReleaseRenewEscrow();
-	-- 			xBuild( WaterChamber_EC, PH_Best );
-	-- 			aitrace("Script: Build waterchamber");
-	-- 			return 1
-	-- 	end
-	-- 	return 0
-	-- end
+	return 0
 end
 
 function doaviary()
@@ -918,9 +908,10 @@ function doaviary()
 		return 0
 	end
 
-	-- Added so that Air Chambers are never built before lvl 3 on 9/6/2018 by Bchamp
+
+	-- Added so that Air Chambers are never built until flyers are available 4/29/2022 Bchamp
 	local curRank = GetRank()
-	if (curRank < 3) then
+	if (fact_lowrank_flyer > curRank) then
 		return 0
 	end
 	
@@ -1032,7 +1023,7 @@ function dobasebuild()
 	
 	
 	if (sg_buildstructure[GeneticAmplifier_EC]==1 and isBeingBuild==0) then
-		dogeneticamplifier()
+		isBeingBuild = dogeneticamplifier()
 	end
 	
 	

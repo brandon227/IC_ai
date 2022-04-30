@@ -174,7 +174,10 @@ function Logic_desiredhenchman()
 	----------------------------------------------------------------------------------
 	-- Level 1 Build here ------------------------------------------------------------
 	if (curRank < 2) then
-		if (gatherSiteOpen > 0) then
+		if (ScrapAmountWithEscrow() > 200 and ElectricityAmountWithEscrow() < 275) then
+			--if still waiting on enough elec for L2 and we have plenty of coal, keep building hench
+			henchman_count = NumHenchmanQ() + 2;
+		elseif (gatherSiteOpen > 0) then
 			henchman_count = sg_henchmanthreshold + 2 + rand3a --maximum number of henchmen AI will build to try and fill local coal piles.
 		elseif (NumHenchmenGuarding() < (1+ rand3b) and NumHenchmanQ() < (sg_henchmanthreshold + 1 + mapsizeoffset)) then
 			henchman_count = sg_henchmanthreshold + 1 + mapsizeoffset --Will make a maximum of this many henchmen unless too many henchmen are on Guard Mode (idle)
@@ -204,8 +207,10 @@ function Logic_desiredhenchman()
 			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
 		-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
 		-- this will focus priority on getting henchman yoke. -------
-		elseif (ResearchQ( RESEARCH_AdvancedStructure ) == 0 and numFoundries > 1 and g_LOD >= 2 and NumHenchmanActive() >= sg_henchmanthreshold + 3 + rand4b) then
+		elseif (ResearchQ( RESEARCH_AdvancedStructure ) == 0 and numFoundries > 1 and g_LOD >= 2 and NumHenchmanActive() >= 20 + rand4b) then
 			henchman_count = 0;
+		else
+			henchman_count = sg_henchmanthreshold + numFoundries*8 + (unitModifier * 1.5 * unitMultiplier);
 		end
 	elseif (curRank >= 4 and gatherSiteOpen > 0) then
 		henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))
@@ -214,7 +219,7 @@ function Logic_desiredhenchman()
 		if (unitModifier > 10) then
 			unitModifier = 10
 		end
-		henchman_count = (7*numFoundries + 12 + (unitModifier * 0.5))
+		henchman_count = CoalPileWithDropOffs()*8 + unitModifier/2;
 	end
 
 			

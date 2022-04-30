@@ -87,21 +87,6 @@ function EconomyRush_CanDo(ForceTactic)
 			save_doelectricalgenerator = doelectricalgenerator
 			rawset(globals(), "doelectricalgenerator", nil )
 			doelectricalgenerator = EconomyRush_doelectricalgenerator
-
-			--save_docreaturechamber = docreaturechamber
-			--rawset(globals(), "docreaturechamber", nil )
-			--docreaturechamber = EconomyRush_docreaturechamber
-		
-			--save_dosoundbeamtowers = dosoundbeamtowers
-			--rawset(globals(), "dosoundbeamtowers", nil )
-			--dosoundbeamtowers = EconomyRush_dosoundbeamtowers
-		
-			--save_Logic_military_setdesiredcreatures = Logic_military_setdesiredcreatures
-			--rawset(globals(), "Logic_military_setdesiredcreatures", nil )
-			--Logic_military_setdesiredcreatures = EconomyRush_Logic_military_setdesiredcreatures
-
-			-- turn off henchman expansion - only build to threshold
-			--goal_dohenchmanexpand = 0
 			
 			aitrace("EconomyRush: Running")
 			return 1
@@ -118,19 +103,25 @@ function EconomyRush_Logic_desiredhenchman()
 	local curRank = GetRank();
 	local henchman_count = 13
 
-	--If there is open lab coal then set goal hench. 
-	if (IsGatherSiteOpen() > 0 and NumBuildingQ( Foundry_EC ) == 0) then
-		henchman_count = 15 + rand4a --max henchmen to build at lab if gather sites still open.
-	elseif (IsGatherSiteOpen() == 0 and NumBuildingQ( Foundry_EC ) == 0) then
-		henchman_count = sg_henchmanthreshold + 3 --Have +3 hench over threshold if gather sites full and no Foundry
-		if (sg_henchmanthreshold > 15 and Rand(100) < 40) then
-			henchman_count = sg_henchmanthreshold
-		end
+	--always build hench until you have enough electricity to go L2
+	if curRank < 2 and ElectricityAmountWithEscrow() < 280 then
+		henchman_count = NumHenchmanActive() + 2
 	else
-		henchman_count = sg_henchmanthreshold + 3 + rand4b + foundryFirst;
+		--If there is open lab coal then set goal hench. 
+		if (IsGatherSiteOpen() > 0 and NumBuildingQ( Foundry_EC ) == 0) then
+			henchman_count = 15 + rand4a --max henchmen to build at lab if gather sites still open.
+		elseif (IsGatherSiteOpen() == 0 and NumBuildingQ( Foundry_EC ) == 0) then
+			henchman_count = sg_henchmanthreshold + 3 --Have +3 hench over threshold if gather sites full and no Foundry
+			if (sg_henchmanthreshold > 16 and rand100a < 50) then
+				henchman_count = sg_henchmanthreshold
+			end
+		else
+			henchman_count = sg_henchmanthreshold + 3 + rand4b + foundryFirst;
+		end
 	end
 
 	sg_desired_henchman = henchman_count
+
 
 	if (curRank > 1 or UnderAttackValue() > 100) then
 		rawset(globals(), "Logic_desiredhenchman", nil )
@@ -150,7 +141,7 @@ function EconomyRush_dolightningrods()
 	end
 	
 	local numHenchForRod = 6
-	if (Rand(10) > 6) then
+	if (rand10a > 6) then
 		numHenchForRod = 5
 	end
 
@@ -165,7 +156,9 @@ function EconomyRush_dolightningrods()
 
 	-- more than 8 henchmen and more than 2 rods rank2 to start
 	if (NumBuildingQ( ResourceRenew_EC )>1 and (ResearchQ(RESEARCH_Rank2)==0 and g_LOD>0)) then
-		return
+		if (ScrapAmount() < 320 and g_LOD >= 2) then --don't build more than 2 rods unless excess coal before L2
+			return
+		end
 	end
 		
 	--if doing a foundry first build order, wait to build rods
@@ -242,7 +235,7 @@ function EconomyRush_dofoundry()
 			ReleaseRenewEscrow();
 			xBuild( Foundry_EC, PH_Best );
 			aitrace("Script: build foundry");
-			return
+			return 1
 		end
 		aitrace("Script: failed to build foundry");
 
@@ -253,7 +246,7 @@ function EconomyRush_dofoundry()
 			ReleaseRenewEscrow();
 			xBuild( Foundry_EC, PH_Best );
 			aitrace("Script: build foundry");
-			return
+			return 1
 		end
 		
 		aitrace("Script: failed to build foundry");
