@@ -28,7 +28,7 @@ aitrace("Script: Starting AI");
 	rand40b = Rand(40);
 	rand100a = Rand(100);
 	rand100b = Rand(100);
-	rand100c = Rand(100)
+	rand100c = Rand(100);
 
 
 -- Add any scripts specific to each level of AI (apparently none)

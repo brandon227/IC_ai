@@ -85,7 +85,10 @@ function rankUp( capAt )
 				end
 			end
 		-- Added by Bchamp 4/17/2019 to slow down L4.
-		elseif (g_LOD >= 2 and curRank == 3 and randUnitsOrRank < 90) then
+		elseif (g_LOD >= 2 and curRank == 3) then
+			if (ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+				return
+			end
 			if (gametime < 7.5*60) then
 				if (numCreatures < 6+(randUnitsOrRank*0.08) + is_alone* rand3b) then
 					return
@@ -97,11 +100,14 @@ function rankUp( capAt )
 				if (numCreatures < 5+(randUnitsOrRank*0.06) + is_alone* rand3c) then
 					return
 				end
-				if (ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
-					return
-				end
+			end
+		elseif (g_LOD >= 2 and curRank == 4) then
+			if ResearchCompleted(RESEARCH_HenchmanYoke) == 0 then
+				return
 			end
 		end
+
+
 
 		-- find next rank:
 		-- if curRank is 1 then next rank is Rank2+0 or curRank-1

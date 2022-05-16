@@ -186,7 +186,7 @@ end
 
 function Rank2Rush_Logic_military_setdesiredcreatures()
 
-	sg_creature_desired = 30
+	sg_creature_desired = PopulationMax()
 	
 	-- check enemy ranks
 	local maxrank = PlayersRank(player_enemy, player_max)
@@ -335,11 +335,11 @@ function Rank2Rush_dolightningrods()
 	local numRods = 0
 
 	-- and NumHenchmanQ() > numHenchman
-	if (numHenchman > 3 + rand2a) then
+	if (numHenchman >= 3 + rand2a) then
 		numRods = 1
 	end
 
-	if (numHenchman > 5 + rand1b) then
+	if (numHenchman > sg_henchmanthreshold + rand1a) then
 		numRods = 2
 	end
 
@@ -459,14 +459,14 @@ function Rank2Rush_Logic_military_setgroupsizes()
 		icd_groundgroupminsize = 5 + rand1a; --fact_enemyPop+(2*totalEnemyChambers + difficulty)+2*numSBTower;
 		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand2b;
 	
-		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-2)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*150; 
+		icd_groundgroupminvalue = fact_enemyValue + numSBTower*300; 
 		icd_groundgroupmaxvalue = 2500;
 
 	else
 		icd_groundgroupminsize = 5 + rand4c; 
 		icd_groundgroupmaxsize = 10 + difficulty + difficulty*numSBTower + rand4c; 
 
-		icd_groundgroupminvalue = fact_enemyValue*(1.3*(difficulty-1)) + (2*totalEnemyChambers + difficulty + 2*numSBTower)*150;
+		icd_groundgroupminvalue = fact_enemyValue + numSBTower*300;
 		icd_groundgroupmaxvalue = 2500;
 
 		--Added by Bchamp 4/17/2019 in order to stop AI from just hording units in FFA or Team games and begin attacking, even if it will lose.
@@ -501,23 +501,24 @@ end
 
 
 function Rank2Rush_Logic_desiredhenchman()
+
+	local henchman_count = sg_henchmanthreshold
+	local curRank = GetRank()
+	local unitCount = NumCreaturesQ() --Formerly: PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
+	local gatherSiteOpen = IsGatherSiteOpen()
 	
-	sg_desired_henchman = sg_henchmanthreshold
 	if (chamberAtEnemyBase == 1) then
 		sg_desired_henchman = sg_henchmanthreshold + 1
 	end
 
-	local henchman_count = sg_desired_henchman
-	local curRank = GetRank()
-	local unitCount = NumCreaturesQ() --Formerly: PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
-	local gatherSiteOpen = IsGatherSiteOpen()
-
 	if (curRank == 1) then
-		sg_desired_henchman = sg_henchmanthreshold + rand2a
+		henchman_count = sg_henchmanthreshold + rand2a
 		if (chamberAtEnemyBase == 1) then
-			sg_desired_henchman = sg_henchmanthreshold + 1 + rand2a
+			henchman_count = sg_henchmanthreshold + 1 + rand2a
 		end
-		henchman_count = sg_desired_henchman
+		if (ScrapAmountWithEscrow() > 180 and ElectricityAmountWithEscrow() < 290) then
+			henchman_count = NumHenchmanActive() + 1
+		end
 	elseif (curRank == 2 and chamberAtEnemyBase == 1 and (fact_selfValue < 1.3*(fact_enemyValue + 250) or unitCount < 5)) then
 		 --If Chamber Rush, How many units should AI have at L2 before building more hench, before checking if coal is filled?
 		henchman_count = sg_desired_henchman
@@ -534,7 +535,7 @@ function Rank2Rush_Logic_desiredhenchman()
 			henchman_count = NumHenchmanActive()
 		end
 		henchman_count = sg_henchmanthreshold + 1 + (unitCount-(2 + rand2b))/2
-		if (NumHenchmenGuarding() >= 4 or ( NumHenchmenGuarding()>=2 and (fact_selfValue > 1.3*(fact_enemyValue+300) or (ScrapAmountWithEscrow() > 400) 
+		if (NumHenchmenGuarding() >= 4 or ( NumHenchmenGuarding()>=2 and (fact_selfValue > fact_enemyValue or (ScrapAmountWithEscrow() > 400) 
 			or (one_v_one == 0 and NumCreaturesActive() >= 10)))) then
 			local dist2dropoff = DistToDropOff();
 				aitrace("Script: dist2dropoff="..dist2dropoff);
@@ -558,6 +559,8 @@ function Rank2Rush_Logic_desiredhenchman()
 	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 2000) or LabUnderAttackValue() > 100 or GameTime() > (6.5*60) or NumBuildingActive( Foundry_EC ) > 0) then
 		rawset(globals(), "Logic_desiredhenchman", nil )
 		Logic_desiredhenchman = save_Logic_desiredhenchman
+		rawset(globals(), "dofoundry", nil )
+		dofoundry = save_dofoundry
 	end
 	
 end
@@ -611,7 +614,8 @@ function CancelRank2Rush()
 	rawset(globals(), "rankUp", nil )
 	rankUp = save_rankUp
 
-	icd_fleeEnemyValueModifier = 0.65;
+	init_military();
+	--icd_fleeEnemyValueModifier = 0.65;
 	--ReleaseGatherEscrow();
 	--ReleaseRenewEscrow();
 	--xBuild( GeneticAmplifier_EC );

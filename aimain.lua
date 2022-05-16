@@ -391,8 +391,8 @@ function Logic_set_escrow()
 	-- OR maybe we have more money coming in ??
 	
 	if (NumBuildingActive( ResourceRenew_EC ) > 0) then
-		SetGatherEscrowPercentage(30)
-		SetRenewEscrowPercentage(35)
+		SetGatherEscrowPercentage(15)
+		SetRenewEscrowPercentage(20)
 	end
 	
 

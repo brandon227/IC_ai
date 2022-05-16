@@ -29,7 +29,7 @@ function init_military()
 	icd_waterattackpercent = 100;
 	icd_airattackpercent = 100;
 	
-	rankValue = [80,170,300,450,650];
+	rankValue = {80,170,300,450,650};
 
 	-- creature choice desires for each of these creature types
 	sg_goalamphib = 0
@@ -425,7 +425,6 @@ function Logic_military_setgroupsizes()
 
 		-- Added by Bchamp 4/1/2019 to keep high pressure on opponent when winning
 		local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
-		unitCount = PlayersUnitCount( Player_Self, player_max, Creature_EC);
 		if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
 			icd_groundgroupminsize = rand4a + 1
 			icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier
@@ -620,8 +619,8 @@ function Logic_military_setdesiredcreatures()
 		return
 	end
 	
-	-- I'm within 1 rank of highest rank - if enemy has more than 40% better units, try to build as many as them
-	if (fact_enemyValue > fact_selfValue*1.4) then
+	-- I'm within 1 rank of highest rank - if enemy has more than 20% better units, try to build as many as them
+	if (fact_enemyValue > fact_selfValue*1.2) then
 		return
 	end
 			

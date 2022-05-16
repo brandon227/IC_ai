@@ -293,6 +293,10 @@ function dosoundbeamtowers()
 		elseif (numEnemySonic > 7) then
 			buildTowers = 1
 		end
+
+		if underAttackVal > fact_selfValue*0.8 then
+			buildTowers = 1
+		end
 	end
 
 	if (buildTowers == 1) then
@@ -722,7 +726,8 @@ function docreaturechamber()
 			local groundQ = Army_NumCreatureQ( Player_Self(), sg_class_ground );
 			local queued = groundQ - groundActive
 			
-			if (queued >= (4*numActiveChambers) or numActiveChambers < (NumBuildingActive( Foundry_EC ) + 1)) then
+			if (queued >= (3*numActiveChambers) or numActiveChambers < (NumBuildingActive( Foundry_EC ) + 1)
+				or numActiveChambers < curRank) then
 				-- store number of desired chambers
 				numActiveChambers = numActiveChambers+1
 			end
@@ -847,14 +852,15 @@ function doelectricalgenerator()
 end
 
 function dowaterchamber()
-	
+
+	local curRank = GetRank()
 	if NumBuildingQ( WaterChamber_EC ) >= (curRank-1) then --Don't make more than this many water chambers
 		return 0
 	end
 
 	-- Build Water Chamber when starting to research level that water units are available.
 	-- Added by Bchamp 4/5/2019
-	local curRank = GetRank()
+	
 	local prepWC = 0
 	if (g_LOD >= 2 and ((fact_lowrank_amphib - curRank) == 1 or (fact_lowrank_swimmer - curRank) == 1) and NumBuildingQ( WaterChamber_EC ) == 0) then
 		if (curRank == 1 and ResearchQ(RESEARCH_Rank2) == 1) then
