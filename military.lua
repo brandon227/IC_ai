@@ -66,7 +66,7 @@ function init_military()
 		icd_engageEnemyValueModifier = 1.0; --0.80
 		icd_fleeEnemyValueModifier = 0.65; --the higher this value, the more easily the AI will flee. Raised from 0.60 by Bchamp 4/12/2019
 	else --Expert
-		icd_enemyValueModifier = 2.0; --multiplier for enemy value. Value = total resources of all active military units, including towers
+		icd_enemyValueModifier = 1.1; --multiplier for enemy value. Value = total resources of all active military units, including towers
 		icd_engageEnemyValueModifier = 1.2; --only engage enemy if you have a bigger army
 		icd_fleeEnemyValueModifier = 0.70; --flee when you army starts to get small
 	end
@@ -640,23 +640,25 @@ end
 -- function that gets called on a timer
 function attack_now_timer()
 		
-	--This does nothing as far as I can tell.....Let's try and work on this later? Bchamp 4/22/2019
+	--5/16/22 testing shows that typepriority may work for RemoteChamber, Foundry, and Lab. AI seem to attack objects with most value.
+	--AI adds creature chambers to nearby building, but only one foundry will count towards value. 
+	--Will only attack if there is also a creature or henchmen nearby. 
 	SetTargetPriority( ElectricGenerator_EC, 5000 );
-	SetTargetTypePriority( Creature_EC, -1000 )
+	SetTargetTypePriority( Creature_EC, 1000 )
 	RemoveTargetPriority( Lab_EC )
 	SetTargetTypePriority( SoundBeamTower_EC, 0 )
 	SetTargetTypePriority( AntiAirTower_EC, 0 )
-	SetTargetTypePriority( ElectricGenerator_EC, 2000 )
-	SetTargetTypePriority( RemoteChamber_EC, 4 )
+	SetTargetTypePriority( ElectricGenerator_EC, 5000 )
+	SetTargetTypePriority( RemoteChamber_EC, 1500 )
 	SetTargetTypePriority( WaterChamber_EC, 0 )
 	SetTargetTypePriority( Aviary_EC, 0 )
 	SetTargetTypePriority( ResourceRenew_EC, 0 )
-	SetTargetTypePriority( Foundry_EC, 5 )
+	SetTargetTypePriority( Foundry_EC, 5000 )
 	SetTargetTypePriority( VetClinic_EC, 0 )
 	SetTargetTypePriority( GeneticAmplifier_EC, 0 )
 	SetTargetTypePriority( LandingPad_EC, 0 )
 	SetTargetTypePriority( BrambleFence_EC, 0 )
-	SetTargetTypePriority( Lab_EC, 3 )
+	SetTargetTypePriority( Lab_EC, 0 )
 	SetTargetTypePriority( Henchman_EC, 0 )
 
 	-- SetTargetPriority( ElectricGenerator_EC, 10000 )

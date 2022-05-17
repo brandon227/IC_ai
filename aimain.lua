@@ -130,8 +130,7 @@ function doweneedmoney()
 	end
 	-- if we have no chamber, few henchmen and little coal then start sellin stuff
 	--if (fact_selfValue == 0 and NumBuildingQ(RemoteChamber_EC)==0 and NumBuildingQ(Aviary_EC)==0 and NumBuildingQ(WaterChamber_EC)==0) then
-	--	if (NumHenchmanQ() < 3 and LabUnderAttackValue() > 100 and )
-	--
+	--	if (NumHenchmanQ() < 3 and LabUnderAttackValue() > 100 and ) 
 	--end
 end
 

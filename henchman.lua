@@ -173,8 +173,10 @@ function Logic_desiredhenchman()
 
 	----------------------------------------------------------------------------------
 	-- Level 1 Build here ------------------------------------------------------------
-	if (curRank < 2) then
-		if (ScrapAmountWithEscrow() > 200 and ElectricityAmountWithEscrow() < 275) then
+	if (curRank < 2 and g_LOD >= 1) then
+		if (g_LOD >= 2 and numFoundries == 0) then --constant supply of henchmen before foundry
+			henchman_count = NumHenchmanActive() + 1;
+		elseif (ScrapAmountWithEscrow() > 200 and ElectricityAmountWithEscrow() < 275) then
 			--if still waiting on enough elec for L2 and we have plenty of coal, keep building hench
 			henchman_count = NumHenchmanQ() + 2;
 		elseif (gatherSiteOpen > 0) then
@@ -200,26 +202,27 @@ function Logic_desiredhenchman()
 	if (unitModifier > 16) then
 		unitModifier = 16
 	end
-	if (curRank == 2 and gatherSiteOpen > 0) then
-		henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
-	elseif (curRank == 3) then
-		if (gatherSiteOpen > 0 and numFoundries <= 1) then
+	if (curRank >= 2) then
+		if (curRank == 2 and gatherSiteOpen > 0) then
 			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
-		-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
-		-- this will focus priority on getting henchman yoke. -------
-		elseif (ResearchQ( RESEARCH_AdvancedStructure ) == 0 and numFoundries > 1 and g_LOD >= 2 and NumHenchmanActive() >= 20 + rand4b) then
-			henchman_count = 0;
-		else
-			henchman_count = sg_henchmanthreshold + numFoundries*8 + (unitModifier * 1.5 * unitMultiplier);
+		elseif (curRank == 3) then
+			if (gatherSiteOpen > 0 and numFoundries <= 1) then
+				henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
+			-- if L3 and foundries are stocked with hench and yoke hasn't been researched, set desired hench to zero, which will later reset to henchman minimum
+			-- this will focus priority on getting henchman yoke. -------
+			elseif (ResearchQ( RESEARCH_AdvancedStructure ) == 0 and numFoundries > 1 and g_LOD >= 2 and NumHenchmanActive() >= 20 + rand4b) then
+				henchman_count = 0;
+			else
+				henchman_count = sg_henchmanthreshold + numFoundries*8 + (unitModifier * 1.5 * unitMultiplier);
+			end
+		elseif (curRank >= 4 and gatherSiteOpen > 0) then
+			henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))
+		else --if there are no gather sites open and past L2
+			if (unitModifier > 10) then
+				unitModifier = 10
+			end
+			henchman_count = CoalPileWithDropOffs()*8 + unitModifier/2;
 		end
-	elseif (curRank >= 4 and gatherSiteOpen > 0) then
-		henchman_count = (9*numFoundries + (unitModifier * 2 * unitMultiplier))
-
-	else --if there are no gather sites open
-		if (unitModifier > 10) then
-			unitModifier = 10
-		end
-		henchman_count = CoalPileWithDropOffs()*8 + unitModifier/2;
 	end
 
 			
@@ -255,9 +258,9 @@ function Logic_desiredhenchman()
 	end
 	
 	-- never request for more then we can support
-	if (henchman_count > (sg_henchmanthreshold+1)) then
-		henchman_count = sg_henchmanthreshold + 1 + mapsizeoffset --mapsizeoffset added by Bchamp 4/12/2019
-	end
+	-- if (henchman_count > (sg_henchmanthreshold+1)) then
+	-- 	henchman_count = sg_henchmanthreshold + 1 + mapsizeoffset --mapsizeoffset added by Bchamp 4/12/2019
+	-- end
 
 	--adjust henchman minimum after reaching rank 2 to ensure creatures get built promptly 1/4/2019 bchamp
 	if (NumBuildingQ( Foundry_EC ) == 0 and curRank == 2) then

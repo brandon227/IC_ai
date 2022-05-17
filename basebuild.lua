@@ -178,7 +178,7 @@ function dolightningrods()
 	end
 	
 	-- wait for 8 active henchmen before building a second rod - add randomness here
-	if (NumHenchmanActive() < 8 and NumBuildingQ( ResourceRenew_EC )>0) then
+	if (NumHenchmanActive() < (sg_henchmanthreshold - 1 + rand2b) and NumBuildingQ( ResourceRenew_EC ) >= 1) then
 		return
 	end
 	
