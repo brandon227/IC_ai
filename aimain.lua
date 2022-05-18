@@ -32,6 +32,8 @@ dofilepath("data:ai/rank2rush.lua")
 --
 dofilepath("data:ai/economyrush.lua")
 --
+dofilepath("data:ai/scout.lua")
+--
 dofilepath("data:ai/tactics.lua")
 
 
@@ -41,12 +43,14 @@ function oninit()
 	-- {
 
 	-- };
-
+	DoRandom();
+	init_scout();
 	init_basebuild();
 	init_military();
 	init_research();
 	init_henchman();
 	init_creatureupgrades();
+
 		
 	-----------------------------
 	-- init_resourcesystem();

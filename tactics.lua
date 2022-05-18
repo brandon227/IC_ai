@@ -34,6 +34,30 @@ function init_randomness()
 
 end
 
+--Initialize random variables
+function DoRandom()
+	rand1a = Rand(1);
+	rand1b = Rand(1);
+	rand1c = Rand(1);
+	rand2a = Rand(2);
+	rand2b = Rand(2);
+	rand2c = Rand(2);
+	rand3a = Rand(3);
+	rand3b = Rand(3);
+	rand3c = Rand(3);
+	rand4a = Rand(4);
+	rand4b = Rand(4);
+	rand4c = Rand(4);
+	rand10a = Rand(10);
+	rand10b = Rand(10);
+	rand10c = Rand(10);
+	rand40a = Rand(40);
+	rand40b = Rand(40);
+	rand100a = Rand(100);
+	rand100b = Rand(100);
+	rand100c = Rand(100);
+end
+
 function ChooseTactic(forceTactic)
 
     --only do on hard/expert or if forced.
