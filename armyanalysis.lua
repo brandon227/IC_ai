@@ -383,13 +383,14 @@ function calcAIArmyStats( aiplayer )
 	fact_lowrank_swimmer = minrankForClass( aiplayer, sg_class_swimmer )
 	fact_lowrank_amphib = minrankForClass( aiplayer, sg_class_amphib )
 	-- calculate lowest rank creature
-	fact_lowrank_all = fact_lowrank_ground
-	if (fact_lowrank_swimmer >= 2 and fact_lowrank_swimmer < fact_lowrank_all) then
-		fact_lowrank_all = fact_lowrank_swimmer
-	end
-	if (fact_lowrank_flyer >= 3 and fact_lowrank_flyer < fact_lowrank_all) then
-		fact_lowrank_all = fact_lowrank_flyer
-	end
+	fact_lowrank_all = min(fact_lowrank_ground, fact_lowrank_amphib, fact_lowrank_flyer, fact_lowrank_swimmer)
+
+	-- if (fact_lowrank_swimmer >= 2 and fact_lowrank_swimmer < fact_lowrank_all) then
+	-- 	fact_lowrank_all = fact_lowrank_swimmer
+	-- end
+	-- if (fact_lowrank_flyer >= 3 and fact_lowrank_flyer < fact_lowrank_all) then
+	-- 	fact_lowrank_all = fact_lowrank_flyer
+	-- end
 		
 	aitrace("Script: LowRank_Ground = "..fact_lowrank_ground)
 	aitrace("Script: LowRank_Flyer = "..fact_lowrank_flyer)

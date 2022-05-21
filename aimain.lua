@@ -43,13 +43,15 @@ function oninit()
 	-- {
 
 	-- };
-	DoRandom();
-	init_scout();
-	init_basebuild();
-	init_military();
-	init_research();
-	init_henchman();
-	init_creatureupgrades();
+	if init_randomness() == 1 then
+		if init_scout() == 1 then
+			init_basebuild();
+			init_military();
+			init_research();
+			init_henchman();
+			init_creatureupgrades();
+		end
+	end
 
 		
 	-----------------------------

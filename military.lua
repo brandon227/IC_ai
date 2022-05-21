@@ -126,7 +126,6 @@ function init_military()
 		end
 	end
 
-	--What does this do? I *think* to means that the "docreaturebuild" function will re-run every X seconds? Bchamp 3/31/2019 
 	if (g_LOD == 0) then
 		RegisterTimerFunc("docreaturebuild", 10 )
 	elseif (g_LOD == 1) then
@@ -184,33 +183,35 @@ function Logic_creatureTypeDesire()
 	local flyerCount = Army_NumCreaturesInClass( playerself, sg_class_flyer, curRank-1, curRank );
 	
 	if (swimmerCount > 0) then
-	
-		if (sg_goalamphib >= 1) then
-			goal_desireSwimmers = 1
-		end
-	
-		-- if amphibian map and we have any swimmers then we want some
-		if (goal_amphibTarget == 1) then
-			goal_desireSwimmers = 1
-		end
+
+			if (sg_goalamphib >= 1) then
+				goal_desireSwimmers = 1
+			end
 		
-		-- should also check if the top wanted creatures are amphibian ?
-		
-		-- does building swimmer double our options
-		if (goal_amphibTarget == 0 and swimmerCount >= groundCount) then
-			goal_desireSwimmers = 1
-		end
+			-- if amphibian map and we have any swimmers then we want some
+			if (goal_amphibTarget == 1) then
+				goal_desireSwimmers = 1
+			end
 			
-		-- if large map and we have a few swimmers then desire them too since large
-		-- map means more time
-		if (fact_closestGroundDist > 400 and swimmerCount >= 2) then
-			goal_desireSwimmers = 1
-		end
+			-- should also check if the top wanted creatures are amphibian ?
+			
+			-- does building swimmer double our options
+			if (goal_amphibTarget == 0 and swimmerCount >= groundCount) then
+				goal_desireSwimmers = 1
+			end
+				
+			-- if large map and we have a few swimmers then desire them too since large
+			-- map means more time
+			if (fact_closestGroundDist > 400 and swimmerCount >= 2) then
+				goal_desireSwimmers = 1
+			end
+			
+			-- if we have a far greater military then the enemy and we already have decent military
+			if (fact_selfValue > 1500 and fact_selfValue > fact_enemyValue*1.5) then
+				goal_desireSwimmers = 1
+			end
 		
-		-- if we have a far greater military then the enemy and we already have decent military
-		if (fact_selfValue > 1500 and fact_selfValue > fact_enemyValue*1.5) then
-			goal_desireSwimmers = 1
-		end
+
 	end
 	
 	if (flyerCount > 0) then
@@ -252,10 +253,16 @@ function armydecisions() -- static info
 	-- or could check if we haven't been attacked in 30sec
 	-- ADJUSTED UnderAttackValue() Threshold to correspond to rank and increased. Fromerly 400. 
 	-- Consider upping LabUnderAttackValue? Needs testing. Bchamp
-	if (LabUnderAttackValue() == 0 and UnderAttackValue() < (250*GetRank())) then
+	if (LabUnderAttackValue() == 0 and UnderAttackValue() < fact_selfValue*0.5) then
 		icd_buildDefensively = 0
+	-- elseif (ScrapAmount() > curRank*600 and CreaturesQueued >= 7 and icd_buildDefensively == 1) then
+	-- 	icd_buildDefensively = 0 
 	end
-	
+
+	-- local CreaturesQueued = NumCreaturesQ() - NumCreaturesActive()
+	-- if (ScrapAmount() > curRank*600 and CreaturesQueued >= 7 and icd_buildDefensively = 1) then
+	-- 	icd_buildDefensively = 0
+
 	-- Determine if our target has a good amphibian distance
 	if (fact_closestGroundDist == 0 or fact_closestAmphibDist < fact_closestGroundDist*0.6) then
 		-- check the difference between these closest paths if its greater then a certain
@@ -276,13 +283,19 @@ function armydecisions() -- static info
 	
 	if (g_LOD == 3) then
 		if Enemy.NumFoundry >= 2 then
-			if fact_selfValue*icd_engageEnemyValueModifier < Enemy.MilitaryValue then
+			if (fact_selfValue*icd_engageEnemyValueModifier < Enemy.MilitaryValue) then --if you normally wouldn't engage the enemy, raid foundries
 				SetTargetTypePriority( Foundry_EC , 60000)
 				icd_engageEnemyValueModifier = 0.8
 			else
 				SetTargetTypePriority( Foundry_EC , 5000)
 				icd_engageEnemyValueModifier = 1.2
 			end
+		end
+		--if you have tons of units, might as well attack
+		if PopulationActive() >= PopulationMax()*0.9 then
+			icd_engageEnemyValueModifier = 0.8
+		else
+			icd_engageEnemyValueModifier = 1.2
 		end
 	end
 
@@ -391,23 +404,6 @@ function Logic_military_setgroupsizes()
 		end
 		
 		groupoffset = groupoffset + 1;
-		
-		--All these are the same. Also, how does Pop work now with Tellurian? I think maybe we should use a number of enemy units rather than these fact values.
-		--Bchamp 3/31/2019
-		-- if (fact_enemyPop > 10 or fact_militaryPop > 10) then
-		-- 	groupoffset = groupoffset + 1;
-		-- 	valueoffset = groupoffset*rankMultiplier
-		-- end
-		
-		-- if (fact_enemyPop > 20 or fact_militaryPop > 20) then
-		-- 	groupoffset = groupoffset + 1;
-		-- 	valueoffset = groupoffset*rankMultiplier
-		-- end
-		
-		-- if (fact_enemyPop > 35 or fact_militaryPop > 35) then
-		-- 	groupoffset = groupoffset + 1;
-		-- 	valueoffset = groupoffset*rankMultiplier
-		-- end
 		
 		if (fact_enemyValue > fact_selfValue) then
 			groupoffset = groupoffset + g_LOD;
@@ -707,10 +703,11 @@ function Logic_military_setattacktimer()
 		if (moreEnemies > 0) then
 			-- delay initial attack
 			timedelay = timedelay + rand100a*moreEnemies/2
-		else --Added 4/1/19 by Bchamp to shorten wave delay if winning to keep pressure on opponent.
+		else --Added 4/1/19 by Bchamp to shorten wave delay if winning to keep pressure on opponent...
+			--This causes AI to "jitter" when attack now timer is too short. If no issues, delete later Bchamp 5/19/22
 			local unitCount = PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 			if (fact_selfValue > fact_enemyValue*1.5 and unitCount > (icd_groundgroupminsize*1.5)) then
-				wavedelay = 10 + rand100a*0.10
+				wavedelay = wavedelay --10 + rand100a*0.10
 			end
 		end
 	end
@@ -810,6 +807,7 @@ function dobuildcreatures()
 		sg_creature_desired = sg_creature_unit_cap
 	end
 
+
 	-- Army_CreatureCostQ( Player_Self(), sg_class_ground )
 	local creaturesQ = NumCreaturesQ();
 	local totalChambers = NumBuildingActive( RemoteChamber_EC ) + NumBuildingActive( WaterChamber_EC ) + NumBuildingActive( Aviary_EC )
@@ -817,11 +815,29 @@ function dobuildcreatures()
 
 	-- Do not queue more units than you have chambers (incorporating rank). Saves resources for other activities. Bchamp 4/5/2019
 	if (g_LOD >= 2 and (creaturesQ - NumCreaturesActive()) >= (totalChambers + curRank - 1)) then
-		return
+		--if you have a ton of resources, don't limit queued creatures
+		if ScrapAmount() < curRank*600 then
+			return
+		end
+	end
+
+	--queue a bunch of creatures if population is maxed out and you have extra resources
+	if PopulationActive() >= PopulationMax() and ScrapAmount() > curRank*600 then
+		sg_creature_desired = 10000
 	end
 
 	if ( creaturesQ < sg_creature_desired and CanBuildCreature( sg_class_ground )==1) then
-		xBuildCreature( sg_class_ground )
+		--alternate chambers when a lot of creatures queued...not sure which icd works, but it seems to be working well 5/20/22
+		if (NumCreaturesQ() - NumCreaturesActive() >= 5) then
+			if icd_buildDefensively == 0 then
+				icd_buildDefensively = 1
+				icd_chooseDefendChamber = 1
+			else 
+				icd_buildDefensively = 0
+				icd_chooseDefendChamber = 0
+			end
+		end
+		xBuildCreature( sg_class_ground ) --doesn't matter if this is ground or swimmer or anything, it will still work
 		aitrace("Script: build creature "..(creaturesQ+1).." of "..sg_creature_desired);
 	end
 end

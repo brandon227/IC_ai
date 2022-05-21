@@ -323,6 +323,10 @@ function dosoundbeamtowers()
 				numEnemySonic = 25
 			end
 			desiredAmount = desiredAmount + numEnemySonic/5
+
+			if (ScrapAmount() > curRank*500) and (NumCreaturesQ()-NumCreaturesActive() > curRank+2) then
+				desiredAmount = desiredAmount + 3
+			end
 		end
 
 		--don't build if there is a lot of enemy artillery
@@ -375,6 +379,9 @@ function doantiairtowers()
 	-- specify how many sound beam towers should be built at each expansion point	
 	local dmgFromFlyer = DamageFromFlyer()
 	local enemyFlyers = PlayersUnitTypeCount( player_enemy, player_max, sg_class_flyer );
+	local enemyFlyerValue = PlayersUnitTypeValue( player_enemy, player_max, sg_class_flyer );
+	local enemyFlyerPercent = enemyFlyerValue/Enemy.MilitaryValue
+
 	-- if AI has not been attacked by flyers yet or they just have lots hidden away
 	if (dmgFromFlyer == 0 and enemyFlyers < (5+( rand100a*0.06))) then
 		return
@@ -388,24 +395,30 @@ function doantiairtowers()
 
 
 	-- constants
-	local numtowers = 1+enemyFlyers/5*(GetRank()-2); --Updated by Bchamp 2/15/2020
+	local numtowers = 2+enemyFlyerValue/1000; --Updated by Bchamp 2/15/2020
 	local numActive = NumBuildingActive( AntiAirTower_EC )
 	local numQueued = NumBuildingQ( AntiAirTower_EC )
 	local numtowersBeRequested =  numQueued - numActive
 	
+
 	--added for Rank 2 Flyers 2/20/2022
 	if (GetRank() == 2) then
 		numtowers = 1 --build at least one AA if there are enemy flyers
 		if (enemyFlyers > 5) then
-			numtowers = 1 + enemyFlyers/10 - (NumBuildingActive( SoundBeamTower_EC )/3) --SB towers will count as 1/3 an AA at L2
+			numtowers = 1 + enemyFlyerValue/1000 - (NumBuildingActive( SoundBeamTower_EC )/3) --SB towers will count as 1/3 an AA at L2
 		end
 	end
+
 
 	-- make sure one more is being built if we are underattack by flyers
 	if ((NumUnprotectedAASite() > 0 or NumSitesWithZeroAA() > 0) and numQueued == numtowers) then
 		numtowers = numActive+1
 	end
 	
+	if enemyFlyerPercent < 0.4 and numActive > 10 then
+		numtowers = numtowers*0.7
+	end
+
 	if (numQueued < numtowers and CanBuildWithEscrow( AntiAirTower_EC )==1) then
 		
 		ReleaseGatherEscrow();
@@ -474,7 +487,7 @@ function dofoundry()
 
 	local alwaysBuild = 0
 	-- always build when we have no drop off unless when? if have tons of money and we are under attack?
-	if (CoalPileWithDropOffs()==0 and (LabUnderAttackValue() < fact_selfValue or ScrapAmountWithEscrow() < 500) ) then
+	if (CoalPileWithDropOffs()==0 and (LabUnderAttackValue() <= fact_selfValue or ScrapAmountWithEscrow() < 500) ) then
 		alwaysBuild = 1
 	end
 	
@@ -489,7 +502,7 @@ function dofoundry()
 	end
 
 	--Build Foundry if you are going to be able to beat attack, otherwise don't and save for units. Added 3/31/2019 by Bchamp
-	if (gatherSiteOpen == 0 and NumHenchmenGuarding()>3 and UnderAttackValue() < 0.7*fact_selfValue) then
+	if (gatherSiteOpen == 0 and NumHenchmenGuarding()>=3 and UnderAttackValue() <= 0.7*fact_selfValue) then
 		alwaysBuild = 1
 	end
 	
@@ -512,7 +525,7 @@ function dofoundry()
 			end
 		end
 	elseif (curRank == 1) then --if Rank is 1 and you have idle henchmen and are not under attack, build a foundry
-		if (NumHenchmenGuarding() >= rand2a and gatherSiteOpen == 0 and UnderAttackValue() < 0.5*fact_selfValue) then
+		if (NumHenchmenGuarding() >= rand2a and gatherSiteOpen == 0 and UnderAttackValue() <= 0.5*fact_selfValue) then
 			alwaysBuild = 1
 		end
 	end
@@ -719,7 +732,7 @@ function docreaturechamber()
 
 
 	if (desireCC == 1 and (goal_needelec ~= 2 or fact_armyAvgElec<10)) then
-
+		local numDesiredChambers = numActiveChambers
 
 		if (numActiveChambers > 0  and ScrapAmountWithEscrow() > 360) then
 			local groundActive = Army_NumCreature( Player_Self(), sg_class_ground );
@@ -729,27 +742,29 @@ function docreaturechamber()
 			if (queued >= (3*numActiveChambers) or numActiveChambers < (NumBuildingActive( Foundry_EC ) + 1)
 				or numActiveChambers < curRank) then
 				-- store number of desired chambers
-				numActiveChambers = numActiveChambers+1
+				numDesiredChambers = numActiveChambers + 1
+			elseif ScrapAmount() > curRank*500 and numActiveChambers < (NumBuildingActive( Foundry_EC ) + curRank) then
+				numDesiredChambers = numActiveChambers + 1
 			end
 
 			--Added so that computer could build a second CC at L2 if it's doing well. --Added by Bchamp 4/1/2019
 			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
 				and (ElectricityPerSecQ() >= 10 or (ElectricityPerSecQ() >= 8 and goal_rank2rush == 1)) and queued >= (numActiveChambers)) then
 
-				numActiveChambers = 1 + rand2a
+					numDesiredChambers = 1 + rand2a
 				if (ScrapAmountWithEscrow() > 500) then
-					numActiveChambers = 2
+					numDesiredChambers = 2
 				end
 			end
 
 			
 		else
 			-- store number of desired chambers
-			numActiveChambers = 1
+			numDesiredChambers = 1
 		end
 
 
-		if (NumBuildingQ( RemoteChamber_EC ) < numActiveChambers and 
+		if (NumBuildingQ( RemoteChamber_EC ) < numDesiredChambers and 
 			IsChamberBeingBuilt() == 0 and metRankRequirement == 1
 			and CanBuildWithEscrow( RemoteChamber_EC ) == 1) then 
 			
@@ -1005,7 +1020,15 @@ function dobasebuild()
 		
 	-- add this flag, so that two buildings are not build on the same frame
 	local isBeingBuild = 0
-	
+
+	if (sg_buildstructure[VetClinic_EC]==1 and isBeingBuild==0) then
+		isBeingBuild = dovetclinic()
+	end
+
+	if (sg_buildstructure[GeneticAmplifier_EC]==1 and isBeingBuild==0) then
+		isBeingBuild = dogeneticamplifier()
+	end
+
 	-- creature chamber
 	if (sg_buildstructure[RemoteChamber_EC]==1) then
 		isBeingBuild = docreaturechamber();
@@ -1023,14 +1046,6 @@ function dobasebuild()
 		isBeingBuild = doaviary()
 	end	
 	
-	if (sg_buildstructure[VetClinic_EC]==1 and isBeingBuild==0) then
-		isBeingBuild = dovetclinic()
-	end
-	
-	
-	if (sg_buildstructure[GeneticAmplifier_EC]==1 and isBeingBuild==0) then
-		isBeingBuild = dogeneticamplifier()
-	end
 	
 	
 	doupgrades();

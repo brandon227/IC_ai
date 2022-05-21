@@ -174,7 +174,7 @@ function Logic_desiredhenchman()
 	----------------------------------------------------------------------------------
 	-- Level 1 Build here ------------------------------------------------------------
 	if (curRank < 2 and g_LOD >= 1) then
-		if (g_LOD >= 2 and numFoundries == 0) then --constant supply of henchmen before foundry
+		if (g_LOD >= 2 and numFoundries == 0) then --constant supply of henchmen before foundry, must make sure foundry is built or go L2
 			henchman_count = NumHenchmanActive() + 1;
 		elseif (ScrapAmountWithEscrow() > 200 and ElectricityAmountWithEscrow() < 275) then
 			--if still waiting on enough elec for L2 and we have plenty of coal, keep building hench
@@ -294,7 +294,8 @@ end
 
 function Command_buildhenchman()
 
-	if (NumHenchmenGuarding() > 1) then
+	--Don't build too many hench
+	if (NumHenchmenGuarding() > 6 + rand2a) then
 		return
 	end
 

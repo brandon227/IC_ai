@@ -13,29 +13,18 @@ dofilepath("data:ai/rank2rush.lua")
 dofilepath("data:ai/economyrush.lua")
 --
 function init_randomness()
-    --need to replace all Rand(x) with these in code
-    sg_randomNumber =
-	{
-		rand1a = Rand(1),
-		rand1b = Rand(1),
-		rand1c = Rand(1),
-		rand2a = Rand(2),
-		rand2b = Rand(2),
-		rand2c = Rand(2),
-		rand3a = Rand(3),
-		rand3b = Rand(3),
-		rand3c = Rand(3),
-		rand4a = Rand(4),
-		rand4b = Rand(4),
-		rand4c = Rand(4)
-	};
+	--Create random variables
+	doRandom();
+	RegisterTimerFunc("doRandom", 240 + Rand(100)); --refresh random variables every once in awhile
 
     sg_aggressiveness = Rand(100); --100 is more aggressive, attacks more often
 
+
+	return 1
 end
 
 --Initialize random variables
-function DoRandom()
+function doRandom()
 	rand1a = Rand(1);
 	rand1b = Rand(1);
 	rand1c = Rand(1);

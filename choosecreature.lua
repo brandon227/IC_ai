@@ -432,6 +432,11 @@ function docreaturechoice()
 		sg_goalflyer = sg_goalflyer+2.5
 		sg_goalpureswimmer = sg_goalpureswimmer+2.5
 	end
+
+	--if enemy is massing ground units, make ground units to defend, not pure swimmers
+	if Enemy.GroundUnitValue > PlayersUnitTypeValue( Player_Self(), player_max, sg_class_ground ) then
+		sg_goalpureswimmer = sg_goalpureswimmer - 20
+	end
 	
 	local curRank = GetRank()
 	
