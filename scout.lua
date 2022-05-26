@@ -51,22 +51,26 @@ function NumEnemyBuildings( entity )
 end
 
 function doscout()
-    Enemy.Index = GetChosenEnemy()
-    Enemy.Rank = PlayersRank( Enemy.Index, player_max )
+    Enemy = {
+        Index = GetChosenEnemy(),
+        Rank = PlayersRank( Enemy.Index, player_max ),
 
-    Enemy.NumRods = NumEnemyBuildings( ResourceRenew_EC )
-    Enemy.NumFoundry = NumEnemyBuildings( Foundry_EC )
-    Enemy.NumGenerator = NumEnemyBuildings( RemoteChamber_EC )
-    Enemy.NumAviary = NumEnemyBuildings( Aviary_EC )
-    Enemy.NumWaterChamber = NumEnemyBuildings( WaterChamber_EC )
-    Enemy.NumSoundbeam = NumEnemyBuildings( SoundBeamTower_EC )
-    Enemy.NumAATower = NumEnemyBuildings( AntiAirTower_EC )
-    Enemy.NumVetClinic = NumEnemyBuildings( VetClinic_EC )
-    Enemy.NumGenAmp = NumEnemyBuildings( GeneticAmplifier_EC )
+        NumRods = NumEnemyBuildings( ResourceRenew_EC ),
+        NumFoundry = NumEnemyBuildings( Foundry_EC ),
+        NumGenerator = NumEnemyBuildings( RemoteChamber_EC ),
+        NumAviary = NumEnemyBuildings( Aviary_EC ),
+        NumWaterChamber = NumEnemyBuildings( WaterChamber_EC ),
+        NumSoundbeam = NumEnemyBuildings( SoundBeamTower_EC ),
+        NumAATower = NumEnemyBuildings( AntiAirTower_EC ),
+        NumVetClinic = NumEnemyBuildings( VetClinic_EC ),
+        NumGenAmp = NumEnemyBuildings( GeneticAmplifier_EC ),
 
-    Enemy.NumHenchmen = PlayersUnitCount( Enemy.Index, player_max, Henchman_EC )
-    Enemy.MilitaryValue = PlayersMilitaryValue( Enemy.Index, player_max )
-    Enemy.MilitaryPop = PlayersMilitaryPopulation( Enemy.Index, player_max )
+        NumHenchmen = PlayersUnitCount( Enemy.Index, player_max, Henchman_EC ),
+        MilitaryValue = PlayersMilitaryValue( Enemy.Index, player_max ),
+        MilitaryPop = PlayersMilitaryPopulation( Enemy.Index, player_max ),
+        GroundUnitValue = PlayersUnitTypeValue( Enemy.Index, player_max, sg_class_ground ),
+        NumGroundUnit = PlayersUnitTypeCount( Enemy.Index, player_max, sg_class_ground ),
+    }
 
     if player_enemy == GetChosenEnemy() then
         Scuttle( ResourceRenew_EC )

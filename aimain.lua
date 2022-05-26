@@ -382,15 +382,6 @@ function Logic_set_escrow()
 	-- phase determination of the game
 	-------------------------------------
 	
-	-- should check some global that lets me know if I should continue rank advancing
-	 -- if we need creatures than this advancement would be stalled - escrow would be reduced
-	 
-	--local militaryPop = PopulationActive() - NumHenchmanActive();
-	--local enemyPop = PlayersMilitaryPopulation( player_enemy, player_max )
-	--if (enemyPop<2) then
-	--	enemyPop=2
-	--end
-	
 	-- if we have more than twice the population than continue ranking up
 	-- OR whatelse? if we are winning with less creatures or if we have a higher ranking
 	-- OR maybe we have more money coming in ??

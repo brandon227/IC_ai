@@ -436,8 +436,9 @@ function docreaturechoice()
 	--if enemy is massing ground units, make ground units to defend, not pure swimmers
 	if Enemy.GroundUnitValue > PlayersUnitTypeValue( Player_Self(), player_max, sg_class_ground ) then
 		sg_goalpureswimmer = sg_goalpureswimmer - 20
+		--Scuttle(ResourceRenew_EC)
 	end
-	
+
 	local curRank = GetRank()
 	
 	-- stay away from melee guys when there are blockades present in world

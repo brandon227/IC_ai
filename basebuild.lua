@@ -347,10 +347,7 @@ function dosoundbeamtowers()
 		-- modified by bchamp 10/1/2018 to stop AI from building a ton of SB towers when they really need to build units
 		local numtowersInProgress = NumBuildingQ( SoundBeamTower_EC ) - numTowerActive
 		if (numtowersInProgress > 0) then
-			if (g_LOD >= 2 and NumBuildingQ( RemoteChamber_EC ) < 2 and CanBuildWithEscrow( RemoteChamber_EC ) == 1 ) then
-				
-				ReleaseGatherEscrow();
-				ReleaseRenewEscrow();
+			if (g_LOD >= 2 and NumBuildingQ( RemoteChamber_EC ) < 2 and CanBuild( RemoteChamber_EC ) == 1 ) then
 				xBuild( RemoteChamber_EC, ChamberLocation() );
 				aitrace("Script: Build second defense creature chamber")
 				return 1
@@ -359,8 +356,8 @@ function dosoundbeamtowers()
 		
 
 		if (CanBuildWithEscrow( SoundBeamTower_EC )==1) then
-			ReleaseGatherEscrow();
-			ReleaseRenewEscrow();
+			-- ReleaseGatherEscrow();
+			-- ReleaseRenewEscrow();
 			xBuild( SoundBeamTower_EC, PH_DefendSite );
 			aitrace("Script:build sound beam tower "..(numTowerActive+1).."of "..desiredAmount);
 			return 1
@@ -421,8 +418,8 @@ function doantiairtowers()
 
 	if (numQueued < numtowers and CanBuildWithEscrow( AntiAirTower_EC )==1) then
 		
-		ReleaseGatherEscrow();
-		ReleaseRenewEscrow();
+		-- ReleaseGatherEscrow();
+		-- ReleaseRenewEscrow();
 		xBuild( AntiAirTower_EC, PH_DefendSite );
 		aitrace("Script:build antiair tower");
 		return
@@ -768,8 +765,8 @@ function docreaturechamber()
 			IsChamberBeingBuilt() == 0 and metRankRequirement == 1
 			and CanBuildWithEscrow( RemoteChamber_EC ) == 1) then 
 			
-			ReleaseGatherEscrow();
-			ReleaseRenewEscrow();
+			-- ReleaseGatherEscrow();
+			-- ReleaseRenewEscrow();
 			xBuild( RemoteChamber_EC, ChamberLocation() );
 			aitrace("Script: Build creature chamber")
 			return 1
@@ -913,8 +910,8 @@ function dowaterchamber()
 		end
 
 		if CanBuildWithEscrow( WaterChamber_EC )==1 then
-			ReleaseGatherEscrow();
-			ReleaseRenewEscrow();
+			-- ReleaseGatherEscrow();
+			-- ReleaseRenewEscrow();
 			xBuild( WaterChamber_EC, PH_Best );
 			aitrace("Script: Build waterchamber");
 			return 1
@@ -955,8 +952,8 @@ function doaviary()
 		IsChamberBeingBuilt() == 0 and
 		CanBuildWithEscrow( Aviary_EC)==1) then
 	
-		ReleaseGatherEscrow();
-		ReleaseRenewEscrow();
+		-- ReleaseGatherEscrow();
+		-- ReleaseRenewEscrow();
 		xBuild( Aviary_EC, PH_Best );
 		aitrace("Script: Build aviary");
 		return 1

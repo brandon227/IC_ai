@@ -153,8 +153,6 @@ end
 function Command_creatureupgrade( )
 
 	if (sg_creatureupgradeEbpNetId~=0 and sg_creatureupgradeType~=-1) then
-		ReleaseGatherEscrow();
-		ReleaseRenewEscrow();
 		CreatureUpgrade(sg_creatureupgradeEbpNetId, sg_creatureupgradeType)
 		aitrace("Script: creature upgrade ebpnetid:"..sg_creatureupgradeEbpNetId.." type:"..sg_creatureupgradeType);
 	end

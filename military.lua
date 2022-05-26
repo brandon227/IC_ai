@@ -255,13 +255,7 @@ function armydecisions() -- static info
 	-- Consider upping LabUnderAttackValue? Needs testing. Bchamp
 	if (LabUnderAttackValue() == 0 and UnderAttackValue() < fact_selfValue*0.5) then
 		icd_buildDefensively = 0
-	-- elseif (ScrapAmount() > curRank*600 and CreaturesQueued >= 7 and icd_buildDefensively == 1) then
-	-- 	icd_buildDefensively = 0 
 	end
-
-	-- local CreaturesQueued = NumCreaturesQ() - NumCreaturesActive()
-	-- if (ScrapAmount() > curRank*600 and CreaturesQueued >= 7 and icd_buildDefensively = 1) then
-	-- 	icd_buildDefensively = 0
 
 	-- Determine if our target has a good amphibian distance
 	if (fact_closestGroundDist == 0 or fact_closestAmphibDist < fact_closestGroundDist*0.6) then
@@ -290,6 +284,12 @@ function armydecisions() -- static info
 				SetTargetTypePriority( Foundry_EC , 5000)
 				icd_engageEnemyValueModifier = 1.2
 			end
+		end
+		--go for lab if enemy is weak
+		if Enemy.MilitaryValue < fact_selfValue/10 then
+			SetTargetTypePriority( Foundry_EC , 100)
+			SetTargetTypePriority( Lab_EC , 60000)
+			icd_engageEnemyValueModifier = 0.8
 		end
 		--if you have tons of units, might as well attack
 		if PopulationActive() >= PopulationMax()*0.9 then
@@ -366,16 +366,7 @@ function Logic_military_setgroupsizes()
 	local rankMultiplier = 60
 	local curRank = GetRank()
 	local rankMultiplier = rankValue[curRank]
-	-- --Added by bchamp 4/19/2019 for value multiplication
-	-- if (curRank == 2) then
-	-- 	rankMultiplier = 120
-	-- elseif (curRank == 3) then
-	-- 	rankMultiplier = 230
-	-- elseif (curRank == 4) then
-	-- 	rankMultiplier = 400
-	-- elseif (curRank == 5) then
-	-- 	rankMultiplier = 650 + rand2c*50 --add randomness
-	-- end
+
 				
 	-- increase my troop counts if the enemy has more units than I do
 	if (g_LOD > 0) then
@@ -417,7 +408,7 @@ function Logic_military_setgroupsizes()
 	
 
 	-- initial group sizes for all LODs
-	icd_groundgroupminsize = groupoffset + 2;
+	icd_groundgroupminsize = groupoffset + 1;
 	icd_groundgroupmaxsize = max(groupoffset*2+6, NumCreaturesActive()*0.65);
 	
 	icd_groundgroupminvalue = icd_groundgroupminsize * rankMultiplier;
@@ -446,7 +437,7 @@ function Logic_military_setgroupsizes()
 	-- Added by Bchamp 4/22/2019 to ensure that groupminvalue is used to account for spam or low power units. Also adjusted for rank
 	if (g_LOD >= 2) then
 
-		icd_groundgroupminsize = groupoffset + 3 + Rand(3); 
+		icd_groundgroupminsize = groupoffset + 1 + rand3b; 
 		icd_groundgroupmaxsize = (groupoffset+5)*2+6;
 		
 		icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier;
@@ -632,7 +623,6 @@ function Logic_military_setdesiredcreatures()
 		end
 	end
 
-
 	-- if we are at max rank - don't put any limits on creature count
 	if (fact_army_maxrank == curRank) then
 		return
@@ -679,7 +669,7 @@ function Logic_military_setattacktimer()
 	-- when does the AI start attacking
 	local timedelay = 30
 	-- how often does it send another wave
-	local wavedelay = 60 + rand100a*0.3
+	local wavedelay = 4 + rand100a*0.3
 	
 	-- check level of difficult and modify when the AI first attacks if not
 	-- attacked by the player
@@ -713,7 +703,7 @@ function Logic_military_setattacktimer()
 	end
 	
 	local gametime = GameTime()
-	
+	wavedelay = 4
 	-- has the start time gone by or have we received a certain level of damage
 	if (gametime >= timedelay or (g_LOD > 0 and DamageTotal() > 300)) then
 			
@@ -821,7 +811,7 @@ function dobuildcreatures()
 		end
 	end
 
-	--queue a bunch of creatures if population is maxed out and you have extra resources
+	--queue a bunch of creatures if population is maxed out and you have extra resources...doesn't seem to work 5/26/22
 	if PopulationActive() >= PopulationMax() and ScrapAmount() > curRank*600 then
 		sg_creature_desired = 10000
 	end

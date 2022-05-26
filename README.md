@@ -138,7 +138,7 @@ GetAttackerCount()
 
 GetAttackerID()
 
-GetChosenEnemy()
+GetChosenEnemy() - returns index of the chosen enemy. This does not equal the variable player_enemy.
 
 UnderNavalAttack()
 
