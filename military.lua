@@ -438,7 +438,7 @@ function Logic_military_setgroupsizes()
 	if (g_LOD >= 2) then
 
 		icd_groundgroupminsize = groupoffset + 1 + rand3b; 
-		icd_groundgroupmaxsize = (groupoffset+5)*2+6;
+		icd_groundgroupmaxsize = (groupoffset+3+curRank)*2+6;
 		
 		icd_groundgroupminvalue = icd_groundgroupminsize*rankMultiplier;
 		icd_groundgroupmaxvalue = icd_groundgroupmaxsize*rankMultiplier*2;
@@ -703,7 +703,7 @@ function Logic_military_setattacktimer()
 	end
 	
 	local gametime = GameTime()
-	wavedelay = 4
+	wavedelay = 200
 	-- has the start time gone by or have we received a certain level of damage
 	if (gametime >= timedelay or (g_LOD > 0 and DamageTotal() > 300)) then
 			
@@ -781,8 +781,14 @@ function military_purchase_creatures()
 	-- do this in a cascading way
 	
 	local playerindex = Player_Self()
-	
-	dobuildcreatures()
+	local curRank = GetRank()
+
+	if ScrapAmount() < curRank*800 then
+		dobuildcreatures()
+	else --do this twice if you have a lot of resources
+		dobuildcreatures()
+		dobuildcreatures()
+	end
 end
 
 rawset(globals(), "dobuildcreatures", nil )
@@ -829,6 +835,7 @@ function dobuildcreatures()
 		end
 		xBuildCreature( sg_class_ground ) --doesn't matter if this is ground or swimmer or anything, it will still work
 		aitrace("Script: build creature "..(creaturesQ+1).." of "..sg_creature_desired);
+
 	end
 end
 

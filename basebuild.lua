@@ -171,29 +171,33 @@ end
 function dolightningrods()
 
 	local erate = ElectricityPerSecQ()
-	 
-	 -- if we have reached our desired rate then don't build anymore
-	 if (erate >= sg_desired_elecrate) then
-	 	return
+	local rank2rush_desired_erate = 4
+	local curRank = GetRank()
+	local numHenchman = NumHenchmanActive()	
+	local numActive = NumBuildingActive( ResourceRenew_EC )
+	local numQ = NumBuildingQ( ResourceRenew_EC )
+	local numRods = 0
+
+	-- and NumHenchmanQ() > numHenchman
+	if (numHenchman >= 3 + rand2b) then
+		numRods = 1
 	end
-	
-	-- wait for 8 active henchmen before building a second rod - add randomness here
-	if (NumHenchmanActive() < (sg_henchmanthreshold - 1 + rand2b) and NumBuildingQ( ResourceRenew_EC ) >= 1) then
-		return
+
+	if ((numHenchman > sg_henchmanthreshold + rand1c) or (numActive == 1 and ScrapAmount() > 250 and ElectricityAmount() < 275 and NumHenchmanQ()-numHenchman > 0)) then
+		numRods = 2
 	end
-	
-	-- more than 8 henchmen and more than 2 rods rank2 to start
-	if (NumBuildingQ( ResourceRenew_EC )>1 and (ResearchQ(RESEARCH_Rank2)==0 and g_LOD>0)) then
-		return
+
+	if (ResearchQ(RESEARCH_Rank2) == 1) then
+		numRods = 3
+		if ScrapAmount() > 400 then
+			numRods = 4
+		end
 	end
 		
 	-- if lab is under attack by more than 3 times our military value
 	if ( not(goal_needelec==2 and ElectricityAmountWithEscrow() < 50 and fact_selfValue < 200) and LabUnderAttackValue() > 0) then
 		return
 	end
-	
-	local numActive = NumBuildingActive( ResourceRenew_EC )
-	local numQ = NumBuildingQ( ResourceRenew_EC )
 	
 	-- if these numbers are different, then a rod is being built (only build one at a time)
 	if ( (numQ-numActive) > 0) then
@@ -207,7 +211,7 @@ function dolightningrods()
 	
 	-- LOGIC - only build one unless we can't build an egen and we need more elec
 	
-	if (numQ < sg_lightningrod_cap and CanBuildWithEscrow( ResourceRenew_EC )==1) then
+	if (numQ < numRods and CanBuildWithEscrow( ResourceRenew_EC )==1) then
 		ReleaseGatherEscrow();
 		ReleaseRenewEscrow();
 		xBuild( ResourceRenew_EC, 0 );
@@ -740,7 +744,7 @@ function docreaturechamber()
 				or numActiveChambers < curRank) then
 				-- store number of desired chambers
 				numDesiredChambers = numActiveChambers + 1
-			elseif ScrapAmount() > curRank*500 and numActiveChambers < (NumBuildingActive( Foundry_EC ) + curRank) then
+			elseif ScrapAmount() > curRank*500 and numActiveChambers < (CoalPileWithDropOffs() + curRank) then
 				numDesiredChambers = numActiveChambers + 1
 			end
 

@@ -15,7 +15,13 @@ dofilepath("data:ai/economyrush.lua")
 function init_randomness()
 	--Create random variables
 	doRandom();
-	RegisterTimerFunc("doRandom", 240 + Rand(100)); --refresh random variables every once in awhile
+
+	--create a unique delay for each player so that AI do not calculate the same random value on the same tick
+	local uniqueDelay = calcAvgAttribute( Player_Self(), "power", 1, 5 )*Player_Self() + Player_Self()*7
+	while uniqueDelay > 100 do
+		uniqueDelay = uniqueDelay - 100
+	end
+	RegisterTimerFunc("doRandom", uniqueDelay + 180); --refresh random variables every once in awhile
 
     sg_aggressiveness = Rand(100); --100 is more aggressive, attacks more often
 

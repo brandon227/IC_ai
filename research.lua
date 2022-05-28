@@ -104,6 +104,10 @@ function rankUp( capAt )
 				if ResearchCompleted(RESEARCH_HenchmanYoke) == 0 then
 					return
 				end
+				-- Don't go L5 if enemy military is too strong, unless enemy is L5 or you have tons of scrap
+				if (Enemy.MilitaryValue > fact_selfValue*1.1 and Enemy.Rank <= curRank and ScrapAmount() < 5000) then
+					return
+				end
 			end
 		end
 

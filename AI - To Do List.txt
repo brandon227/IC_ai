@@ -12,9 +12,8 @@ Updated 4/17/2022 by Bchamp
 - Scouting function with AI
 - Cancel Rush switch tactics
 - Rank2rush with barrier destroy
-- Rank2rush trickle and retreat when take damage... only trickle in certain conditions like if no damage taken plus slow build order
-- WHY DO CLINICS AND GENAMPS NOT GET BUILT UNTIL L4?@?@@?
-- WHY ARE CHAMBERS BEING BUILT SO CLOSE TO THE GOD DAMN LAB
+
+- More advanced army analysis
 ----------------------
 Skitter Watch To do list:
 --------------------

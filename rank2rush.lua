@@ -148,7 +148,7 @@ function Rank2Rush_rankUp()
 
 	--If CC is supposed to be at enemy base, make sure it's queued before going L2.
 	if(chamberAtEnemyBase == 1) then
-		if (NumBuildingQ( RemoteChamber_EC ) < 1 and Rand(100) < 20) then
+		if (NumBuildingQ( RemoteChamber_EC ) < 1 and rand100a < 50) then
 			return
 		end
 	end
@@ -299,6 +299,8 @@ function Rank2Rush_docreaturechamber()
 
 		rawset(globals(), "rankUp", nil )
 		rankUp = save_rankUp
+		
+		goal_rank2rush = 0
 
 		return 0
 	end
@@ -332,6 +334,8 @@ function Rank2Rush_dolightningrods()
 	local rank2rush_desired_erate = 4
 	local curRank = GetRank()
 	local numHenchman = NumHenchmanActive()	
+	local numActive = NumBuildingActive( ResourceRenew_EC )
+	local numQ = NumBuildingQ( ResourceRenew_EC )
 	local numRods = 0
 
 	-- and NumHenchmanQ() > numHenchman
@@ -339,7 +343,7 @@ function Rank2Rush_dolightningrods()
 		numRods = 1
 	end
 
-	if (numHenchman > sg_henchmanthreshold + rand1a) then
+	if ((numHenchman > sg_henchmanthreshold + rand1a) or (numActive == 1 and ScrapAmount() > 250 and ElectricityAmount() < 275 and NumHenchmanQ()-numHenchman > 0)) then
 		numRods = 2
 	end
 
@@ -357,9 +361,7 @@ function Rank2Rush_dolightningrods()
 	if ( not(goal_needelec==2 and ElectricityAmountWithEscrow() < 50 and fact_selfValue < 200) and LabUnderAttackValue() > 100) then
 		return
 	end
-	
-	local numActive = NumBuildingActive( ResourceRenew_EC )
-	local numQ = NumBuildingQ( ResourceRenew_EC )
+
 	
 	-- if these numbers are different, then a rod is being built (only build one at a time)
 	if ( (numQ-numActive) > 0) then
@@ -507,14 +509,18 @@ function Rank2Rush_Logic_desiredhenchman()
 	local unitCount = NumCreaturesQ() --Formerly: PlayersUnitTypeCount( Player_Self(), player_max, sg_class_ground )
 	local gatherSiteOpen = IsGatherSiteOpen()
 	
+	if henchman_count > 10 and NumBuildingQ( Foundry_EC ) == 0 and fact_closestAmphibDist < 400 then
+		henchman_count = 10
+	end
+
 	if (chamberAtEnemyBase == 1) then
-		sg_desired_henchman = sg_henchmanthreshold + 1
+		henchman_count = henchman_count + 1
 	end
 
 	if (curRank == 1) then
-		henchman_count = sg_henchmanthreshold + rand2a
+		henchman_count = henchman_count + rand2a
 		if (chamberAtEnemyBase == 1) then
-			henchman_count = sg_henchmanthreshold + 1 + rand2a
+			henchman_count = henchman_count + 1 + rand2a
 		end
 		if (ScrapAmountWithEscrow() > 180 and ElectricityAmountWithEscrow() < 290) then
 			henchman_count = NumHenchmanActive() + 1
@@ -584,6 +590,7 @@ end
 
 function CancelRank2Rush()
 
+	goal_rank2rush = 0;
 	--rawset(globals(), "docreaturechamber", nil )
 	--docreaturechamber = save_docreaturechamber
 

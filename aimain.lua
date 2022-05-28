@@ -35,6 +35,8 @@ dofilepath("data:ai/economyrush.lua")
 dofilepath("data:ai/scout.lua")
 --
 dofilepath("data:ai/tactics.lua")
+--
+dofilepath("data:ai/forcetactic.lua")
 
 
 
@@ -76,11 +78,9 @@ function oninit()
 	--Added by Bchamp 3/31/2019 to toggle aggressive behavior
 	--aggressionLevel = 2
 	
-	local dotactic = 1 --should AI perform tactics? 
 
 	-- Perform Tactic Functions
 	-- Each function is called in order below. If rejected, the CanDo function will return 0 and the next tactic will be called.
-	ChooseTactic(dotactic);
 
 	if (dotactic == 1) then
 		if (EconomyRush_CanDo(dotactic) == 0) then
