@@ -112,6 +112,8 @@ function init_military()
 	SetTargetTypePriority( Lab_EC, 0 )
 	SetTargetTypePriority( Henchman_EC, 0 )
 
+	SetDefendTypePriority( Lab_EC, 500 )
+	SetDefendTypePriority( Foundry_EC, 2000 )
 
 
 	-- set the rank we should start at
@@ -363,7 +365,6 @@ function Logic_military_setgroupsizes()
 	
 	local groupoffset = 0
 	local valueoffset = 0
-	local rankMultiplier = 60
 	local curRank = GetRank()
 	local rankMultiplier = rankValue[curRank]
 
@@ -658,6 +659,14 @@ end
 
 -- function that gets called on a timer
 function attack_now_timer()
+
+		if PopulationActive() >= PopulationMax()*0.8 then
+			save_icd_engageEnemyValueModifier = icd_engageEnemyValueModifier
+			icd_engageEnemyValueModifier = 0.6
+		elseif save_icd_engageEnemyValueModifier ~= nil then
+			icd_engageEnemyValueModifier = save_icd_engageEnemyValueModifier
+		end
+			
 
 		AttackNow();
 		aitrace("Script: Attack Now")

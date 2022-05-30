@@ -85,9 +85,9 @@ function oninit()
 	if (dotactic == 1) then
 		if (EconomyRush_CanDo(dotactic) == 0) then
 			if (Rank2Rush_CanDoTactic(dotactic) == 0) then
-				if (Rank1Rush_CanDoTactic() == 0) then
+				if (Rank1Rush_CanDoTactic(dotactic) == 0) then
 					if (ResearchRush_CanDo(dotactic) == 0) then
-						FlyerRush_CanDo()
+						FlyerRush_CanDo(dotactic)
 					end
 				end
 			end
@@ -100,11 +100,11 @@ function oninit()
 	elseif (dotactic == 3 or dotactic == 4) then
 		Rank2Rush_CanDoTactic(dotactic)
 	elseif (dotactic == 5) then 
-		return
+		Rank1Rush_CanDoTactic(dotactic)
 	elseif (dotactic == 6) then
 		ResearchRush_CanDo(dotactic)
 	elseif (dotactic == 7) then
-		return
+		FlyerRush_CanDo(dotactic)
 	end
 
 end

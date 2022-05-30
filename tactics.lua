@@ -14,7 +14,9 @@ dofilepath("data:ai/economyrush.lua")
 --
 function init_randomness()
 	--Create random variables
-	doRandom();
+	for i=0,Player_Self() do
+		doRandom();
+	end
 
 	--create a unique delay for each player so that AI do not calculate the same random value on the same tick
 	local uniqueDelay = calcAvgAttribute( Player_Self(), "power", 1, 5 )*Player_Self() + Player_Self()*7

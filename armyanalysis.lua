@@ -191,10 +191,10 @@ class_check_func[sg_class_directrange+1] = function( creatureinfo )
 	
 end
 
--- Ground Rank1 rush Class (no elec)
+-- Ground Rank1 rush Class (low elec)
 class_check_func[sg_class_groundrank1rush+1] = function( creatureinfo )
 	
-	if (ci_rank( creatureinfo ) == 1 and ci_getattribute( creatureinfo, "costrenew" ) == 0 ) then
+	if (ci_rank( creatureinfo ) == 1 and ci_getattribute( creatureinfo, "costrenew" ) < 20 ) then
 		return 1
 	end
 	
@@ -205,7 +205,7 @@ end
 -- Added by Bchamp on 9/27/2018 to attempt to create lvl 2 rush function
 -- Ground Rank2 Rush Class
 class_check_func[sg_class_groundrank2rush+1] = function( creatureinfo )
-	if (ci_rank( creatureinfo ) == 2 and ci_getattribute( creatureinfo, "costrenew" ) < 55 ) then
+	if (ci_rank( creatureinfo ) == 2 and ci_getattribute( creatureinfo, "costrenew" ) < 75 ) then
 		if (ci_getattribute( creatureinfo, "is_land" ) == 1) then
 			return 1
 		end

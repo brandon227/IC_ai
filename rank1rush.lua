@@ -1,10 +1,10 @@
 
 aitrace("Script Component: Rank1Rush Tactic")
 
-function Rank1Rush_CanDoTactic()
+function Rank1Rush_CanDoTactic(ForceTactic)
 
-	-- only do this in difficult
-	if (g_LOD ~= 2 or ScrapAmountWithEscrow() > 1000) then
+	-- don't do this if quickstart
+	if (ScrapAmountWithEscrow() > 1000) then
 		return 0
 	end
 	
@@ -31,7 +31,7 @@ function Rank1Rush_CanDoTactic()
 	local randtemp = Rand(10)
 	aitrace("Rank1Rush: Rand:"..randtemp)
 	-- test for rank1 tactic
-	if (GetRank() == 1 and closestDist < 350 and randtemp > 6) then
+	if (GetRank() == 1 and ((closestDist < 350 and randtemp < 4) or ForceTactic == 5)) then
 		-- have the units for a rank1 rush
 		local units = Army_ClassSize( Player_Self(), sg_class_groundrank1rush )
 		if (units > 0) then
@@ -101,7 +101,7 @@ end
 function Rank1Rush_dosoundbeamtowers()
 
 	-- if underattack or past rank1 return back to normal behaviour
-	if (UnderAttackValue()>0 or GetRank()>1) then
+	if (UnderAttackValue()>150 or GetRank()>1) then
 	
 		-- add the old code back in
 		rawset(globals(), "dosoundbeamtowers", nil )
@@ -119,11 +119,11 @@ function Rank1Rush_docreaturechamber()
 		ReleaseRenewEscrow();
 		
 		local basePlacement = PH_OutsideBase
-		if(Rand(10) > 4) then
+		if(rand10a > 4) then
 			basePlacement = PH_EnemyBase
 		end
 		
-		xBuild( RemoteChamber_EC, ChamberLocation() );
+		xBuild( RemoteChamber_EC, basePlacement );
 		aitrace("Script: Build first creature chamber")
 	end
 	
@@ -140,6 +140,11 @@ end
 
 function Rank1Rush_dolightningrods()
 
+	local rank1avgelec = calcAvgAttribute( Player_Self(), "costRenew", 1, 1)
+	if rank1avgelec == 0 and  GameTime() < (3.5*60) then
+		return
+	end
+
 	-- don't build any of these until we have a chamber
 	-- and a couple creatures or until the enemy has more creatures
 	-- then we do until we are under attack
@@ -147,7 +152,7 @@ function Rank1Rush_dolightningrods()
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
 	
 	-- call old code if these conditions are met
-	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and militaryValue > 700) or UnderAttackValue()>0 or GameTime() > (3.5*60)) then
+	if ((NumBuildingActive( RemoteChamber_EC ) > 0 and NumCreaturesQ() > 0) or UnderAttackValue()>0 or GameTime() > (3.5*60)) then
 		-- add the old code back in
 		rawset(globals(), "dolightningrods", nil )
 		dolightningrods = save_dolightningrods

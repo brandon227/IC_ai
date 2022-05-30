@@ -1,3 +1,4 @@
+dofilepath("data:sigma/tuning.lua")
 
 function init_henchman()
 
@@ -303,6 +304,31 @@ function Command_buildhenchman()
 	if (NumHenchmenGuarding() > 6 + rand2a) then
 		return
 	end
+
+	
+	--Don't build more hench if you aren't gathering efficiently
+	local scrapperhench = ScrapPerSec()/NumHenchmanActive()
+	local hasYoke = ResearchCompleted(RESEARCH_HenchmanYoke)
+	local idealgatherEfficiency = 1.1 --closer to 1.15 for expert, lowered to help with easy AI not staffing coal as well
+
+	if g_LOD == 3 then
+		if scrapperhench < (AIPlayer.resGatherBonusHardest * idealgatherEfficiency)*(1+hasYoke/2) then
+			return
+		end
+	elseif g_LOD == 2 then
+		if scrapperhench < (AIPlayer.resGatherBonusHard * idealgatherEfficiency)*(1+hasYoke/2) then
+			return
+		end
+	elseif g_LOD == 1 then
+		if scrapperhench < (AIPlayer.resGatherBonusStandard * idealgatherEfficiency)*(1+hasYoke/2) then
+			return
+		end
+	elseif g_LOD == 0 then
+		if scrapperhench < (AIPlayer.resGatherBonusEasy * idealgatherEfficiency)*(1+hasYoke/2) then
+			return
+		end
+	end
+
 
 	--added by Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
 	if ((NumHenchmanQ() - NumHenchmanActive()) >= (4 - g_LOD)) then
