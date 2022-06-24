@@ -120,10 +120,10 @@ sg_class_deflect = 15
 sg_class_loner = 16
 
 -- standard melee to pair with stink
-sg_class_standard = 17
+sg_class_standard = 18
 
 sg_class_sonic = 18
-sg_class_last = 19
+sg_class_last = 19 --can't be more than 19 for some reason?
 
 
 class_check_func = {}
@@ -250,8 +250,8 @@ end
 class_check_func[sg_class_highdefence+1] = function( creatureinfo )
 	
 	-- has armour or has okay armour and herding
-	if (ci_getattribute( creatureinfo, "armour" )>0.6 or 
-	   (ci_getattribute( creatureinfo, "armour" )>0.4 and ci_getattribute( creatureinfo, "herding" )==1)) then
+	if (ci_getattribute( creatureinfo, "armour" )>0.45 or 
+	   (ci_getattribute( creatureinfo, "armour" )>0.30 and ci_getattribute( creatureinfo, "herding" )==1)) then
 		return 1
 	end
 	
@@ -341,6 +341,7 @@ class_check_func[sg_class_loner+1] = function( creatureinfo )
 	
 	return 0
 end
+
 -----------------------------------------
 -- LBFrank 03/31/19 Sonic Units
 class_check_func[sg_class_sonic+1] = function( creatureinfo )

@@ -93,6 +93,18 @@ function Cache_henchmandata()
 	
 	-- checks to see how far the first scrap yard is, to determine what to initially do
 		
+	if IsAllyClose(35) == 1 then
+		local numFoundries = NumBuildingActive( Foundry_EC )*0.2
+		icd_henchman_per_scrapyard_near = min(1.0 + numFoundries, 2.0);
+		icd_henchman_per_scrapyard_med = min(1.0 + numFoundries, 2.3);
+		icd_henchman_per_scrapyard_far = min(1.0 + numFoundries, 2.6);
+	else
+		icd_henchman_per_scrapyard_near = 2.0; --2.0, 2.3, 2.6
+		icd_henchman_per_scrapyard_med = 2.3;
+		icd_henchman_per_scrapyard_far = 2.6;
+	end
+
+
 	-- how many scrap yards are within 50m of the lab
 	sg_numscrapyardsWithinDist_near = CoalPileWithinDist( icd_gatherDist_near );
 	sg_numscrapyardsWithinDist_med = CoalPileWithinDist( icd_gatherDist_med )-sg_numscrapyardsWithinDist_near;
@@ -187,7 +199,7 @@ function Logic_desiredhenchman()
 			henchman_count = NumHenchmanQ() --Don't make henchmen if gather sites are full and too many henchman guarding.
 		end
 		--stop building hench once you have electricity to go L2 and no L1s in army
-		if (ElectricityAmountWithEscrow() > 300 and fact_lowrank_all >= 2) then
+		if (ElectricityAmountWithEscrow() > 300+(rand100a) and fact_lowrank_all >= 2) then
 			henchman_count = 0;
 		end
 	end
@@ -307,25 +319,27 @@ function Command_buildhenchman()
 
 	
 	--Don't build more hench if you aren't gathering efficiently
-	local scrapperhench = ScrapPerSec()/NumHenchmanActive()
-	local hasYoke = ResearchCompleted(RESEARCH_HenchmanYoke)
-	local idealgatherEfficiency = 1.1 --closer to 1.15 for expert, lowered to help with easy AI not staffing coal as well
+	if NumHenchmanActive() > 10 then
+		local scrapperhench = ScrapPerSec()/NumHenchmanActive()
+		local hasYoke = ResearchCompleted(RESEARCH_HenchmanYoke)
+		local idealgatherEfficiency = 1.1 --closer to 1.15 for expert, lowered to help with easy AI not staffing coal as well
 
-	if g_LOD == 3 then
-		if scrapperhench < (AIPlayer.resGatherBonusHardest * idealgatherEfficiency)*(1+hasYoke/2) then
-			return
-		end
-	elseif g_LOD == 2 then
-		if scrapperhench < (AIPlayer.resGatherBonusHard * idealgatherEfficiency)*(1+hasYoke/2) then
-			return
-		end
-	elseif g_LOD == 1 then
-		if scrapperhench < (AIPlayer.resGatherBonusStandard * idealgatherEfficiency)*(1+hasYoke/2) then
-			return
-		end
-	elseif g_LOD == 0 then
-		if scrapperhench < (AIPlayer.resGatherBonusEasy * idealgatherEfficiency)*(1+hasYoke/2) then
-			return
+		if g_LOD == 3 then
+			if scrapperhench < (AIPlayer.resGatherBonusHardest * idealgatherEfficiency)*(1+hasYoke/2) then
+				return
+			end
+		elseif g_LOD == 2 then
+			if scrapperhench < (AIPlayer.resGatherBonusHard * idealgatherEfficiency)*(1+hasYoke/2) then
+				return
+			end
+		elseif g_LOD == 1 then
+			if scrapperhench < (AIPlayer.resGatherBonusStandard * idealgatherEfficiency)*(1+hasYoke/2) then
+				return
+			end
+		elseif g_LOD == 0 then
+			if scrapperhench < (AIPlayer.resGatherBonusEasy * idealgatherEfficiency)*(1+hasYoke/2) then
+				return
+			end
 		end
 	end
 

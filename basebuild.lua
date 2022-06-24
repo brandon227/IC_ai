@@ -435,7 +435,7 @@ function dovetclinic()
 
 
 	 -- extra check to make sure we have a few creatures, lab isn't under attack, and we have henchmen. Bchamp 3/31/2019
-	if (LabUnderAttackValue() > fact_selfValue/2 or NumCreaturesActive() < ( rand4a + rand2b + 1) or NumHenchmanActive() < sg_henchmanthreshold ) then
+	if (LabUnderAttackValue() > fact_selfValue/2 or NumCreaturesActive() < ( rand4a + rand2b + 1) or (ScrapPerSec() < 15 and ElectricityPerSecQ() < 8)) then
 		return
 	end
 
@@ -663,6 +663,11 @@ function docreaturechamber()
 
 	local numActiveChambers = NumBuildingActive( RemoteChamber_EC )
 	local curRank = GetRank()
+
+	--don't build CC until level before ground units are available at the earliest.
+	if curRank < fact_lowrank_ground-1 then
+		return 0 
+	end
 
 	-- Don't make more than one Creature Chamber on Easy Difficulty --Added by Bchamp 4/5/2019
 	if (g_LOD == 0) then

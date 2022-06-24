@@ -59,9 +59,9 @@ function checkSelfArmy()
 	
 	local flyerValue = PlayersUnitTypeValue( playerindex, player_max, sg_class_flyer )
 	local flyerPercent = flyerValue/totalValue*100
-	if (flyerValue > 1000 and flyerPercent > 70) then
+	if (flyerValue > 1500 and flyerPercent > 70) then
 		-- reduce want for flyer
-		sg_goalflyer = sg_goalflyer-1.5
+		sg_goalflyer = sg_goalflyer-1
 	end
 
 	-- edited by LBFrank 12/30/18 wants more flyers on a water map if there are more flyers than swimmers
@@ -266,7 +266,7 @@ function doRPSchoice(chosenEnemy)
 	if (directRangePercent >= 70) then
 		sg_goalmelee = sg_goalmelee-1
 		sg_goalartillery = sg_goalartillery+3
-		sg_goalflyingArtillery = sg_goalflyingArtillery+4
+		sg_goalflyingArtillery = sg_goalflyingArtillery+3
 		sg_goalflyer = sg_goalflyer-2
 		sg_goalrange = sg_goalrange+2 
 	elseif (directRangePercent >= 35) then

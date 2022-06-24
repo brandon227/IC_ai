@@ -119,7 +119,7 @@ function Rank1Rush_docreaturechamber()
 		ReleaseRenewEscrow();
 		
 		local basePlacement = PH_OutsideBase
-		if(rand10a > 4) then
+		if(rand10a > 3) then
 			basePlacement = PH_EnemyBase
 		end
 		
@@ -141,7 +141,7 @@ end
 function Rank1Rush_dolightningrods()
 
 	local rank1avgelec = calcAvgAttribute( Player_Self(), "costRenew", 1, 1)
-	if rank1avgelec == 0 and  GameTime() < (3.5*60) then
+	if rank1avgelec == 0 and  NumCreaturesQ() - NumCreaturesActive() < 2 then
 		return
 	end
 
@@ -165,9 +165,9 @@ function Rank1Rush_Logic_buildhenchman()
 	
 	sg_desired_henchman = sg_henchmanthreshold;
 	
-	if (sg_desired_henchman > 7) then
-		sg_desired_henchman = 7
-	end
+	-- if (sg_desired_henchman > 7) then
+	-- 	sg_desired_henchman = 7
+	-- end
 		
 	local militaryValue = PlayersMilitaryValue( Player_Self(), player_max );
 			

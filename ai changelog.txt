@@ -1,13 +1,20 @@
 -- ai changelog --
 ------------------
-17 Apr 2022 by Bchamp
+30 May 2022 by Bchamp
 ------------------
-For Tellurian 2.9.2
+For Tellurian 2.9.1
 -AI knows stink does not counter range
 -AI knows that SB towers can damage flyers more
 -AI will now build SB towers in response to digging units as well as camo
 -Bug fixed where AI would not build workshop or creatures in certain situations
 -Hard and Expert AI will research motivational speech when they begin researching L3 and are not under attack 
+
+-EconomyRush Build Order improved with more variety. AI will sometimes expand even faster, not necessarily waiting to fill coal before next workshop
+-Creature Upgrades improved so all upgrades are completed
+-FlyerRush and L1 Rush added
+-If population is maxed out, AI will not wait for more units to attack
+-Bug mitigated where AI build too many henchmen
+
 
 ------------------
 15 Feb 2020 by Bchamp and LBFrank

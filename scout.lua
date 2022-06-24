@@ -77,3 +77,26 @@ function doscout()
     end
 
 end
+
+function IsAllyClose(distance)
+	
+	local i = 0
+	local t = PlayersTotal()
+	local Ally_distance = 1000
+
+	while ( i < t ) do
+	
+		-- test to see if this enemy is the enemy we want to attack
+        
+		if (Player_IsEnemy( i )	~= 1 and i ~= Player_Self()) then
+            Ally_distance = Player_Dist(i, 0)
+            if Ally_distance < distance and Ally_distance ~= 0 then
+                return 1
+            end
+		end
+	
+		i=i+1
+	end
+    return 0
+
+end

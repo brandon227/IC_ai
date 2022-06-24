@@ -81,7 +81,7 @@ function oninit()
 
 	-- Perform Tactic Functions
 	-- Each function is called in order below. If rejected, the CanDo function will return 0 and the next tactic will be called.
-
+	
 	if (dotactic == 1) then
 		if (EconomyRush_CanDo(dotactic) == 0) then
 			if (Rank2Rush_CanDoTactic(dotactic) == 0) then

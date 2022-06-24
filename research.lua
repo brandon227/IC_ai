@@ -68,7 +68,7 @@ function rankUp( capAt )
 		if ( PlayersAlive( player_ally ) == 1 ) then
 			is_alone = 1
 		end
-		if g_LOD >= 2 then
+		if g_LOD >= 2 and curRank >= fact_lowrank_all then
 			if (curRank == 2 and randUnitsOrRank < 90) then
 				if (gametime < 4.5*60) then
 					if (numCreatures < 5 + (randUnitsOrRank*0.1) + is_alone* rand4b) then

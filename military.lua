@@ -113,7 +113,7 @@ function init_military()
 	SetTargetTypePriority( Henchman_EC, 0 )
 
 	SetDefendTypePriority( Lab_EC, 500 )
-	SetDefendTypePriority( Foundry_EC, 2000 )
+	SetDefendTypePriority( Foundry_EC, 1000 )
 
 
 	-- set the rank we should start at
