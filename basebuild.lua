@@ -661,128 +661,16 @@ end
 
 function docreaturechamber()
 
-	local numActiveChambers = NumBuildingActive( RemoteChamber_EC )
-	local curRank = GetRank()
-
-	--don't build CC until level before ground units are available at the earliest.
-	if curRank < fact_lowrank_ground-1 then
-		return 0 
+	-- we should determine resource thresholds based on creature costs
+	if (CanBuildWithEscrow( RemoteChamber_EC ) == 1 and ScrapPerSec() > 20*NumChambers() and ElectricityPerSec() > 2*NumChambers() and ResearchQ(RESEARCH_Rank2) == 1) then 
+		-- ReleaseGatherEscrow();
+		-- ReleaseRenewEscrow();
+		xBuild( RemoteChamber_EC, ChamberLocation() );
+		aitrace("Script: Build creature chamber")
+		return 1
 	end
-
-	-- Don't make more than one Creature Chamber on Easy Difficulty --Added by Bchamp 4/5/2019
-	if (g_LOD == 0) then
-		if (numActiveChambers > 0) then
-			return 0
-		end
-	end
-
-
-	if (numActiveChambers > 0) then
-		local underAttackVal = UnderAttackValue()
-		-- check to see distance of chamber to base and blow chamber if under attack, Bchamp 10/2018
-		if (GroundDistToBase() > 150 and (UnderAttackValue() > (2*fact_selfValue + 150) and fact_selfValue < 400)) then
-			Scuttle( RemoteChamber_EC )
-			if (goal_rank2rush == 1) then
-				CancelRank2Rush();
-				return 0
-			end
-		end
-	end
-
-	local aim_erate = 4
-	-- this could cause a stall if we are aiming for a lower erate 
-	if (fact_closestAmphibDist > 400) then
-		aim_erate = 6
-	end
-	
-	-- if AI has tons of electricity (edited from 1600 to 2600 on 9/27/2018 by Bchamp)
-	if (ElectricityAmountWithEscrow() > 2600) then
-		aim_erate = 0
-	end
-	
-
-	local metRankRequirement = 1
-
-	--rank requirement test - this states in standard/hard if we have a unit greater than rank1 and we have 
-	--not started researching rank2 then don't build chamber yet
-	if (g_LOD>0 and fact_army_maxrank > 1 and ResearchQ(RESEARCH_Rank2)==0) then
-		metRankRequirement = 0
-	end
-		
-	-- LOGIC #1 (build chamber when we have reached elec desired rate)
-	if (LabUnderAttackValue()<500 and ElectricityPerSecQ()<aim_erate) then
-	 	return 0
-	end
-
-	-------------------------------------------------------------
-	--added 10/1/2018 by bchamp----------------------------------
-	--sets desireCC. Won't build a CC before rank 2 if rank2 units are swimmers/amphib
-	local desireCC = 0
-	local curRank = GetRank()
-	if (goal_desireGround == 1 or curRank < 2) then
-		if (curRank < 2) then
-			local swimmerCount = Army_NumCreaturesInClass( Player_Self(), sg_class_swimmer, curRank-1, curRank+1 );
-			if (swimmerCount > 0) then 
-				return 0
-			end
-		end
-		desireCC = 1
-	end
-	-------------------------------------------------------------
-	-------------------------------------------------------------
-	-- Added by Bchamp so all amphib armies will still make regular CC's, assuming they have a WC 4/19/2019
-	if (NumBuildingActive(WaterChamber_EC) > 0 and curRank >= fact_lowrank_amphib) then
-		desireCC = 1
-	end
-	-------------------------------------------------------------
-
-
-	if (desireCC == 1 and (goal_needelec ~= 2 or fact_armyAvgElec<10)) then
-		local numDesiredChambers = numActiveChambers
-
-		if (numActiveChambers > 0  and ScrapAmountWithEscrow() > 360) then
-			local groundActive = Army_NumCreature( Player_Self(), sg_class_ground );
-			local groundQ = Army_NumCreatureQ( Player_Self(), sg_class_ground );
-			local queued = groundQ - groundActive
-			
-			if (queued >= (3*numActiveChambers) or numActiveChambers < (NumBuildingActive( Foundry_EC ) + 1)
-				or numActiveChambers < curRank) then
-				-- store number of desired chambers
-				numDesiredChambers = numActiveChambers + 1
-			elseif ScrapAmount() > curRank*500 and numActiveChambers < (CoalPileWithDropOffs() + curRank) then
-				numDesiredChambers = numActiveChambers + 1
-			end
-
-			--Added so that computer could build a second CC at L2 if it's doing well. --Added by Bchamp 4/1/2019
-			if (g_LOD >= 2 and numActiveChambers < 2 and curRank == 2 and ScrapPerSec() > 15 
-				and (ElectricityPerSecQ() >= 10 or (ElectricityPerSecQ() >= 8 and goal_rank2rush == 1)) and queued >= (numActiveChambers)) then
-
-					numDesiredChambers = 1 + rand2a
-				if (ScrapAmountWithEscrow() > 500) then
-					numDesiredChambers = 2
-				end
-			end
-
-			
-		else
-			-- store number of desired chambers
-			numDesiredChambers = 1
-		end
-
-
-		if (NumBuildingQ( RemoteChamber_EC ) < numDesiredChambers and 
-			IsChamberBeingBuilt() == 0 and metRankRequirement == 1
-			and CanBuildWithEscrow( RemoteChamber_EC ) == 1) then 
-			
-			-- ReleaseGatherEscrow();
-			-- ReleaseRenewEscrow();
-			xBuild( RemoteChamber_EC, ChamberLocation() );
-			aitrace("Script: Build creature chamber")
-			return 1
-		end
-	end
-	
 	return 0
+	
 end
 
 function ChamberLocation()

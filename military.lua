@@ -82,7 +82,7 @@ function init_military()
 	icd_startAtRank = 1
 
 	-- this is how many seconds the AI will wait to build a better creature
-	icd_bestCreatureWaitTime = 10
+	icd_bestCreatureWaitTime = 10000
 
 	if (g_LOD==0) then
 		icd_bestCreatureWaitTime = 4
@@ -133,7 +133,7 @@ function init_military()
 	elseif (g_LOD == 1) then
 		RegisterTimerFunc("docreaturebuild", 5 )
 	else
-		RegisterTimerFunc("docreaturebuild", 3 )
+		RegisterTimerFunc("docreaturebuild", 1 )
 	end
 
 end
@@ -332,7 +332,7 @@ function Logic_ChamberChoice()
 end
 
 function docreaturebuild()
-		
+
 	armydecisions();
 
 	-- check game state and change group sizes
@@ -791,13 +791,21 @@ function military_purchase_creatures()
 	
 	local playerindex = Player_Self()
 	local curRank = GetRank()
+	local chambers = NumChambers()
+	local creatures_queued = NumCreaturesQ()-NumCreaturesActive()
 
-	if ScrapAmount() < curRank*800 then
+	local i = 0
+	while (i < (2*chambers)-creatures_queued) do
 		dobuildcreatures()
-	else --do this twice if you have a lot of resources
-		dobuildcreatures()
-		dobuildcreatures()
+		i = i+1
 	end
+
+	--if ScrapAmount() < curRank*800 then
+	--	dobuildcreatures()
+	--else --do this twice if you have a lot of resources
+	--	dobuildcreatures()
+	--	dobuildcreatures()
+	--end
 end
 
 rawset(globals(), "dobuildcreatures", nil )
@@ -819,12 +827,12 @@ function dobuildcreatures()
 	local curRank = GetRank()
 
 	-- Do not queue more units than you have chambers (incorporating rank). Saves resources for other activities. Bchamp 4/5/2019
-	if (g_LOD >= 2 and (creaturesQ - NumCreaturesActive()) >= (totalChambers + curRank - 1)) then
-		--if you have a ton of resources, don't limit queued creatures
-		if ScrapAmount() < curRank*600 then
-			return
-		end
-	end
+	--if (g_LOD >= 2 and (creaturesQ - NumCreaturesActive()) >= (totalChambers + curRank - 1)) then
+	--	--if you have a ton of resources, don't limit queued creatures
+	--	if ScrapAmount() < curRank*600 then
+	--		return
+	--	end
+	--end
 
 	--queue a bunch of creatures if population is maxed out and you have extra resources...doesn't seem to work 5/26/22
 	if PopulationActive() >= PopulationMax() and ScrapAmount() > curRank*600 then

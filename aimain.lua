@@ -376,46 +376,65 @@ function needmoreelec()
 
 end
 
+
+function reset_escrow()
+	SetGatherEscrowPercentage(0)
+	SetRenewEscrowPercentage(0)
+	ReleaseGatherEscrow()
+	ReleaseRenewEscrow()
+end
+
+function levelling_up()
+	local curRank = GetRank()
+	if (curRank == 1 and ResearchQ(RESEARCH_Rank2) == 1) then
+		return 1
+	elseif (curRank == 2 and ResearchQ(RESEARCH_Rank3) == 1) then
+		return 1
+	elseif (curRank == 3 and ResearchQ(RESEARCH_Rank4) == 1) then
+		return 1
+	elseif (curRank == 4 and ResearchQ(RESEARCH_Rank5) == 1) then
+		return 1
+	else
+		return 0
+	end
+end
+
+function army_dominance()
+	local dominance_diff = fact_selfValue-fact_enemyValue
+	if (fact_selfValue > 1 and fact_enemyValue > 1) then
+		local dominance_ratio = fact_selfValue/fact_enemyValue
+		if (dominance_ratio >= 1.4 and dominance_diff > 1000) then
+			return dominance_ratio
+		else 
+			return 0
+		end
+	--elseif (dominance_diff > 1000 and fact_enemyValue == 0) then
+	-- 	return 1000
+	else
+		return 0
+	end
+end
+
 function Logic_set_escrow()
 
-	-------------------------------------
-	-- phase determination of the game
-	-------------------------------------
-	
-	-- if we have more than twice the population than continue ranking up
-	-- OR whatelse? if we are winning with less creatures or if we have a higher ranking
-	-- OR maybe we have more money coming in ??
-	
-	if (NumBuildingActive( ResourceRenew_EC ) > 0) then
-		SetGatherEscrowPercentage(15)
-		SetRenewEscrowPercentage(20)
-	end
-	
-
-	-- if we just got our last rank then set escrow down
-	if (GetRank() == fact_army_maxrank) then
-		
-		SetGatherEscrowPercentage(10)
-		SetRenewEscrowPercentage(10)
-				
-		-- keep releasing escrow, it should be turned off in late game
-		if (ScrapAmountWithEscrow() > 1000) then
-			ReleaseGatherEscrow()
+	-- only if we have a dominant army and are not al ready L5 or ranking up should we save upresource
+	local dominance_ratio = army_dominance()
+	if (GetRank() > 1) then -- we should change depending on army analysis
+		if (GetRank() == fact_army_maxrank) then
+			reset_escrow()
+		elseif (levelling_up() == 1) then
+			reset_escrow()
+		elseif (dominance_ratio == 0) then
+			reset_escrow()
+		else
+			SetGatherEscrowPercentage(min(100*(dominance_ratio-1)/2, 50))
+			SetRenewEscrowPercentage(min(100*(dominance_ratio-1)/2, 50))
 		end
-		if (ElectricityAmountWithEscrow() > 1500) then
-			ReleaseRenewEscrow()
-		end
-		
-	end
-	
-	-- release money for building more creatures
-	if (LabUnderAttackValue() > 200 and fact_enemyValue > (fact_selfValue*2)) then
-		ReleaseGatherEscrow()
-		ReleaseRenewEscrow()
-		aitrace("Script: Escrow release: Under attack")
 	end
 		
 end
+
+
 
 function doai()
 
@@ -423,7 +442,7 @@ function doai()
 	needmorecoal();
 	needmoreelec();
 	doresearch();
-	
+	docreaturechamber(); -- regularly check if we need more chambers
 	Logic_set_escrow();
 	
 end
