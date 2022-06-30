@@ -6,45 +6,44 @@
 aitrace("Script: AIScript Loading...")
 
 -- all code/logic for classifying and analysis creatures
-dofilepath("data:ai/armyanalysis.lua")
+dofilepath("data:ai/Bchamp_AI/armyanalysis.lua")
 -- contains overloaded functions to hold money for a request
-dofilepath("data:ai/holdfunctions.lua");
+dofilepath("data:ai/Bchamp_AI/holdfunctions.lua");
 -- all code/logic for building structures
-dofilepath("data:ai/basebuild.lua")
+dofilepath("data:ai/Bchamp_AI/basebuild.lua")
 -- all code/logic for ordering and managing creatures
-dofilepath("data:ai/military.lua")
+dofilepath("data:ai/Bchamp_AI/military.lua")
 -- all code/logic for managing research
-dofilepath("data:ai/research.lua")
+dofilepath("data:ai/Bchamp_AI/research.lua")
 -- all code/logic for managing henchman
-dofilepath("data:ai/henchman.lua")
+dofilepath("data:ai/Bchamp_AI/henchman.lua")
 -- all code/logic for doing creature upgrades
-dofilepath("data:ai/creatureupgrades.lua")
+dofilepath("data:ai/Bchamp_AI/creatureupgrades.lua")
 -- 
-dofilepath("data:ai/rank1rush.lua")
+dofilepath("data:ai/Bchamp_AI/rank1rush.lua")
 -- 
-dofilepath("data:ai/researchrush.lua")
+dofilepath("data:ai/Bchamp_AI/researchrush.lua")
 -- 
-dofilepath("data:ai/flyerrush.lua")
+dofilepath("data:ai/Bchamp_AI/flyerrush.lua")
 -- 
-dofilepath("data:ai/choosecreature.lua")
+dofilepath("data:ai/Bchamp_AI/choosecreature.lua")
 --
-dofilepath("data:ai/rank2rush.lua")
+dofilepath("data:ai/Bchamp_AI/rank2rush.lua")
 --
-dofilepath("data:ai/economyrush.lua")
+dofilepath("data:ai/Bchamp_AI/economyrush.lua")
 --
-dofilepath("data:ai/scout.lua")
+dofilepath("data:ai/Bchamp_AI/scout.lua")
 --
-dofilepath("data:ai/tactics.lua")
+dofilepath("data:ai/Bchamp_AI/tactics.lua")
 --
 dofilepath("data:ai/forcetactic.lua")
 
 
 
-function oninit()
-	-- sg_number =
-	-- {
+function aiinit()
+	
+	RegisterTimerFunc("doai", 2.0 )
 
-	-- };
 	if init_randomness() == 1 then
 		if init_scout() == 1 then
 			init_basebuild();
@@ -428,5 +427,4 @@ function doai()
 	
 end
 
-RegisterTimerFunc("doai", 2.0 )
 

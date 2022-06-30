@@ -1,16 +1,16 @@
 --This file chooses tactics or strategies for the ai
 --begin loading tactic luas, consider moving these to a separate folder
-dofilepath("data:ai/rank1rush.lua")
+dofilepath("data:ai/Bchamp_AI/rank1rush.lua")
 -- 
-dofilepath("data:ai/researchrush.lua")
+dofilepath("data:ai/Bchamp_AI/researchrush.lua")
 -- 
-dofilepath("data:ai/flyerrush.lua")
+dofilepath("data:ai/Bchamp_AI/flyerrush.lua")
 -- 
-dofilepath("data:ai/choosecreature.lua")
+dofilepath("data:ai/Bchamp_AI/choosecreature.lua")
 --
-dofilepath("data:ai/rank2rush.lua")
+dofilepath("data:ai/Bchamp_AI/rank2rush.lua")
 --
-dofilepath("data:ai/economyrush.lua")
+dofilepath("data:ai/Bchamp_AI/economyrush.lua")
 --
 function init_randomness()
 	--Create random variables

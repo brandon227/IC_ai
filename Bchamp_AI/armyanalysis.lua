@@ -414,7 +414,7 @@ function onarmyanalyze()
 
 	RegisterArmyClassOverride()
 
--- name all the classes for onscreen debugging
+	-- name all the classes for onscreen debugging
 
 	Army_AddClassName( sg_class_ground, "Ground")
 	Army_AddClassName( sg_class_flyer, "Flyer")

@@ -19,4 +19,4 @@ else
 end
 
 -- this is the AI file used in all levels
-dofilepath("data:ai/ai_init.lua");
+dofilepath("data:ai/Bchamp_AI/aimain.lua");

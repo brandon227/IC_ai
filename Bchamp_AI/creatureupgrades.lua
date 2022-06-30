@@ -5,7 +5,7 @@ aitrace("Script Component: CreatureUpgrade Functions")
 function init_creatureupgrades()
 	
 	aitrace("init_creatureupgrades()")
-	
+	RegisterTimerFunc("docreatureupgrades", 5.0 ) --changed from 15 to 5 by Bchamp 4/1/2019 with hopes of multiple genamps being used
 	-- for now
 	sg_docreature_upgrades = 1
 	upgradeOrder = {}
@@ -25,7 +25,7 @@ function docreatureupgrades()
 
 end
 
-RegisterTimerFunc("docreatureupgrades", 5.0 ) --changed from 15 to 5 by Bchamp 4/1/2019 with hopes of multiple genamps being used
+
 
 function Logic_creatureupgrade()
 	

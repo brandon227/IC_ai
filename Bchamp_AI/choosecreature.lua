@@ -2,6 +2,9 @@
 -- Artillery units are now always accompanied by ranged units
 -- AI also now recognizes niche units such as flying artillery and 
 -- units with certain abilities, and will use/counter them accordingly
+function init_choosecreature()
+	RegisterTimerFunc("docreaturechoice", 6.0 )
+end
 
 function doMobilityChoice()
 
@@ -540,4 +543,4 @@ function docreaturechoice()
 
 end
 
-RegisterTimerFunc("docreaturechoice", 6.0 )
+
