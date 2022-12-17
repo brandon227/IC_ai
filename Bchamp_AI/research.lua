@@ -1,3 +1,5 @@
+dofilepath("data:sigma/research.lua")
+
 function init_research()
 	
 	aitrace("init_research()")
@@ -25,7 +27,19 @@ function init_research()
 	
 	-- what rank do we want to stop at
 	sg_maxrank = 5
-	
+	--use to stop lab activity to rank up
+	pauseLab = 0
+	--track if currently ranking up using requested rank
+	requestedRank = 1
+
+	--these come from data:sigma/research.lua
+	rankCostTable = {
+		research.rank2,
+		research.rank3,
+		research.rank4,
+		research.rank5,
+	}
+
 	-- set the ranking logic
 	if (g_LOD == 0) then
 		Logic_setmaxrank = Logic_setmaxrank_easy
@@ -35,68 +49,116 @@ function init_research()
 		Logic_setmaxrank = Logic_setmaxrank_hard
 	end
 	-- rank helper function
-	randUnitsOrRank = Rand(100) --Random variable used to help decide if AI should build more units before ranking up.
+	randUnitsOrRank = rand100c --Random variable used to help decide if AI should build more units before ranking up.
 end
 
 
 
 function rankUp( capAt )
+
+	--check if currently leveling up
+	--This is important or else AI will accumulate requested resources that get locked up
+	if requestedRank > Self.Rank then
+		return 0
+	end
+
+
 	-- whats our current Rank
-	local curRank = GetRank();
+	local curRank = Self.Rank;
 	
 	-- Adjust for island map logic or not being able to build units
 	if (curRank >= 2 and (curRank < fact_lowrank_all or (fact_closestGroundDist == 0 and curRank < fact_lowrank_amphib and curRank < fact_lowrank_flyer))) then
 		randUnitsOrRank = 100
 	end
 
-	if (curRank < 2 and NumHenchmanQ() < sg_desired_henchman and NumHenchmenGuarding() < 3) then --added NumHenchmenGuarding just in case not enough active henchmen and tons of idle hench 2/20/2022
-		return
-	end
+	-- if (curRank < 2 and NumHenchmanQ() < sg_desired_henchman and NumHenchmenGuarding() < 3) then --added NumHenchmenGuarding just in case not enough active henchmen and tons of idle hench 2/20/2022
+	-- 	return
+	-- end
 
 	--On Hard and Expert, do not go L4 if AI has not researched Advanced Structures --Bchamp 5/5/2019
 	if (g_LOD >= 2 and curRank >= 3 and ResearchCompleted(RESEARCH_AdvancedStructure) == 0) then
 		return
 	end
 
-	-- if we have more ranks to go
-	if (curRank < fact_army_maxrank and curRank < capAt) then
-		-- Added by Bchamp 4/7/2019 so that AI doesn't go Level 3 so quickly and has units and economy
-		-- Edited by Bchamp 5/5/2019 to adjust for new L4 costs, 1000/2000. 
-		local gametime = GameTime()
-		local numCreatures = NumCreaturesQ()
-		local is_alone = 0
-		if ( PlayersAlive( player_ally ) == 1 ) then
-			is_alone = 1
+
+	-- -- if we have more ranks to go
+	if (Self.Rank < fact_army_maxrank and Self.Rank < capAt) then
+
+		--Level 1 build order
+		if Self.Rank == 1 and g_LOD >= 2 then
+			if 	(rand100a < 20 and Self.Elec > 250) then
+				pauseLab = 2
+			elseif (rand100a < 30 and CanRankUpWithEscrow(Self.Rank) == 1) then
+				pauseLab = 2
+			elseif (rand100a < 45 and CanRankUpWithEscrow(Self.Rank) == 1 and Self.NumFoundry > 0) then
+				pauseLab = 2
+			elseif Self.NumHenchmenQ >= (10 + PlayersTotal()/2 + mapsizefactor + rand2a) then
+				pauseLab = 2
+			elseif Enemy.Rank > Self.Rank then
+				pauseLab = 2
+			else
+				return
+			end
 		end
-		if g_LOD >= 2 and curRank >= fact_lowrank_all then
-			if (curRank == 2 and randUnitsOrRank < 90) then
+
+		if g_LOD >= 2 and Self.Rank >= fact_lowrank_all then
+
+			local gametime = GameTime()
+			local numCreatures = NumCreaturesQ()
+			local is_alone = 0
+			if ( PlayersAlive( player_ally ) == 1 ) then
+				is_alone = 1
+			end
+			
+			--Level up if enemy levels up and you have decent income
+			if Enemy.Rank > Self.Rank and ScrapPerSec() > 30 + Self.Rank*5 and Self.MilitaryValue > UnderAttackValue()+100 then
+				pauseLab = Self.Rank + 1
+			else
+				pauseLab = pauseLab
+			end
+
+			--Don't level up if enemy is stronger than you
+			if (Enemy.Rank <= curRank and ScrapAmount() < curRank*800) then
+				if fact_selfValue < Enemy.MilitaryValue*0.90 + 500 then
+					return
+				elseif rand100b < 60 and fact_selfValue < Enemy.MilitaryValue + 500 then
+					return
+				end
+			end
+
+			if Self.Rank == 2 then
+				
+				if NumHenchmanActive() < sg_numscrapyardsWithin35PercentToEnemy*icd_henchman_per_scrapyard_near*0.9 then
+					return
+				end
 				if (gametime < 4.5*60) then
-					if (numCreatures < 5 + (randUnitsOrRank*0.1) + is_alone* rand4b) then
+					if (fact_selfValue < Enemy.MilitaryValue*3 + 500 or numCreatures < 8 + (randUnitsOrRank*0.1) + is_alone* rand4b) then
 						return
-					elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 10 + 2*g_LOD) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 						return
 					end
-				elseif (gametime < 5.25*60) then
-					if (numCreatures < 3+(randUnitsOrRank*0.08) + is_alone* rand3a) then
+				elseif (gametime < 6.25*60) then
+					if (fact_selfValue < Enemy.MilitaryValue*2 + 500 or numCreatures < 6+(randUnitsOrRank*0.08) + is_alone* rand3a) then
 						return
-					elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
+					elseif (NumBuildingActive( Foundry_EC ) == 0 or NumHenchmanActive() < 8 + 2*g_LOD) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 						return
 					end
 				end
+
 			-- Added by Bchamp 4/17/2019 to slow down L4.
 			elseif (curRank == 3) then
 				if (ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 					return
 				end
 				if (gametime < 7.5*60) then
-					if (numCreatures < 6+(randUnitsOrRank*0.08) + is_alone* rand3b) then
+					if (fact_selfValue < Enemy.MilitaryValue*1.8 or numCreatures < 6+(randUnitsOrRank*0.08) + is_alone* rand3b) then
 						return
 					end
 					if (NumBuildingActive( Foundry_EC ) == 0 or ResearchCompleted(RESEARCH_HenchmanYoke) == 0 or NumHenchmanActive() < 10) then --could change to ScrapPerSec() if we find problems with this? --Bchamp
 						return
 					end
-				elseif (gametime < 9*60) then
-					if (numCreatures < 5+(randUnitsOrRank*0.06) + is_alone* rand3c) then
+				elseif (gametime < 10*60) then
+					if (fact_selfValue < Enemy.MilitaryValue*1.4 or numCreatures < 5+(randUnitsOrRank*0.06) + is_alone* rand3c) then
 						return
 					end
 				end
@@ -111,17 +173,22 @@ function rankUp( capAt )
 			end
 		end
 
-
+		--make sure to pause hench production to allow for research, only pause if you can afford next level
+		if CanRankUpWithEscrow(Self.Rank) == 1 then
+			pauseLab = Self.Rank + 1
+		end
 
 		-- find next rank:
 		-- if curRank is 1 then next rank is Rank2+0 or curRank-1
 		-- if curRank is 4 then next rank is Rank2+3 or curRank-1
-		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+		if (Self.QdHenchmen == 0 and CanRankUpWithEscrow(Self.Rank) == 1) then
 			ReleaseGatherEscrow()
 			ReleaseRenewEscrow()
 			xResearch( RESEARCH_Rank2 + curRank - 1);
 			-- var used to delay AI in easy
 			aitrace("Script: rank"..(curRank+1));
+
+			requestedRank = Self.Rank + 1 --flag leveling up
 		end
 	end
 end
@@ -259,12 +326,20 @@ function Logic_doadvancedresearch()
 	
 	-- don't research this if we are not in rank2 or we don't have some army
 	-- unless our army isn't available until r4
-	if g_LOD >= 2 then --Don't do advanced research if no foundry before 8 minutes. Bchamp 4/17/2019
-		if GetRank() < 2 then
+	local curRank = GetRank()
+
+	if g_LOD >= 2 and Self.Rank <= 2 then --Don't do advanced research if no foundry before 8 minutes. Bchamp 4/17/2019
+		if curRank < 2 then
 			return 0
 		elseif (NumBuildingActive(Foundry_EC) == 0 and GameTime() < 8*60) then
 			return 0
+		elseif (rand100c >= 70 and Self.MilitaryValue*2 < Enemy.MilitaryValue) then
+			return 0
+		elseif Self.MilitaryValue < Enemy.MilitaryValue or (NumHenchmanActive() < 16 + rand2b) then
+			return 0
 		end
+	elseif g_LOD >=2 and Self.Rank >= 3 and NumHenchmanActive() < 16 then
+		return 0
 	end
 	
 	-- if in standard randomly do this research before rank2 research (so most of the time the AI will wait for r2)
@@ -432,4 +507,14 @@ function doresearch()
 	if (NumBuildingActive(VetClinic_EC)>0) then
 		dovetclinicresearch()
 	end
+end
+
+function CanRankUpWithEscrow(CurrentRank)
+	
+	if rankCostTable[CurrentRank].cost > ScrapAmountWithEscrow() or rankCostTable[CurrentRank].costrenew > ElectricityAmountWithEscrow() then
+		return 0
+	else
+		return 1
+	end
+
 end

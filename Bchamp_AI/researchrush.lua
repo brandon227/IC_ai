@@ -114,12 +114,13 @@ function ResearchRush_rankUp( capAt )
 	-- if we have more ranks to go
 	if (curRank < fact_army_maxrank and curRank < capAt) then
 		
-		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+		if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1 and requestedRank <= Self.Rank) then
 			ReleaseGatherEscrow()
 			ReleaseRenewEscrow()
 			xResearch( RESEARCH_Rank2 + curRank - 1);
 			-- var used to delay AI in easy
 			aitrace("Script: rank"..(curRank+1));
+			requestedRank = Self.Rank + 1
 		end
 	end
 

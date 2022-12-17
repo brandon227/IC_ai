@@ -10,6 +10,7 @@ tactic = {
     rank1rush = 5,
     researchrush = 6,
     flyerrush = 7,
+    selfdestruct = 8,
 }
 
 --change this variable for add-ons

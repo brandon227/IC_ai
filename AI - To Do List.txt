@@ -1,3 +1,5 @@
+--Need to adjust when to build a workshop. Maybe not use num henchmen guarding?
+
 -------------------------------
 Updated 4/17/2022 by Bchamp
 -------------------------------

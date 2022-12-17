@@ -113,7 +113,7 @@ function init_military()
 	SetTargetTypePriority( Henchman_EC, 0 )
 
 	SetDefendTypePriority( Lab_EC, 500 )
-	SetDefendTypePriority( Foundry_EC, 1000 )
+	SetDefendTypePriority( Foundry_EC, 500 )
 
 
 	-- set the rank we should start at
@@ -133,7 +133,7 @@ function init_military()
 	elseif (g_LOD == 1) then
 		RegisterTimerFunc("docreaturebuild", 5 )
 	else
-		RegisterTimerFunc("docreaturebuild", 3 )
+		RegisterTimerFunc("docreaturebuild", 1 )
 	end
 
 end
@@ -279,7 +279,7 @@ function armydecisions() -- static info
 	
 	if (g_LOD == 3) then
 		if Enemy.NumFoundry >= 2 then
-			if (fact_selfValue*icd_engageEnemyValueModifier < Enemy.MilitaryValue) then --if you normally wouldn't engage the enemy, raid foundries
+			if (fact_selfValue*1.2 < Enemy.MilitaryValue) then --if you normally wouldn't engage the enemy, raid foundries
 				SetTargetTypePriority( Foundry_EC , 60000)
 				icd_engageEnemyValueModifier = 0.8
 			else
@@ -350,10 +350,8 @@ function docreaturebuild()
 	
 	local total_creature_pop = PopulationQ() - NumHenchmanQ()
 	
-	-- if we have room left for creatures than continue on
-	if (total_creature_pop < military_cap) then
-		military_purchase_creatures()
-	end
+	military_purchase_creatures()
+
 end
 
 
@@ -409,7 +407,7 @@ function Logic_military_setgroupsizes()
 	
 
 	-- initial group sizes for all LODs
-	icd_groundgroupminsize = groupoffset + 1;
+	icd_groundgroupminsize = groupoffset;
 	icd_groundgroupmaxsize = max(groupoffset*2+6, NumCreaturesActive()*0.65);
 	
 	icd_groundgroupminvalue = icd_groundgroupminsize * rankMultiplier;
@@ -453,7 +451,11 @@ function Logic_military_setgroupsizes()
 	end
 	----------------------------------------------------------------------------------
 
-	icd_airgroupmaxsize = icd_groundgroupmaxsize
+	--air groups should be larger
+	icd_airgroupminsize = icd_groundgroupminsize*1.5
+	icd_airgroupminvalue = icd_groundgroupminvalue*1.5
+
+	icd_airgroupmaxsize = icd_groundgroupmaxsize*1.5
 
 end
 
@@ -579,6 +581,13 @@ function Logic_military_setdesiredcreatures()
 	-- ORDER MATTERS -------------------------------------------------------------
 	------------------------------------------------------------------------------
 
+	--this pauses creature production when resources are low and no hench queued to make sure we are building hench
+	if Self.MilitaryValue > 1.5*Enemy.MilitaryValue + 500 and Self.Coal < Self.Rank*100 and NumHenchmenGuarding() <= 3 and Self.QdHenchmen == 0 then
+		if Self.MilitaryValue > 1.5*LabUnderAttackValue() then
+			sg_creature_desired = 0
+		end
+	end
+
 	-- run some island map logic. If no amphib or fliers available, only builds a few creatures for defense then returns 1. 
 	if (Logic_islandmaplogic()==1) then
 		return
@@ -646,12 +655,12 @@ function Logic_military_setdesiredcreatures()
 			
 	-- not underattack or we have a better army, so cap unit production for the time being so
 	-- we can leave money for ranking up
-	if (ResearchQ(RESEARCH_Rank5)==0 and fact_selfValue > fact_enemyValue*2) then
-		-- if have a low desire, keep it there otherwise cap it
-		if (sg_creature_desired > 13) then
-			sg_creature_desired = 13;
-		end
-	end
+	-- if (ResearchQ(RESEARCH_Rank5)==0 and fact_selfValue > fact_enemyValue*2) then
+	-- 	-- if have a low desire, keep it there otherwise cap it
+	-- 	if (sg_creature_desired > 13) then
+	-- 		sg_creature_desired = 13;
+	-- 	end
+	-- end
 	
 end
 
@@ -792,46 +801,37 @@ function military_purchase_creatures()
 	local playerindex = Player_Self()
 	local curRank = GetRank()
 
-	if ScrapAmount() < curRank*800 then
+	if ScrapAmount() < Self.Rank*250 then
 		dobuildcreatures()
 	else --do this twice if you have a lot of resources
 		dobuildcreatures()
 		dobuildcreatures()
 	end
+
 end
 
 rawset(globals(), "dobuildcreatures", nil )
 
 function dobuildcreatures()
 	
-	if (NumChambers()==0 or goal_needcoal == 2) then
+	if Self.TotalChambers == 0 then
 		return
 	end
 	
-	if (sg_creature_desired > sg_creature_unit_cap) then
-		sg_creature_desired = sg_creature_unit_cap
-	end
-
-
 	-- Army_CreatureCostQ( Player_Self(), sg_class_ground )
 	local creaturesQ = NumCreaturesQ();
-	local totalChambers = NumBuildingActive( RemoteChamber_EC ) + NumBuildingActive( WaterChamber_EC ) + NumBuildingActive( Aviary_EC )
+	local totalChambers = Self.TotalChambers
 	local curRank = GetRank()
 
 	-- Do not queue more units than you have chambers (incorporating rank). Saves resources for other activities. Bchamp 4/5/2019
-	if (g_LOD >= 2 and (creaturesQ - NumCreaturesActive()) >= (totalChambers + curRank - 1)) then
+	if (g_LOD >= 2 and (Self.QdCreatures) >= max((totalChambers + curRank - 1),5) ) then
 		--if you have a ton of resources, don't limit queued creatures
-		if ScrapAmount() < curRank*600 then
+		if Self.Rank < fact_army_maxrank and ScrapAmount() < curRank*400 then
 			return
 		end
 	end
 
-	--queue a bunch of creatures if population is maxed out and you have extra resources...doesn't seem to work 5/26/22
-	if PopulationActive() >= PopulationMax() and ScrapAmount() > curRank*600 then
-		sg_creature_desired = 10000
-	end
-
-	if ( creaturesQ < sg_creature_desired and CanBuildCreature( sg_class_ground )==1) then
+	if (Self.NumCreatures < sg_creature_desired) then
 		--alternate chambers when a lot of creatures queued...not sure which icd works, but it seems to be working well 5/20/22
 		if (NumCreaturesQ() - NumCreaturesActive() >= 5) then
 			if icd_buildDefensively == 0 then
@@ -843,7 +843,7 @@ function dobuildcreatures()
 			end
 		end
 		xBuildCreature( sg_class_ground ) --doesn't matter if this is ground or swimmer or anything, it will still work
-		aitrace("Script: build creature "..(creaturesQ+1).." of "..sg_creature_desired);
+		--aitrace("Script: build creature "..(creaturesQ+1).." of "..sg_creature_desired);
 
 	end
 end

@@ -69,13 +69,19 @@ function init_henchman()
 		
 	-- choose which high level logic/rules to use
 	Logic_buildhenchman = Logic_desiredhenchman
+
+	if IsAllyClose(fact_closestAmphibDist*0.6) == 0 then
+		sg_numscrapyardsWithin35PercentToEnemy = CoalPileWithinDist(fact_closestGroundDist*0.35)
+	else
+		sg_numscrapyardsWithin35PercentToEnemy = -1
+	end
 	
 	if (g_LOD == 0) then
 		RegisterTimerFunc("dohenchman", 10 )
 	elseif (g_LOD == 1) then
 		RegisterTimerFunc("dohenchman", 3.5 )
 	else
-		RegisterTimerFunc("dohenchman", 2.0 ) --Added by Bchamp 4/7/2019 to reduce AI build henchman delay when only 1 hench is allowed to be queued at a time.
+		RegisterTimerFunc("dohenchman", 1.0 ) --Added by Bchamp 4/7/2019 to reduce AI build henchman delay when only 1 hench is allowed to be queued at a time.
 	end
 	
 end
@@ -110,6 +116,8 @@ function Cache_henchmandata()
 	sg_numscrapyardsWithinDist_med = CoalPileWithinDist( icd_gatherDist_med )-sg_numscrapyardsWithinDist_near;
 	sg_numscrapyardsWithinDist_far = CoalPileWithinDist( icd_maxfoundrydist )-(sg_numscrapyardsWithinDist_med+sg_numscrapyardsWithinDist_near);
 	--sg_numscrapyardsWithinDist_total = sg_numscrapyardsWithinDist_near+sg_numscrapyardsWithinDist_med+sg_numscrapyardsWithinDist_far
+
+	sg_totalscraponmap = CoalPileWithinDist(1024)
 
 	-- based on these distances how many henchman max can we handle
 	local startinghenchman = sg_numscrapyardsWithinDist_near*icd_henchman_per_scrapyard_near;
@@ -199,8 +207,9 @@ function Logic_desiredhenchman()
 			henchman_count = NumHenchmanQ() --Don't make henchmen if gather sites are full and too many henchman guarding.
 		end
 		--stop building hench once you have electricity to go L2 and no L1s in army
-		if (ElectricityAmountWithEscrow() > 300+(rand100a) and fact_lowrank_all >= 2) then
-			henchman_count = 0;
+		if (ElectricityAmountWithEscrow() > 300+(rand40a * g_LOD) and fact_lowrank_all >= 2) then
+			sg_desired_henchman = 0
+			return
 		end
 	end
 
@@ -219,7 +228,9 @@ function Logic_desiredhenchman()
 		unitModifier = 16
 	end
 	if (curRank >= 2) then
-		if (curRank == 2 and gatherSiteOpen > 0) then
+		if gatherSiteOpen > 0 and (NumCreaturesQ() - NumCreaturesActive()) > NumChambers() then
+			henchman_count = NumHenchmanActive() + 1
+		elseif (curRank == 2 and gatherSiteOpen > 0) then
 			henchman_count = (9*numFoundries + (unitModifier * 1.5 * unitMultiplier))
 		elseif (curRank == 3) then
 			if (numFoundries <= 1 and gatherSiteOpen > 0) then
@@ -306,23 +317,44 @@ function Logic_desiredhenchman()
 		henchman_count = henchman_count*0.85 --changed from 0.9 by Bchamp 9/15/2019
 	end
 
-	sg_desired_henchman = henchman_count
+	sg_desired_henchman = 100 --max(henchman_count, sg_desired_henchman)
 		
 end
 
 function Command_buildhenchman()
 
+	local avgRemainingMapCoalperPlayer = CoalPileWithinDist(1024)/(PlayersAlive( player_ally ) + PlayersAlive( player_enemy ))
+
 	--Don't build too many hench
-	if (NumHenchmenGuarding() > 6 + rand2a) then
+	if (Self.NumHenchmen > sg_henchmanthreshold + g_LOD and NumHenchmenGuarding() > 3 + rand2a) then
 		return
 	end
 
+	--don't build henchmen if you want to rankup
+	if pauseLab - Self.Rank == 1 then
+		return
+	end
 	
+	--Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
+	if g_LOD >= 2 then
+		if Self.QdHenchmen >= 1 and Self.Coal < 250 then
+			return
+		elseif Self.QdHenchmen >= 2 then
+			return
+		end
+	end
+
 	--Don't build more hench if you aren't gathering efficiently
-	if NumHenchmanActive() > 10 then
-		local scrapperhench = ScrapPerSec()/NumHenchmanActive()
+	if Self.NumHenchmen > max(Enemy.NumHenchmen,16) and Self.Rank >= 2 and Self.NumFoundry > 0 and NumBuildingQ(Foundry_EC) - Self.NumFoundry == 0 then
+		local scrapperhench = ScrapPerSec()/(NumHenchmanActive() - 3*(5 - Self.Rank))
 		local hasYoke = ResearchCompleted(RESEARCH_HenchmanYoke)
-		local idealgatherEfficiency = 1.1 --closer to 1.15 for expert, lowered to help with easy AI not staffing coal as well
+		local idealgatherEfficiency = 1.15 --closer to 1.15 for expert, lowered to help with easy AI not staffing coal as well
+
+		
+
+		if Self.NumHenchmen > avgRemainingMapCoalperPlayer*icd_henchman_per_scrapyard_near then --when there a lot of hench, more likely that AI are messing up somewhere, make stricter efficiency goals to slow down hench prodcution
+			idealgatherEfficiency = 1.25
+		end
 
 		if g_LOD == 3 then
 			if scrapperhench < (AIPlayer.resGatherBonusHardest * idealgatherEfficiency)*(1+hasYoke/2) then
@@ -344,14 +376,25 @@ function Command_buildhenchman()
 	end
 
 
-	--added by Bchamp 10/1/2018 to prevent overqueuing of henchman at lab
-	if ((NumHenchmanQ() - NumHenchmanActive()) >= (4 - g_LOD)) then
-		return
-	end
 	
+	-- if GetRank() >= fact_lowrank_all and Self.QdCreatures < Self.TotalChambers and ScrapAmount() < Self.Rank*(75+rand100b) and Self.NumHenchmen > 8  then
+	-- 	if Self.MilitaryValue < Enemy.MilitaryValue*0.60 then
+	-- 		return
+	-- 	elseif Self.NumHenchmen > 18+rand4b and rand100c < 80 then
+	-- 		if Self.MilitaryValue < Enemy.MilitaryValue and UnderAttackValue() > Self.MilitaryValue*0.7 then
+	-- 			return
+	-- 		elseif Self.MilitaryValue < Enemy.MilitaryValue*0.75 and UnderAttackValue() > Self.MilitaryValue*0.5 then
+	-- 			return
+	-- 		end
+	-- 	end
+	-- end
+
+	-- if NumHenchmanQ() >= sg_desired_henchman then
+	-- 	return
+	-- end
 
 	-- issue command for more henchman if we can afford one
-	if (NumHenchmanQ() < sg_desired_henchman and CanBuild( Henchman_EC )==1 ) then
+	if (CanBuild( Henchman_EC )==1 ) then
 		aitrace("Script: build henchman "..(NumHenchmanQ()+1).." of "..sg_desired_henchman);
 		xBuild( Henchman_EC, 0 );
 	end

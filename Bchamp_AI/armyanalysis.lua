@@ -1,6 +1,16 @@
 
 aitrace("Script Component: Army Analyzer")
 
+function init_armyanalysis()
+	--work in progress
+	creature_parameters = {
+		rank 			= 0,
+		is_ground 		= 0,
+		is_swimmer		= 0,
+		is_flyer		= 0,
+	}
+end
+
 function minrankForClass( playerindex, classid )
 	
 	local classsize = Army_ClassSize( playerindex, classid );

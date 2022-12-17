@@ -446,8 +446,14 @@ function dovetclinic()
 
 	local curRank = GetRank()
 	
+
+	local maxVetClinic = 0
+	--Don't make clinic too early Bchamp 12/16/2022
+	if (Self.Rank <= 2 and Self.NumChamber >= 1 and Self.NumCreatures >= 7 + rand3c and Self.MilitaryValue > Enemy.MilitaryValue*0.85) then
+		maxVetClinic = 1
+	end
+	
 	--Add randomization to number of vet clinics built. Bchamp 3/31/2019
-	local maxVetClinic = 1
 	if (curRank > 2 and g_LOD >= 2) then
 		-- 30% chance of building a single vet clinic. Also will only build a single clinic if doing a 1v1 on a small map.
 		if ( rand100c < 30 or ((PlayersAlive( player_ally ) == 1 and PlayersAlive( player_enemy ) == 1) and fact_closestAmphibDist < 450)) then
@@ -652,6 +658,7 @@ function dofoundry()
 			xBuild( Foundry_EC, PH_Best );
 			aitrace("Script: build foundry");
 			sg_foundryAttempts = sg_foundryAttempts + 1
+			sg_desired_henchman = sg_desired_henchman + 2
 			return
 		end
 		
@@ -680,7 +687,7 @@ function docreaturechamber()
 	if (numActiveChambers > 0) then
 		local underAttackVal = UnderAttackValue()
 		-- check to see distance of chamber to base and blow chamber if under attack, Bchamp 10/2018
-		if (GroundDistToBase() > 150 and (UnderAttackValue() > (2*fact_selfValue + 150) and fact_selfValue < 400)) then
+		if (GroundDistToBase() > 150 and (UnderAttackValue() > (2*fact_selfValue + 150) and fact_selfValue < 400) and DamageTotal() > 50) then
 			Scuttle( RemoteChamber_EC )
 			if (goal_rank2rush == 1) then
 				CancelRank2Rush();
@@ -749,7 +756,7 @@ function docreaturechamber()
 				or numActiveChambers < curRank) then
 				-- store number of desired chambers
 				numDesiredChambers = numActiveChambers + 1
-			elseif ScrapAmount() > curRank*500 and numActiveChambers < (CoalPileWithDropOffs() + curRank) then
+			elseif ScrapAmount() > curRank*400 and numActiveChambers < (CoalPileWithDropOffs() + curRank) then
 				numDesiredChambers = numActiveChambers + 1
 			end
 

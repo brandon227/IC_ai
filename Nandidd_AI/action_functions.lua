@@ -2,10 +2,10 @@
 
 function try_level_up()
    
-    if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+    if (CanResearchWithEscrow( RESEARCH_Rank2 + research_level - 1 ) == 1) then
         ReleaseGatherEscrow()
         ReleaseRenewEscrow()
-        xResearch( RESEARCH_Rank2 + curRank - 1);
+        xResearch( RESEARCH_Rank2 + research_level - 1);
     end
 
 end
@@ -106,7 +106,7 @@ end
 function try_build_soundbeam()
 
 	if ( CanBuild( SoundBeamTower_EC )==1) then
-		xBuild( SoundBeamTower_EC, PH_DefendSite )
+		xBuild( SoundBeamTower_EC, PH_Best)--PH_DefendSite )
 	end
 
 end
@@ -114,18 +114,53 @@ end
 function try_build_aatower()
 
 	if ( CanBuild( AntiAirTower_EC )==1) then
-		xBuild( AntiAirTower_EC, PH_DefendSite )
+		xBuild( AntiAirTower_EC, PH_Best)--PH_DefendSite )
 	end
 
 end
 
 
-function try_research(type)
+function try_build_geneticamplifier()
+
+	if (CanBuild( GeneticAmplifier_EC ) == 1) then
+		xBuild( GeneticAmplifier_EC, PH_Best )
+	end
 	
+end
+
+
+
+
+-- 'xResearch' or 'Reseach'
+-- xResearch( RESEARCH_HenchmanYoke );
+-- Research( RESEARCH_HenchmanMotivationalSpeech );
+-- Research( RESEARCH_StrengthenElectricalGrid );
+-- xResearch( RESEARCH_HenchmanHeal );
+-- Research( RESEARCH_HenchmanBinoculars );
+-- Research( RESEARCH_IncBuildingIntegrity );
+-- Research( RESEARCH_StrengthenFences );
+-- Research( RESEARCH_HenchmanImprovedHealing );
+-- Research( RESEARCH_TowerUpgrade );
+function try_research(type)
+
 	if (CanResearch(type)==1) then
-		xResearch( type )
+		if (2==1) then
+			xResearch( type )
+		else
+			Research( type )
+		end
+	end
+
+end						
+				
+					
+
+
+function try_creature_upgrade(cid, cuid)
+
+	if (CanCreatureUpgrade( cid, cuid )==1) then
+		CreatureUpgrade(cid, cuid)
 	end
 
 end
-
 

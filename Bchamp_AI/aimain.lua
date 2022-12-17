@@ -51,6 +51,7 @@ function aiinit()
 			init_research();
 			init_henchman();
 			init_creatureupgrades();
+			init_choosecreature()
 		end
 	end
 
@@ -104,6 +105,8 @@ function aiinit()
 		ResearchRush_CanDo(dotactic)
 	elseif (dotactic == 7) then
 		FlyerRush_CanDo(dotactic)
+	elseif (dotactic == 8) then
+		Scuttle(Lab_EC)
 	end
 
 end

@@ -9,17 +9,13 @@ aitrace("Script Component: EconomyRush Tactic")
 
 function EconomyRush_CanDo(ForceTactic)
 
-	if (g_LOD == 0) then
-		return
-	end
-
 	local totalPlayers = PlayersAlive( player_enemy ) + PlayersAlive( player_ally )
 	local canDo = 1
-	local rushChance = 30 --for a 30% chance of doing this tactic
+	local rushChance = 25 --for a 25% chance of doing this tactic
 
 	if (totalPlayers == 2 and fact_closestAmphibDist < 300) then
 		canDo = 0
-	elseif (fact_closestAmphibDist < 200) then --200 works so AI can perform tactic on Grove. 225 does not.
+	elseif (fact_closestAmphibDist < 175) then --200 works so AI can perform tactic on Grove. 225 does not.
 		canDo = 0
 	elseif (totalPlayers > 2 and PlayersAlive( player_ally ) == 1) then
 		--probably a free for all, but could also be on an outnumbered team.
@@ -30,6 +26,9 @@ function EconomyRush_CanDo(ForceTactic)
 		rushChance = 40
 	end
 
+	if (fact_closestAmphibDist > 200) then
+		rushChance = rushChance + 5
+	end
 	if (fact_closestAmphibDist > 350) then
 		rushChance = rushChance + 5
 	end
@@ -101,6 +100,7 @@ function EconomyRush_CanDo(ForceTactic)
 			doelectricalgenerator = EconomyRush_doelectricalgenerator
 			
 			aitrace("EconomyRush: Running")
+			
 			return 1
 		end	
 			
@@ -114,7 +114,7 @@ end
 function EconomyRush_Logic_desiredhenchman()
 	local curRank = GetRank();
 	local henchman_count = sg_henchmanthreshold
-	local NumFoundry = NumBuildingQ( Foundry_EC )
+	local NumFoundry = Self.NumFoundry
 
 	if henchman_count > 16 then
 		henchman_count = 16
@@ -122,25 +122,20 @@ function EconomyRush_Logic_desiredhenchman()
 
 	--always build hench until you have enough electricity to go L2
 	if curRank < 2 and ElectricityAmountWithEscrow() < 280 then
-		henchman_count = NumHenchmanActive() + 2
+		henchman_count = 1000
 	else
 		--If there is open lab coal then set goal hench. 
-		if (IsGatherSiteOpen() > 0 and NumFoundry == 0) then
-			henchman_count = 15 + rand4a --max henchmen to build at lab if gather sites still open.
-		elseif (IsGatherSiteOpen() == 0 and NumFoundry == 0) then
-			henchman_count = henchman_count + 3 --Have +3 hench over threshold if gather sites full and no Foundry
-			if (sg_henchmanthreshold > 16 and rand100a < 50) then
-				henchman_count = sg_henchmanthreshold
-			end
+		if (NumFoundry == 0) then
+			henchman_count = 16 + rand4a --max henchmen to build at lab if gather sites still open.
 		else --if you do have a foundry
-			henchman_count = henchman_count + 3*NumFoundry + rand4b + foundryFirst + NumFoundry;
+			henchman_count = henchman_count + 4*NumFoundry + rand4b + foundryFirst;
 		end
 	end
 
 	sg_desired_henchman = henchman_count
 
 
-	if (curRank > 1 or UnderAttackValue() > 100) then
+	if (curRank > 1 or UnderAttackValue() > 200) then
 		rawset(globals(), "Logic_desiredhenchman", nil )
 		Logic_desiredhenchman = save_Logic_desiredhenchman
 	end
@@ -157,14 +152,14 @@ function EconomyRush_dolightningrods()
 	 	return
 	end
 	
-	local numHenchForRod = 4 + rand2c
+	local numHenchForRod = 5 + rand2c
 
-	-- wait for 6 active henchmen before building first rod
+	-- wait for 4-6 active henchmen before building first rod
 	if (NumHenchmanActive() < numHenchForRod and NumBuildingQ( ResourceRenew_EC )==0) then
 		return
 	end
 	-- require 9 active hench before building second rod
-	if (NumHenchmanActive() < (numHenchForRod + 3) and NumBuildingQ( ResourceRenew_EC ) >= 1) then
+	if ((Self.NumHenchmen < (numHenchForRod + 3) or ScrapAmount() < 250 or Self.QdHenchmen == 0) and Self.NumRods >= 1) then
 		return
 	end
 
@@ -220,13 +215,19 @@ function EconomyRush_rankUp()
 
 	local curRank = GetRank();
 	local totalPlayers = PlayersAlive( player_enemy ) + PlayersAlive( player_ally )
-	numHenchForRank = sg_desired_henchman
+	local numHenchForRank = sg_desired_henchman
 
 	if totalPlayers == 2 and Enemy.Rank == 2 then
 		Cancel_EconomyRush()
 	end
-	if (NumHenchmanActive() < numHenchForRank and Enemy.Rank < 2) then
-		return
+
+	--Level 1 build order
+	if Self.Rank == 1 then
+		if 	Self.NumHenchmenQ >= numHenchForRank then
+			pauseLab = 2
+		else
+			return
+		end
 	end
 	--Added by Bchamp 3/30/19 for maps with a ton of starting coal. AI won't build foundry so, to compensate, AI will build additional hench.
 	--if (NumHenchmanActive() >= (numHenchForRank - 1) and (NumBuildingQ( Foundry_EC ) == 0)) then
@@ -234,12 +235,13 @@ function EconomyRush_rankUp()
 	--end
 
 
-	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1 and requestedRank <= Self.Rank) then
 		ReleaseGatherEscrow()
 		ReleaseRenewEscrow()
 		xResearch( RESEARCH_Rank2 + curRank - 1);
 		-- var used to delay AI in easy
 		aitrace("Script: rank"..(curRank+1));
+		requestedRank = Self.Rank + 1
 	end
 
 
@@ -261,13 +263,14 @@ function EconomyRush_dofoundry()
 		end
 		aitrace("Script: failed to build foundry");
 
-	elseif (IsGatherSiteOpen() == 0 and NumHenchmenGuarding() > 0 and NumBuildingQ( ResourceRenew_EC ) > 1) then
+	elseif (Self.NumFoundry < 1 and ScrapAmount() > 250 and Self.QdHenchmen > 0 and NumBuildingQ( ResourceRenew_EC ) >= 1) then
 
 		if (CanBuildWithEscrow( Foundry_EC ) == 1) then
 			ReleaseGatherEscrow();
 			ReleaseRenewEscrow();
 			xBuild( Foundry_EC, PH_Best );
 			aitrace("Script: build foundry");
+			sg_desired_henchman = sg_desired_henchman + 1
 			return 1
 		end
 		
@@ -300,7 +303,7 @@ function EconomyRush_dofoundry()
 					ReleaseRenewEscrow();
 					xBuild( Foundry_EC, PH_Best );
 					aitrace("Script: build foundry");
-
+					sg_desired_henchman = sg_desired_henchman + 1
 					foundryrush = 0;
 					return 1
 				end
@@ -366,6 +369,7 @@ function EconomyRush_doelectricalgenerator()
 end
 
 function Cancel_EconomyRush()
+
 	rawset(globals(), "rankUp", nil )
 	rankUp = save_rankUp
 

@@ -1,5 +1,21 @@
 -- ai changelog --
 ------------------
+17 Dec 2022 by Bchamp
+------------------
+- Included Nandidd AI files
+    - Restructered data/ai folder to accomodate multiple ai scripts and for them to be able to fight each other using ai_init.
+    - For this to work, all functions must be unique and code should not be run outside of a function, except for dofilepath
+- scout.lua now exists
+- Improvements to AI leveling timing and requirements
+- Henchmen build improvements, now added pauseLab flag to pause hench production to let the lab begin research
+- Creature build order/tactic improvements
+    - Proxy Chamber bug fixes to work on almost any map (hopefully) + better build order for expert. 
+    - Fixed bug in economy rush where it would build hench forever, changed rush chance to 25%
+- Fixed bug where AI spent twice as many resources on each level
+- Research Clinic and Advanced Structure build requirement adjustments
+- Adjusted military group sizes and other stuff I'm sure. 
+
+------------------
 30 May 2022 by Bchamp
 ------------------
 For Tellurian 2.9.1

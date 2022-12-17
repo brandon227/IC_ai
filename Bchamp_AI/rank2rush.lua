@@ -68,6 +68,9 @@ function Rank2Rush_CanDoTactic(ForceTactic)
 		goal_rank2rush = 1
 		chamberAtEnemyBase = 1
 	end
+
+	--initialize variable to track if chamber is requested. 
+	numChamberRequested = 0
 	--------------
 	--TEST CODE ONLY!! REMOVE FOR RELEASE
 	--------------
@@ -142,10 +145,6 @@ function Rank2Rush_rankUp()
 
 	local curRank = GetRank();
 
-	if NumHenchmanQ() < sg_desired_henchman then
-		return
-	end
-
 	--If CC is supposed to be at enemy base, make sure it's queued before going L2.
 	if(chamberAtEnemyBase == 1) then
 		if (NumBuildingQ( RemoteChamber_EC ) < 1 and rand100a < 50) then
@@ -153,14 +152,23 @@ function Rank2Rush_rankUp()
 		end
 	end
 
+	if NumHenchmanQ() < sg_desired_henchman then
+		return
+	end
+
+	if ( ElectricityAmountWithEscrow() > 250 + rand10a*2 ) then
+		pauseLab = 2;
+	end
+
 	--should AI only rank to L2 if it has enough hench? How would this affect Expert difficulty?
 
-	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1) then
+	if (CanResearchWithEscrow( RESEARCH_Rank2 + curRank - 1 ) == 1 and requestedRank <= Self.Rank) then
 			ReleaseGatherEscrow()
 			ReleaseRenewEscrow()
 			xResearch( RESEARCH_Rank2 + curRank - 1);
 			-- var used to delay AI in easy
 			aitrace("Script: rank"..(curRank+1));
+			requestedRank = Self.Rank + 1
 	end
 
 
@@ -186,7 +194,11 @@ end
 
 function Rank2Rush_Logic_military_setdesiredcreatures()
 
-	sg_creature_desired = PopulationMax()
+	if Self.MilitaryValue > 2*Enemy.MilitaryValue + 500 and Self.QdHenchmen == 0 then
+		sg_creature_desired = 0
+	else
+		sg_creature_desired = PopulationMax()
+	end
 	
 	-- check enemy ranks
 	local maxrank = PlayersRank(player_enemy, player_max)
@@ -216,6 +228,11 @@ end
 
 function Rank2Rush_docreaturechamber()
 
+	-- don't build CC if already requested one
+	if (numChamberRequested > Self.NumChamber) then
+		return 0
+	end
+
 	--Check for reseraching lvl 2 in queue before building chamber at own base.
 	if (chamberAtEnemyBase == 0) then
 		if (ResearchQ(RESEARCH_Rank2) == 0) then
@@ -241,13 +258,14 @@ function Rank2Rush_docreaturechamber()
 	local basePlacement = PH_OutsideBase
 	--local chamberAtEnemyBase = 0
 	if(chamberAtEnemyBase == 1) then
-		basePlacement = PH_EnemyBase
+		icd_chamberDistFromBase = ClosestEnemyAmphibDist() - (60 + rand10a)
+		basePlacement = PH_OutsideBase
 		--chamberAtEnemyBase = 1
 	end
 
-	if (NumBuildingQ( ResourceRenew_EC ) > 1) then
+	if (Self.NumRods >= 2 - chamberAtEnemyBase) then
 
-		if (NumBuildingQ( RemoteChamber_EC ) < 1) then
+		if (NumBuildingQ( RemoteChamber_EC ) < 1 and CanBuildWithEscrow(RemoteChamber_EC) == 1) then
 			--local save_maxgatherers = icd_maxgatherers
 			--icd_maxgatherers = NumHenchmanActive()-2
 
@@ -256,6 +274,9 @@ function Rank2Rush_docreaturechamber()
 		
 			xBuild( RemoteChamber_EC, basePlacement );
 			aitrace("Script: Build first creature chamber")
+
+			--request chamber
+			numChamberRequested = Self.NumChamber + 1
 
 			return 1
 			--reset max gatherers
@@ -369,7 +390,7 @@ function Rank2Rush_dolightningrods()
 	end
 	
 	--Only build 4th rod if enough creatures
-	if (NumCreaturesActive() > 5 + rand1c) then
+	if (NumCreaturesActive() > 5 + rand1c and Self.NumFoundry >= 1) then
 		numRods = 4
 	end
 
@@ -513,18 +534,19 @@ function Rank2Rush_Logic_desiredhenchman()
 		henchman_count = 10
 	end
 
-	if (chamberAtEnemyBase == 1) then
-		henchman_count = henchman_count + 1
-	end
-
 	if (curRank == 1) then
 		henchman_count = henchman_count + rand2a
 		if (chamberAtEnemyBase == 1) then
-			henchman_count = henchman_count + 1 + rand2a
-		end
-		if (ScrapAmountWithEscrow() > 180 and ElectricityAmountWithEscrow() < 290) then
+			henchman_count = henchman_count + g_LOD - 1 - rand2a
+		
+		-- if henchman_count > 10 and NumBuildingQ( Foundry_EC ) == 0 and fact_closestAmphibDist < 400 then
+		-- 	henchman_count = 10 + rand2b
+		-- end
+		elseif (ScrapAmountWithEscrow() > 180 and ElectricityAmountWithEscrow() < 280) then
 			henchman_count = NumHenchmanActive() + 1
 		end
+
+
 	elseif (curRank == 2 and chamberAtEnemyBase == 1 and (fact_selfValue < 1.3*(fact_enemyValue + 250) or unitCount < 5)) then
 		 --If Chamber Rush, How many units should AI have at L2 before building more hench, before checking if coal is filled?
 		henchman_count = sg_desired_henchman

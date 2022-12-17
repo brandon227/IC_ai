@@ -14,10 +14,15 @@ dofilepath("data:ai/Nandidd_AI/aimain.lua")
 --oninit function is called by engine at the beginning of the game
 function oninit()
 	
-	if Player_Self() <= PlayersTotal()/2 then
-		aiinit()
-	else
-		nandidd_init()
-	end
+	--Top vs Bottom with fixed locations
+	-- if Player_Self() <= (PlayersTotal()/2) - 1 then
+	-- 	aiinit() --Top is Bchamp_AI
+	-- else
+	-- 	nandidd_init() --Bottom is Nandidd_AI
+	-- end
+
+	-- This runs Bchamp AI only. Comment this out if you use the above functions to do Bchamp vs Nandidd AI
+	aiinit()
 end
+
 
